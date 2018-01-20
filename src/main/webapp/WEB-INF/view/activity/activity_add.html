@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<#include "../head.html">
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content=""IE=EmulateIE8,chrome=1""/>
+		<script type="text/javascript" src="${res}/ueditor/ueditor.config.js"></script>
+		<script type="text/javascript" src="${res}/ueditor/ueditor.all.min.js"></script>
+		<script type="text/javascript" src="${res}/js/jquery/jquery.date_input.pack.js"></script>
+		<script type="text/javascript">
+		$(function(){
+			$('#form').lineFeedValidate();
+			var ue = UE.getEditor('content');
+		});
+		</script>
+		<style>
+	.edui-default{float:left;}
+</style>
+	</head>
+	<body>
+		<div class="form">		
+		<form class="form-horizontal" id="form" action="${res}/activity/save.do" enctype="multipart/form-data" method="post" autocomplete="off">	
+			<input id="status" name="status" type="hidden"/>
+			<div class="l item item2" style="z-index: 12;">
+				<span class="t l">类别 </span>
+				<select class="l select1" width="232"  name="type" onchange=findType()>
+					<option id="sl1">请选择类别</option>
+<!-- 					<#if isCustomer=="false"> -->
+<!-- 					<option value="平台资讯" class="yun">平台活动</option> -->
+<!-- 					</#if> -->
+					<option value="2">单位活动</option>
+					<option value="3">图书馆活动</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2" style="z-index: 12;">
+				<span class="t l" style="width:83px;width:81px\9">来源 </span>
+				<select class="l select2" width="232"  name="source" id="takeTwo">
+					<option>请选择来源</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+			<div class="l item item2">
+				<span class="t l">标题 </span>
+				<input type="text" class="text l w230" tipMsg = "请输入标题" value="" style="width:550px" name="title"/>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+			<div class="l item" style="z-index:12; position: static;">
+				<span class="t l">时间 </span>
+				<input type="text" class="text l date_input startIn" isbottom="1" value="选择时间" style="width:139px;width:134px\9" readonly="readonly"/>
+				<img src="${res}/images/yun_back_img9.png" class="l date"/>
+				<span class="l">&nbsp;</span>
+				<select class="time1" width="58">
+					<option value="0">00</option><option value="1">01</option>
+					<option value="2">02</option><option value="3">03</option>
+					<option value="4">04</option><option value="5">05</option>
+					<option value="6">06</option><option value="7">07</option>
+					<option value="8">08</option><option value="9" selected="selected">09</option>
+					<option value="10">10</option><option value="11">11</option>
+					<option value="12">12</option><option value="13">13</option>
+					<option value="14">14</option><option value="15">15</option>
+					<option value="16">16</option><option value="17">17</option>
+					<option value="18">18</option><option value="19">19</option>
+					<option value="20">20</option><option value="21">21</option>
+					<option value="22">22</option><option value="23">23</option>					
+				</select>
+				<span class="l" style="margin:0 3px">:</span>
+				<select class="time2" width="58">
+					<option value="0">00</option>
+					<option value="5">05</option>
+					<option value="10">10</option>
+					<option value="15">15</option>
+					<option value="20">20</option>
+					<option value="25">25</option>
+					<option value="30">30</option>
+					<option value="35">35</option>
+					<option value="40">40</option>
+					<option value="45">45</option>
+					<option value="50">50</option>
+					<option value="55">55</option>				
+				</select>
+				<span class="l" style="margin:0 2px">-</span>
+				<input type="text" class="text l date_input endIn" isbottom="1" value="选择时间" style="width:139px;width:134px\9" readonly="readonly"/>
+				<img src="${res}/images/yun_back_img9.png" class="l date"/>
+				<span class="l">&nbsp;</span>
+				<select class="time3" width="58">
+					<option value="0">00</option><option value="1">01</option>
+					<option value="2">02</option><option value="3">03</option>
+					<option value="4">04</option><option value="5">05</option>
+					<option value="6">06</option><option value="7">07</option>
+					<option value="8">08</option><option value="9">09</option>
+					<option value="10">10</option><option value="11">11</option>
+					<option value="12">12</option><option value="13">13</option>
+					<option value="14">14</option><option value="15">15</option>
+					<option value="16">16</option><option value="17">17</option>
+					<option value="18" selected="selected">18</option><option value="19">19</option>
+					<option value="20">20</option><option value="21">21</option>
+					<option value="22">22</option><option value="23">23</option>					
+				</select>
+				<span class="l" style="margin:0 2px">:</span>
+				<select class="time4" width="58">
+					<option value="0">00</option>
+					<option value="5">05</option>
+					<option value="10">10</option>
+					<option value="15">15</option>
+					<option value="20">20</option>
+					<option value="25">25</option>
+					<option value="30">30</option>
+					<option value="35">35</option>
+					<option value="40">40</option>
+					<option value="45">45</option>
+					<option value="50">50</option>
+					<option value="55">55</option>				
+				</select>
+			</div>
+			<div class="clear"></div>
+			<div class="l item item2">
+				<span class="t l">地点 </span>
+				<input type="text" class="text l aA" value="" tipMsg = "请输入地点" name="activeAddress" style="width:550px"/>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+			
+			<div class="l item item2" style="width:800px; height: auto;">
+				<span class="t l">缩略图 </span>
+				<img src="" id="tmpimg" class="l" style="display: none; margin-right:5px"/>
+				<div id="localImag" class="l" style="margin-right:5px"></div>
+				<div class="l" style="position:relative;">
+					<img class="l" src="${res}/images/yun_back_img9.gif"  id="upimgbtn"/>
+					<input type="file" class="upfile" id="upfile" onchange="setImagePreview(123,80)" name="images"/>
+				</div>
+				<span class="tswords ig" style="display:none;">您还没有上传图片！</span>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+				<div class="l item item2" style="height: auto;">
+				<span class="t l">内容 </span>
+				<textarea  rows="" cols="" id="content" name="content" index="2" style="width:800px;height:376px;"></textarea>
+				<div class="clear"></div>
+			</div>
+			<!-- <div class="l item item2" style="height: auto;">
+				<span class="t l">内容 </span>
+				<textarea class="text" id="content" style="width:850px;height:376px;" name="content"></textarea>
+				<div class="clear"></div>
+			</div> -->
+			<div class="clear"></div>
+			<div class="l item">
+				<span class="t l">&nbsp;</span>
+				<input type="button" class="btn" onclick="sub(1)" value="确定" id="validSub"/>
+				<input type="button" class="btn" onclick="sub(5)" value="保存草稿"  id="saveBtn"/>
+				<span class="tswords ig1" style="display:none;"></span>
+				<#if (status!"0")=="1" || (status!"0")=="5">
+					<span class="r sumbit-msg" style="margin-right:10px;"></span>
+					<#if action =="1">
+						<script type="text/javascript">
+							$(".sumbit-msg").text("新增成功!").show();
+							$("#validSub").focus();
+						</script>
+					<#elseif action =="5">
+						<script type="text/javascript">
+							$(".sumbit-msg").text("保存成功!").show();
+							$("#saveBtn").focus();
+						</script>
+					</#if>
+				</#if>
+				<#if (status!"0")=="6" || (status!"0")=="10">
+					<span class="r sumbit-msg" style="margin-right:10px;"></span>
+					<#if action =="6">
+						<script type="text/javascript">
+							$(".sumbit-msg").text("新增成功!").show();
+							$("#validSub").focus();
+						</script>
+					<#elseif action =="10">
+						<script type="text/javascript">
+							$(".sumbit-msg").text("保存成功!").show();
+							$("#saveBtn").focus();
+						</script>
+					</#if>
+				</#if>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+			<input type="text" name="start" id="start" style="display:none;">
+			<input type="text" name="end" id="end" style="display:none;">
+			</form>
+		</div>		
+	</body>
+</html>
+<script>	
+	//自定义下拉列表
+	var select1 = setSelect('.select1');
+	setSelect('.time1');
+	setSelect('.time2');
+	setSelect('.time3');
+	setSelect('.time4');
+	var select2=setSelect('.select2');
+	
+	function setImagePreview(w,h){       
+		
+		var path=$('#upfile').val();
+		var type=path.substr(path.length-3,path.length);
+		
+		if(type=="jpg" || type=="gif" || type=="png"){
+			$('.ig').html('');
+		}else{
+			$('.ig').html('文件格式不正确!');
+			return false;
+		}
+		
+        var docObj = document.getElementById("upfile");//input
+		var imgObjPreview = document.getElementById("tmpimg");//img
+        var divs = document.getElementById("localImag");//div
+        
+        document.getElementById('upimgbtn').style.marginTop=47+'px';
+        document.getElementById('upfile').style.top=47+'px';
+        
+        if (docObj.files && docObj.files[0]){
+            //火狐下，直接设img属性
+            imgObjPreview.style.display = 'block';
+            imgObjPreview.style.width = w+"px";
+            imgObjPreview.style.height = h+"px";
+            imgObjPreview.src = window.URL.createObjectURL(docObj.files[0]);
+        }else{        	
+            //IE下，使用滤镜
+            docObj.select();
+            var imgSrc = '';
+            if (window.getSelection) {//IE11+ 或者标准浏览器
+            	window.parent.document.body.focus();
+            	imgSrc = window.getSelection().toString();
+            }
+            else if (document.selection) {//IE10-
+            	window.parent.document.body.focus();
+            	imgSrc = document.selection.createRange().text;
+            }
+            
+            var localImagId = document.getElementById("localImag");
+            
+            //必须设置初始大小
+            localImagId.style.width = w+"px";
+            localImagId.style.height = h+"px";
+            localImagId.style.display = "block";
+            
+            //图片异常的捕捉，防止用户修改后缀来伪造图片
+            try {
+                localImagId.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale)";
+                localImagId.filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = imgSrc;
+            } catch(e) {
+                alert("您上传的图片格式不正确，请重新选择!");
+                return false;
+            }
+            imgObjPreview.style.display = 'none';
+            document.selection.empty();           
+        }
+        return true;
+    }
+	
+	//jquery change()不同ie版本不一定支持
+	//$('.select1').change(function(){
+	function findType(){
+		$("#sl1").remove();
+		select1.reset();
+		//获取selected的值 
+		var text = $('.select1').children('option:selected').val();
+		//得到对应的    子选项
+		if(text != "请选择馆别")
+		{
+			$.post("${res}/news/news/getMore.do", { content:text },function(data){
+				var arr = data.split(",");
+				var str = "";
+				for(var i=0;i<arr.length;i++){
+					str += "<option value='"+arr[i]+"'>"+arr[i]+"</option>";
+				}
+				jQuery(".select2").find("option").remove();
+				jQuery(".select2").append(str);
+				select2.reset();
+			});
+		}
+	}
+
+	$("#upfile").on("change",function(){
+		$(".ig").css("display","none");
+	});
+	function sub(n){
+		$(".sumbit-msg").hide();
+		var text1 = $(".select1").children('option:selected').val()=="请选择类别"?false:true;
+		var text2 = $(".select2").children('option:selected').val()=="请选择来源"?false:true;
+		if(!text1) {
+			pullSelect($('.select1')[0]);
+			$('.select1').focus();
+			return;
+		}
+		if(!text2) {
+			pullSelect($('.select2')[0]);
+			$('.select2').focus();
+			return;
+		}
+		var ti = $(".w230").val();
+		var tia = $(".aA").val();
+		var up = $("#upfile").val();
+		var co = $("#content").val();
+		var si = $(".startIn").val();
+		var ei = $(".endIn").val();
+		if(ti =="")//tipMsg="请输入您要搜索活动的标题"
+		{$(".ig1").css("display","").html("请输入标题");return;}
+		/* if(ti =="请输入标题"){
+			$(".ig1").css("display","").html("请输入标题");
+			return;
+		} */
+		
+		
+		var dt1 = $(".startIn").val()+" "+$(".time1").val()+":"+$(".time2").val();			
+		var dt2 = $(".endIn").val()+" "+$(".time3").val()+":"+$(".time4").val();
+		var d1;
+		var d2;
+		if (si=="选择时间" || ei=="选择时间") {
+			$(".ig1").css("display","").html("请选择时间");return;}
+		//判断是否ie浏览器
+		if(!+[1,]){
+			d1 = Date.parse(dt1.replace(/-/g,"/")); 
+			d2 = Date.parse(dt2.replace(/-/g,"/")); 
+		} else {
+			d1 = new Date(dt1);
+			d2 = new Date(dt2);
+		}
+		if(d1>d2  || d1 == d2)
+		{
+			$(".ig1").css("display","").html("您选择的日期有误");
+			return;
+		}
+		if(tia ==""){
+			$(".ig1").css("display","").html("请输入地点");
+			return;
+		}
+		if(up =="")
+		{$(".ig1").css("display","").html("您还没有上传图片！");return;}
+		
+		if(co.length==0)
+		{$(".ig1").css("display","").html("您还没有输入内容");return;}
+		/* if(d1>d2 || d1 == d2)
+		{
+			$(".ig1").css("display","").html("您选择的日期有误");return;
+		}
+		if(d1<d2&&co.length!=0)
+		{
+			$(".ig1").css("display","none");
+		}
+		if(si=='选择时间'){
+			setTimeout(function(){$(".startIn").focus();},100);return;
+		}
+		if(ei=='选择时间'){
+			setTimeout(function(){$(".endIn").focus();},100);return;
+		} */
+		
+		//if(text1&&text2&&ti!='请输入您要搜索活动的标题'&&ti!=''&&tia!=''&&tia!='请您输入位置'&&up!=''&&co!=''&&si!='请您选择时间'&&ei!='请您选择时间'&&d1<d2&&up!="文件格式不正确!"){
+			$("#start").val(dt1);
+			$("#end").val(dt2);
+			$("#status").val(n);
+			$("#form").submit();
+		//}
+		
+	}
+	
+/* $(".w230").on("focus",function(){
+	if($(this).val() == "请输入标题")
+	{
+		$(this).val("");
+	}
+	$(this).css({color:"#000"});
+});	 */
+/* $(".aA").on("focus",function(){
+	if($(this).val() == "请您输入位置")
+	{
+		$(this).val("");
+	}
+	$(this).css({color:"#000"});
+}); */
+
+
+//加载日历控制
+$(function(){		
+	$('.date_input').date_input();
+	//点击选择日期按钮，调用日期控件
+	$('img.date').click(function(event){
+		event.stopPropagation();			
+		$(this).prev().prev().focus();
+	});	
+});
+
+
+</script>

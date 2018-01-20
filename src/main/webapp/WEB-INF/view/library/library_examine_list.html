@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../head.html">
+		<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=EmWvece0GHuKBjnfjSm2DwOO"></script>
+		<script type="text/javascript">
+			function page(n,s){
+				if(n == -1){
+					n = $(".pageNo").val();
+				}
+				$("#pageNo").val(n);
+				$("#pageSize").val(s);
+				$("#searchForm").submit();
+		    	return false;
+	    	}
+			/* 
+			$(document).ready(function(){
+				alert($(document).width());
+			}); */
+		</script>
+	</head>
+	<body>
+		<div class="title">
+			<span class="l t">图书馆审核列表</span>
+			<img src="${res}/images/yun_back_img1.png" class="r" onclick="location.href=location.href"/>
+			<div class="clear"></div>
+		</div>
+		<div class="search">
+			<form action="${res}/cms/library/examine.do" id="searchForm">
+				<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+				<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+				<input type="text" class="text tc" value="${search!}" name="search" maxlength="20" tipMsg="馆号/馆名"/><input type="submit" class="btn" value=" 搜索 "/>
+			</form>
+		</div>
+		<div class="table-parent">
+			<table cellspacing="0" class="table table-lib" ul="library">
+				<thead class="thead">
+					<th class="th w60">序号</th>
+					<th class="th w68">客户代码</th>
+					<th class="th twname customerName">客户名称</th>
+					<th class="th w145">地区</th>
+					<th class="th w88">馆别</th>
+					<th class="th w68">馆号</th>
+					<th class="th twname customerName">馆名</th>
+					<th class="th w75">负责人</th>
+					<th class="th twaddress t_space">地址</th>
+					<th class="th w60">状态</th>
+					<th class="th w62">导航</th>
+					<th class="th w70">授信额度</th>
+					<th class="th w75">操作员</th>
+					<th class="th w82">修改日期</th>
+					<th class="th last t_wlast operation t_last" style="padding-left:10px;">操作</th>
+				</thead>
+					<#assign f_undelete=static("com.flea.common.Common.FLAG_ENABLE") />
+					<#assign f_sotp=static("com.flea.common.Common.FLAG_DISABLE") />
+					<#list page.list as library>
+						<tr tid="${library.id}">
+							<td>${(page.pageNo -1)*page.pageSize + (library_index + 1)}</td>
+							<td>${library.customerHallCode!''}</td>
+							<td class="tl" title="${library.customerName!''}">${library.customerName!?trim}</td>
+							<td>${library.province.name!''}${library.city.name!''}${library.area.name?trim}</td>
+							<td>${library.libraryLevel!''}</td>
+							<td>${library.hallCode!''}</td>
+							<td class="tl" title="${library.name!''}">${library.name!''}</td>
+							<td>${library.conperson!''}</td>
+							<td class="tl" title="${library.address!''}">${library.address!''}</td>
+							<td>
+							<#if (library.libraryStatus!0) == 1 >
+							      待审
+							</#if>
+							<!-- <#if (library.libraryStatus!0)==2>
+								<font class="green">通过</font>
+							</#if> -->
+							<#if (library.libraryUpdateStatus!0) == 4 >
+							   修改待审
+							</#if>
+							<#if (library.libraryUpdateStatus!0) == 6 >
+							   停用待审
+							</#if>
+							<#if (library.libraryUpdateStatus!0) == 9 >
+							   启用待审
+							</#if>
+							</td>
+							<td><img src="${res}/images/yun_back_img4.gif" class="map"  lngLat="${library.lngLat!}"  /> </td>
+							<td class="tr">${library.creditLines?string('0.00')}</td>
+							<td>${(library.modifyUser)!?html}</td>
+							<td>${(library.modifyDate?string("yyyyMMdd"))!''}</td>
+							<td class="last operation" style="padding-left:10px;">
+							<!--平台下的审核列表中的，查看所有用户建图书馆的信息并且对用户的信息进行审核  -->
+								<#if (library.libraryStatus!0) ==1 || (library.libraryUpdateStatus!0) == 4 || (library.libraryUpdateStatus!0) == 9 >
+								<a href="${res}/cms/library/libraryExamine.do?id=${library.id}" class="green">审核</a>
+							    <#elseif (library.libraryUpdateStatus!0) == 6 > 
+							    <a href="${res}/cms/library/libraryStopExamine.do?id=${library.id}" class="green">审核</a>
+							    </#if>
+							<!-- <#if (library.libraryStatus!0)==2>
+								<a href="${res}/cms/library/audit.do?id=${library.id}&libraryStatus=4" style="color:red;">弃审</a>
+							</#if> -->
+							</td>
+						</tr>
+					</#list> 
+			</table>
+		</div>
+		<div class="paging">${page}</div>
+	</body>
+</html>
+<script type="text/javascript">
+	$('img.map').click(function(event){
+		event.stopPropagation();
+		var lngLat=$(this).attr('lngLat');
+		var x =lngLat.split(",")[0];
+		var y=lngLat.split(",")[1];
+		if(x && y){			
+			setMap({
+				point:[x,y],
+			 	title:$(this).parent().parent().find('td').eq(3).text(),
+			 	address:'地址：'+$(this).parent().prev().text()
+			});
+			
+		}
+	});
+</script>

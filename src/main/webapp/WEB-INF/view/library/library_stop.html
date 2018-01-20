@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>图书馆停用</title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"/>
+		<#include "../head.html">
+		<script type="text/javascript" src="${res}/js/cms/area.js"></script>
+		<script type="text/javascript" src="${res}/js/jquery/jquery.date_input.pack.js"></script>
+		<script type="text/javascript">
+		$(function(){		
+			$('.date_input').date_input();
+			//点击选择日期按钮，调用日期控件
+			$('img.date').click(function(event){
+				event.stopPropagation();			
+				$(this).prev().prev().focus();
+		});
+		});
+		/*form表单提交，校验用户的提交信息  */
+	    function check_null(){
+		$(".sumbit-msg").hide();
+		var stopReasion = $("#stopReasion").val();
+		var content = $("#noticeContent").val();
+		var dealAddress = $("#dealAddress").val();
+		var conPerson = $("#conperson").val();
+		var phone = $("#phone").val();
+		var telephone = $("#telephone").val();
+		/* var isMobile=/^(?:13\d|15\d)\d{5}(\d{3}|\*{3})$/;    */
+		var isPhone = /^(((13[0-9]{1})|(15[0-9]{1})|(18[0-9]{1}))+\d{8})$/;;
+		var si = $(".startIn").val();
+		var ei = $(".endIn").val();
+		var dt1 = $(".startIn").val();  	
+		var dt2 = $(".endIn").val();
+		var startTime;
+		var endTime
+		if(!+[1,]){
+		    startTime = new Date(Date.parse(dt1.replace(/-/g,"/"))); 
+		    endTime = new Date(Date.parse(dt2.replace(/-/g,"/"))); 
+		} else {
+			 startTime = new Date(dt1);
+			 endTime = new Date(dt2);
+		} 
+		var milltimes = endTime.getTime() - startTime.getTime();
+		var days = Math.floor(milltimes / (1000 * 60 * 60 * 24));
+		if (null == stopReasion || "" == stopReasion) {
+			$(".ig1").css("display","").html("您还没有输入停用的原因！");
+			return false;
+		}
+	    if (null == content || "" == content) {
+			$(".ig1").css("display","").html("您还没有输入内容！");
+			return false;
+		}
+	    if (si == "选择时间" ||  ei == "选择时间") {
+			$(".ig1").css("display","").html("请选择时间");
+			return false;
+		}
+	    if(startTime > endTime  || si == ei){
+			$(".ig1").css("display","").html("您选择的日期有误");
+			return false;
+		}
+	    if (days < 30) {
+			$(".ig1").css("display","").html("日期范围跨越为一个月");
+		    return false;
+		}
+	    if (null == dealAddress || "" == dealAddress) {
+			$(".ig1").css("display","").html("您还没有输入地址！");
+			return false;
+		}
+	    if (null == conPerson || "" == conPerson) {
+			$(".ig1").css("display","").html("您还没有输入联系人！");
+			return false;
+		}
+	    if (null == phone || "" == phone ) {
+			$(".ig1").css("display","").html("您还没有输入电话号码！");
+			return false;
+		}
+	    if (null == telephone || "" == telephone ) {
+			$(".ig1").css("display","").html("您还没有输入手机号码！");
+			return false;
+		}
+	    if (!isPhone.test(telephone) || telephone.length != 11){
+			$(".ig1").css("display","").html("手机号码格式不正确！请重新输入");
+			return false;
+		}
+		$(".ig1").css("display","none");
+		$("#start").val(startTime);
+		$("#end").val(endTime);
+		$("#form").submit();
+    }
+</script>
+	</head>
+	<body>
+		<div class="form">		
+			<form class="form-horizontal" id="form" action="${res}/cms/library/addStop.do" method = "post">	
+			<input type="hidden" value="${library.id}" name="id"/>
+			<div class="l item item2" style="z-index: 12;">
+				<span class="t l">停用原因 </span>
+				<input type="text" class="text l w230" id = "stopReasion"  style="width:548px"  name="stopReasion" onkeypress="if(event.keyCode==13) focusNextInput(this);"/>
+			</div>
+			<div class="clear"></div>
+			 <div class="l item item2" style="height: auto;">
+				<span class="t l">通告内容 </span>
+				<textarea  rows="8" cols="40" class="w230" id="noticeContent" name="noticeContent" index="2" style="width:546px;height:206px;"></textarea>
+				<div class="clear"></div>
+			</div>
+			<div class="l item" style="z-index:12; position: static;">
+				<span class="t l">处理时间 </span>
+				<input type="text" class="text l date_input startIn" isbottom="1" value="选择时间" style="width:139px;width:134px\9" readonly="readonly"/>
+			    <img src="${res}/images/yun_back_img9.png" class="l date"/>
+			    <span class="l" style="margin:0 2px">-</span>
+				<input type="text" class="text l date_input endIn" isbottom="1"  value="选择时间" style="width:139px;width:134px\9" readonly="readonly"/>
+		  	    <img src="${res}/images/yun_back_img9.png" class="l date"/>
+				<span class="l">&nbsp;</span>
+		  	</div>
+		    <div class="clear"></div>
+			<div class="l item item2 obj" style="z-index: 11;">
+				<span class="t l">处理地址 </span>
+				<input type="text" class="text l w230" style="width:548px" id = "dealAddress" name="dealAddress" onkeypress="if(event.keyCode==13) focusNextInput(this);"/>
+				<div class="clear"></div> 
+			</div>
+		    <div class="l item">
+				<span class="t l">联系人</span>
+				<input type="text" class="text l w230 name" style="width:145px;" id = "conperson" name="conperson" title="姓名"  index="9" tipMsg="" maxlength="10" onkeypress="if(event.keyCode==13) focusNextInput(this);"/>
+				<span class="img l img0" style="border-left:solid 1px #b9b9b9;"></span>
+				<input type="text" class="text l w230" style="width:165px;" id = "phone" name="phone" index="6" maxlength="20"  tipMsg="" title="电话" onkeyup="javascript:this.value=this.value.replace(/\D/g,'');"onkeypress="if(event.keyCode==13) focusNextInput(this);"/>
+				<span class="img l img1"></span>
+				<input type="text" class="text l w230" style="width:165px;" id = "telephone" name="telephone" index="7" maxlength="11"  tipMsg="" title="手机"  onkeyup="javascript:this.value=this.value.replace(/\D/g,'');" onkeypress="if(event.keyCode==13) focusNextInput(this);"/>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+			<div class="l item">
+				<span class="t l" >&nbsp;</span>
+				<input type="button" class="btn w230" id = "validSub" value="提交" onclick = "check_null()" />
+				<span class="tswords ig1" style="display:none;"></span>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+			<input type="text"  name="startDate" id="start" style="display:none;">
+			<input type="text"  name="endDate" id="end" style="display:none;">
+			
+			</form>
+		</div>		
+	</body>
+</html>
+<script type="text/javascript">
+Date.prototype.Format = function (fmt) { 
+ var o = {
+     "M+": this.getMonth() + 1, //月份 
+     "d+": this.getDate(), //日 
+     "h+": this.getHours(), //小时 
+     "m+": this.getMinutes(), //分 
+     "s+": this.getSeconds(), //秒 
+     "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+     "S": this.getMilliseconds() //毫秒 
+ };
+ if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+ for (var k in o)
+ if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+ return fmt;
+}
+/*支持回车键  */
+function focusNextInput(thisInput){
+    var inputs = $(".w230");
+    for(var i = 0;i<inputs.length;i++){
+      // 如果是最后一个，则焦点回到第一个
+      if(i==(inputs.length-1)){
+        inputs[0].focus();
+        break;
+      }else if(thisInput == inputs[i]){
+        inputs[i+1].focus();
+        break;
+      }
+    }
+}  
+</script>

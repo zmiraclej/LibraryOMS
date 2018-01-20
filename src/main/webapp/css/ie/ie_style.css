@@ -1,0 +1,19 @@
+/*width>1720*/
+.twname{width:295px;}
+.twaddress{width:300px;}
+.twcode{width:275px;}
+.libname{width:295px;}
+.libaddress{width:445px;}
+.twObject{width:445px;}
+.t_bohui{width:150px;}
+
+.libraryNmaes{width:680px;max-width:680px !important;}/*客户维护 辖管列宽度定制*/
+.companyName{width:660px;}/*图书馆列表，单位名称宽度定制*/
+.informationSource{width:490px;}/*资讯审核，来源列宽度定制*/
+.informationName{width:670px;}/*资讯审核，标题列宽度定制705*/
+.informationTitle{width:600px;}/*资讯维护，标题列宽度定制*/
+.partySource{width:350px;}/*读友会审核，来源列宽度定制*/
+.partyName{width:600px;}/*读友会审核，标题列宽度定制*/
+.messageContent{width:800px}/*消息审核，内容列宽度定制*/
+.messageContent_{width:650px}/*消息维护，单独定制*/
+.customerName{width:275px;}/*图书馆审核,客户名称宽度定制*/

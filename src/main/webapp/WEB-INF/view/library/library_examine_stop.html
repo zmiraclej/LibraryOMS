@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../head.html">
+		<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=EmWvece0GHuKBjnfjSm2DwOO"></script>
+		<script type="text/javascript">
+		 function audit(result){
+		    	var id = $("#libraryId").val();
+		    	$("#subForm").attr("action", "${res}/cms/library/audit.do?id=" + id + "&libraryStatus=" + result);
+		    	$("#subForm").submit();
+			 }
+		 $(function(){
+				var stt = ${libraryStatus};
+				if(stt == '1')
+				{
+					$("#b1").hide();
+					$("#b2").hide();
+					$("#b3").css({marginLeft:0});
+				}
+				else
+				{
+					$("#b3").css("display","none");	
+				}
+			})
+		</script>
+	</head>
+	<body>
+			<form class="form-horizontal" id="subForm"  method = "post">	
+			<input type="hidden" value="${libraryStop.userId}" name="userId" id = "libraryId"/>
+			<div class="form">
+			<div class="l item item2" style="z-index: 12;">
+				<span class="t l">停用原因 </span>
+				<input type="text" class="text l w230" id = "stopReasion"  value = "${libraryStop.stopReasion}" disabled style="background:transparent;width:548px"  name="stopReasion"/>
+			</div>
+			<div class="clear"></div>
+			 <div class="l item item2" style="height: auto;">
+				<span class="t l">通告内容 </span>
+				<div class="text l" style="width:528px;min-height:206px; height: auto; padding:0 10px 0 10px; text-align:justify;">
+					 ${libraryStop.noticeContent}
+				</div>
+				<div class="clear"></div>
+			</div>
+			<div class="l item" style="z-index:12; position: static;">
+				<span class="t l">处理时间 </span>
+				<input type="text" class="text l date_input startIn" isbottom="1" value="${(libraryStop.startDate?string('yyyy-MM-dd'))!''}" disabled style="background:transparent;width:139px;width:134px\9"/>
+<!-- 			    <img src="${res}/images/yun_back_img9.png" class="l date"/> -->
+			    <span class="l" style="margin:0 2px">-</span>
+				<input type="text" class="text l date_input endIn" isbottom="1"  value="${(libraryStop.endDate?string('yyyy-MM-dd'))!''}" disabled style="background:transparent;width:139px;width:134px\9;background:transparent"  />
+		  	   <!--  <img src="${res}/images/yun_back_img9.png" class="l date"/> -->
+				<span class="l">&nbsp;</span>
+		  	</div>
+		    <div class="clear"></div>
+			<div class="l item item2 obj" style="z-index: 11;">
+				<span class="t l">处理地址 </span>
+				<input type="text" class="text l w230"  disabled style="background:transparent;width:548px" value="${libraryStop.dealAddress}"/>
+				<div class="clear"></div> 
+			</div>
+		    <div class="l item">
+				<span class="t l">联系人</span>
+				<input type="text" class="text l w195 name" disabled  style="background:transparent;width:145px;" value="${libraryStop.conperson}"  index="9" maxlength="10" />
+				<span class="img l img0" style="border-left:solid 1px #b9b9b9;"></span>
+				<input type="text" class="text l w191" disabled  style="background:transparent;width:165px;"  value="${libraryStop.phone}" index="6" maxlength="20"  />
+				<span class="img l img1"></span>
+				<input type="text" class="text l w191" disabled  style="background:transparent;width:165px;"  value="${libraryStop.telephone}"  index="7" maxlength="11"   />
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+			<div class="l item" style="z-index: 0; width: 934px;">
+				<span class="t l">&nbsp;</span>
+				<#if (library.libraryUpdateStatus!0) == 6 >
+				<input type="button" class="btn2 btn3" id="b1" value="驳回" style="margin-left: 0;position:static;" onclick="audit(6)"/>
+				</#if>
+				<#if (library.libraryUpdateStatus!0) == 6 >
+				<input type="button" class="btn2" style="position:static;" id="b2" value="通过"  onclick="audit(13)"/>
+				</#if>
+				<input type="button" class="btn2" style="position:static;" id="b3" value="返回" onclick="history.go(-1)"/>
+				<div class="clear"></div>
+			<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+		</div>
+		</form>
+	</body>
+</html>
+ 

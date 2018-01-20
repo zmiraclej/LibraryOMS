@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<meta name="renderer" content="webkit|ie-comp|ie-stand" />
+    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1" />
+    <#include "../head.html">
+	<style type="text/css">
+	.upload_btn{cursor:pointer;width: 85px;margin-left: 5px;border-radius:0 2px 2px 0;-moz-border-radius:0 2px 2px 0;-webkit-border-radius:0 2px 2px 0;
+			line-height: 30px;
+			margin-top:55px;
+			border: solid 1px #b9b9b9;
+			height: 34px;
+			overflow: hidden;
+			color: #000;
+			font-size: 16px;
+			background: repeat-x url(data:image/gif;base64,R0lGODlhBQAiAMQAAAAAAP////7+//39/vj5+/L1+PH09/Dz9vb4+vX3+fv8/fr7/Pn6+/D09/X4+vT3+fP2+PH19/D09vn7/Pj6+/f5+vb5+v7///3+/vz9/f7+/v///wAAAAAAAAAAAAAAACH5BAEAABsALAAAAAAFACIAAAVJYCCKV1kKKKqtK+a+8CDLWW3fSq7vS+//k2CQQSRSjkeCUllpNi1QKGI6dVitiWz2we16IeCwuEAumyNotGHNbjfeb4lcfqjXQwA7)
+		}
+		.img_box img{height:100%;width:100%;}
+	</style>
+	<script type="text/javascript">
+		function check_null() {
+			var bookName = $("input[name='bookName']").val();
+			var $obj=isEmpty("#uploadForm");
+			var title =$($obj).attr("title");
+			if (null == bookName || "" == bookName) {
+            	showErrorTipMsg($($obj),$.trim(title)+"不能为空!");
+				$("input[name='bookName']").focus();
+				return false;
+			}
+			if (bookName.length > 250) {
+				$("input[name='bookName']").focus();
+				return false;
+			}
+			if (null == $("input[name='file']").val() || "" == $("input[name='file']").val()) {
+				$("input[name='file']").focus();
+				return false;
+			}
+			var filename=document.getElementById('filename').value; //根据id得到值
+			var index= filename.indexOf("."); //得到"."在第几位
+			filename=filename.substring(index); //截断"."之前的，得到后缀
+			if(filename !=".epub"){  //根据后缀，判断是否符合文件格式
+			  $("input[name='file']").focus();
+			  return false;
+			}
+			 
+			$("#uploadForm").attr("action", "${res}/cms/ebook/editEbook.do");
+			$("#uploadForm").submit();
+		}
+	</script>
+</head>
+<body>
+<div class="form">
+    <form class="form-horizontal" id="uploadForm"  method="post" enctype="multipart/form-data">
+		<input type="hidden" name="id" value="${ebooks.id}"/>
+		<div class="l item item2 img" style="width:800px; height: auto;visibility: visible;">
+						<span class="t l">封面图片</span>
+							<img src="${imagePath!''}${(ebooks.image+"?@200w"+.now?long)!''}" id="tmpimg" class="l" width="80px" height="100px" style="margin-right:5px "/>
+							<div id="localImag" class="l" style="margin-right:5px;"></div>
+							<div class="l" style="position:relative;">
+								<img class="l" src="${res}/images/yun_back_img9.gif" id="upimgbtn" style="margin-top:66px;"/>
+								<input type="file" class="upfile" id="upfile" style="top:68px;left" onchange="setImagePreview(80,100)" name="upfile" style="z-index:1 !important"/>
+							</div>
+						<span class="tswords ig" style="display:none;"></span>
+						<div class="tswordimage" style="color:red; margin-top:68px; margin-left:292px;"></div>
+						<div class="clear"></div>
+			<div class="clear"></div>
+		</div>
+		
+			
+		<div class="l item" style="width:100%;">
+			<span class="t l">电子书文件 </span> 
+	 
+	   <input type="text" class="text l w230"  id="filename" name="file" title ="文件名" value="${ebooks.file?substring(ebooks.file?last_index_of('/')+1)!''}"/>
+			<div class="l" style="position: relative; width: 100px; margin-left: 5px;">
+				<img src="${res}/images/yun_back_img12.gif" id="upfilebtn"/>  
+				<input type="file" value="" id="file" name="uploadfile" style="width: 85px; height: 34px; font-size: 23px; position: absolute; left: 0; top: 0; filter: alpha(opacity = 1); opacity: 0.01;" />
+			</div>
+			<div class="tswordfile" style="color:red"></div>
+			<div class="clear"></div>
+		</div>
+		<div class="l item item2 search_condition" style="z-index: 999;">
+      <span class="t l">类别 </span>
+			<select class="w158 l role1" width="158" name="categoryId">
+			 <#list categories as category>
+					<option value="${category.categoryId!''}"<#if category.categoryId==ebooks.categoryId> selected="selected" </#if>>${(category.categoryName!'')?html}</option>
+			</#list>
+			</select> 
+		<div class="clear"></div>
+		</div>
+		<div class="l item item2">
+			<span class="t l t3" style="border:none;width:100px;">ISBN </span>
+			<input type="text" class="text l w230"  value="${ebooks.isbn!''}"  name="isbn" title="ISBN " tipMsg=""  maxlength="25"/>
+			<span class="t l t3">书名 </span>
+			<input type="hidden" class="text" id="masterId" name="id"  value="" rq="false"/>
+			<input type="text" class="text l formItem" id="bookNameId" style="width:552px" value="${ebooks.bookName!''}" name="bookName"  title="书名"  tipMsg="" maxlength="30" index="1"/>
+			<div class="clear"></div>
+		</div>
+		<div class="l item item2">
+			<span class="t l t3" style="border:none;width:100px;">出版社</span>
+			<input type="text" class="text l w230" value="${ebooks.publisher!''}" name="publisher" tipMsg="" maxlength="25"/>
+			<span class="t l t3">著者 </span>
+			<input type="text" class="text l w230" value="${ebooks.author!''}" name="author" tipMsg="" maxlength="25"/>
+			<span class="t l t3">年份 </span>
+			<input type="text" class="text l w230" value="${ebooks.publishDate?substring(ebooks.publishDate?last_index_of('-')+1)!''}" name="publishDate" tipMsg="" maxlength="25"/>
+			<div class="clear"></div>
+		</div>
+
+		<div class="l item" style="z-index: 0;">
+			<span class="t l">&nbsp;</span>
+			<input type="button" class="btn" value="确定" id="uploadBtn" onclick="check_null()"/><span style="font-size:12px;color:red;">${errorMessage!''}</span> 
+			<div class="clear"></div>
+		</div>
+	</form>
+</div>
+</body>
+</html>
+ <script type="text/javascript">
+ setSelect('.role1');
+ function setImagePreview(w,h){
+	var path=$('#upfile').val().split('\\');
+	var filename = path[path.length - 1];
+	var type = filename.substr(filename.length - 3, filename.length);
+	if (type == "jpg" || type == "png") {
+		
+	}else{
+		return false;
+	}
+ 
+	 
+     var docObj = document.getElementById("upfile");//input
+	 var imgObjPreview = document.getElementById("tmpimg");//img
+     var divs = document.getElementById("localImag");//div
+     
+     document.getElementById('upimgbtn').style.marginTop=68+'px';
+     document.getElementById('upfile').style.top=68+'px';
+     
+     if (docObj.files && docObj.files[0]){
+         //火狐下，直接设img属性
+         imgObjPreview.style.display = 'block';
+         imgObjPreview.style.width = w+"px";
+         imgObjPreview.style.height = h+"px";
+         imgObjPreview.src = window.URL.createObjectURL(docObj.files[0]);
+     }else{        	
+         //IE下，使用滤镜
+         docObj.select();
+         var imgSrc = '';
+         if (window.getSelection) {//IE11+ 或者标准浏览器
+         	window.parent.document.body.focus();
+         	imgSrc = window.getSelection().toString();
+         }
+         else if (document.selection) {//IE10-
+         	window.parent.document.body.focus();
+         	imgSrc = document.selection.createRange().text;
+         }
+        var localImagId = document.getElementById("localImag"); 
+         
+         //必须设置初始大小
+         localImagId.style.width = w+"px";
+         localImagId.style.height = h+"px";
+         localImagId.style.display = "block";
+         
+         //图片异常的捕捉，防止用户修改后缀来伪造图片
+         try {
+             localImagId.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale)";
+             localImagId.filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = imgSrc; 
+         } catch(e) {
+          /*    alert("您上传的图片格式不正确，请重新选择!"); */
+             return false;
+         }
+         imgObjPreview.style.display = 'none';
+         document.selection.empty();           
+     }
+     return true;
+ }
+ $('#file').change(function() {
+	    var path=$('#file').val().split('\\');
+		var filename = path[path.length - 1];
+		var type = filename.substr(filename.length - 4, filename.length);
+		$('#filename').val(filename);
+		if (type == "epub") {
+			$("#upfilebtn").removeAttr("disabled");
+			$('.tswordfile').html('');
+		} else {
+			$("#upfilebtn").attr("disabled", "disabled");
+			$('.tswordfile').html('文件格式不正确!');
+		}
+	})
+	$('#upfile').change(function() {
+				var path=$('#upfile').val().split('\\');
+				var filename = path[path.length - 1];
+				var type = filename.substr(filename.length - 3, filename.length);
+				$('#tmpimg').val(filename);
+				if (type == "jpg" || type == "png") {
+				$("#upimgbtn").removeAttr("disabled");
+				$('.tswordimage').html('');
+				} else {
+				$("#upimgbtn").attr("disabled", "disabled");
+				$('.tswordimage').html('图片格式不正确!');
+				}
+				}) 
+</script>

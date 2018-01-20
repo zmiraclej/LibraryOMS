@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+			<#include "../head.html">
+		<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=EmWvece0GHuKBjnfjSm2DwOO"></script>
+		<script type="text/javascript">
+	    $(function(){
+	    	$('#form').lineFeedValidate();
+	    	$("#btnSubmit").bind("click",function(){
+	    		$(".sumbit-msg").text("");
+	    		var action = $('.psw').css("visibility");
+	    		var send = $("#validatePsw").attr("send");
+	    		if(send=="0") {
+	    			if(validatePhone($("#phone").val())&&$("#libraryCode option:selected").text()!=''){
+	    				$("#validatePsw").removeAttr("disabled").removeClass("disabled");
+		    			$("#validatePsw").attr("send","1");
+	    		 	}else {
+	    		 		$("#phone").focus();
+	    		 	}
+	    			return false;
+	    		}
+	    		formSubmit();
+	    	})
+	    });
+	    
+	    function formSubmit(){
+	    	setDisabled('btnSubmit');
+	    	$("#form").ajaxSubmit({  
+                type: 'post',  
+                beforeSubmit : function(){
+                	var $obj = isEmpty();
+                	if($obj != true) {
+                		pullSelect($obj);
+                		var title =$($obj).attr("title");
+                		removeDisabled('btnSubmit');
+                    	showErrorTipMsg($($obj),$.trim(title)+"不能为空!");
+                    	return false;
+                	} 
+                	return true;
+                },
+                success: function(data) {
+                	
+                	var json = eval("("+data+")");
+                	if(json.success){
+                		$('#form')[0].reset();
+                		select0.reset();
+                		select1.value="";
+                		select1.reset();
+                		$('.head').html('');
+						$(".sumbit-msg").text("成功!");
+                	}else {
+                 		removeDisabled('btnSubmit'); 
+                 		$(".sumbit-msg").text("失败!");
+                	}
+                }
+            });  
+	    }
+	    
+    	function isEmpty(){		
+			var list=$('input.text,select');
+			var tmpobj,is=true;
+			for(var i=0;i<list.length;i++){
+				tmpobj=list.eq(i);
+				var rq = tmpobj.attr("rq");
+				var title =  tmpobj.attr("name");
+				if(title == "hallCode") continue; //hallCode跳过校验
+				if(rq!=undefined) continue;
+				if(tmpobj.val()==""){				
+					is=tmpobj[0];
+					break;
+				}
+			}
+			return is;
+		}
+    	
+		function findLevelByArea(){
+			$(".sumbit-msg").text("");
+			 var areaCode = $("#area").val();
+			 $("#level").empty();
+			 var tmpstr="<option value=''></option>";
+			$.get("${res}/cms/customerLibrary/findByArea.html",{"area":areaCode},function(data){
+				if(data instanceof Array){   
+					$.each(data,function(index){
+						tmpstr+=" <option value='"+data[index].level+","+data[index].id+"'>"+data[index].level+"</option>";
+					})
+				}
+				$("#level").append(tmpstr);				
+				select1.reset();
+			})
+		}
+		
+		function findLibraryCodeById(){
+			 var levelId =$("#level option:selected").val();
+			 var  customerLibraryId =levelId.split(",")[1];
+			 var tmpstr="";
+			  $("#customerLibraryId").val(customerLibraryId);
+			  $("#libraryCode").empty();
+			  $.get("${res}/cms/customerLibrary/findUnusedLibraryCodeById.html?t="+new Date().getTime(),{"id":customerLibraryId},function(data){
+				var number = data.codeNumber;
+				if(number!=null){
+					$("#codeNumber").text(number);
+					var start = number.split("/")[0];
+					var end = number.split("/")[1];
+					if(start==end){
+						$(".sumbit-msg").text("馆号已分配完!");
+						return false;
+					}
+				}
+				$(".sumbit-msg").text("");
+				$("#btnSubmit").removeAttr("disabled");
+
+			})
+		}
+		
+		</script>
+	</head>
+	<body>
+	<form class="form-horizontal" id="form" modelAttribute="customer" action="${res}/cms/library/add.do" method="post"  enctype="multipart/form-data" autocomplete="off">
+		<div class="form">
+			<div class="l item item2" style="z-index: 20;">
+				<span class="t l">地区 </span>
+				<select class="w230 select0 l" width="230" name="area.code"  onchange="findLevelByArea()" id="area"  index="1">
+				<option ></option>
+					<#list areas as area>
+						<option value="${area.value}"> ${(area.label!)?html}</option>
+					</#list>
+				</select>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2" style="z-index: 19;">
+				<span class="t l t3">馆别 </span>
+				<select class="l select1" width="232" name="libraryLevel" id="level"  onchange="findLibraryCodeById()">
+					<option></option>
+				</select>
+				<span style="display:inline-block;width:260px;"><a style="float:right;text-decoration: underline;" href="${res}/cms/library/batchAdd.do">批量导入</a></span>
+				<div class="clear"></div>
+			</div>
+			<div class="l" style="padding-left:15px;line-height:32px; color:#999"></div>
+			<div class="clear"></div>
+			<div class="l item item2">
+				<span class="t l ">馆名 </span>
+				<input type="text" class="text l w230 libName" value="" name="name" maxLength="64" title="馆名"  index="1"/>					
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2"  style="z-index: 18;">
+				<span class="t l t3">馆号 </span>
+				<input type="text" readonly="readonly" class="text  w230 l disabled" width="230" id="libraryCode"  name="hallCode" />
+				<input type="hidden" id="customerLibraryId"  name="customerLibraryId"/>
+				<div class="clear"></div>
+			</div>
+            <div class="l" style="padding-left:15px;line-height:32px;color:#999"><span id="codeNumber"></span></div>
+			<div class="clear"></div>
+			<div class="l item">
+				<span class="t l">地址 </span>
+				<input type="text" class="text l" style="width:550px" value="" maxLength="64"  index="2" name="address" id="address" title="地址"/>
+				<input type="hidden" id="lngLat" name="lngLat" value=""/>
+				<img src="${res}/images/yun_back_img6.gif" class="l addnav" onclick="setPosMap();"/>
+				<div class="clear"></div>
+			</div>
+			<div class="l item fuzhe" style="z-index: 17;">
+				<span class="t l">协议账号</span>
+				<input type="text" class="text l w230" style="width:228px" value="" name="agreementAccount" maxlength="20" index="3" id="agreementAccount" title="协议账号"  tipMsg=""/>				
+				<span class="img l t3" style="text-align: right;">户名</span>
+				<input type="text" class="text l w230" value=""  name="acountName" maxlength="20" index="4"  title="户名"  tipMsg=""/>
+				<span class="img l t3" style="text-align: right;">授信额度</span>
+				<select class="w191 l select3" width="187" name="creditLines"><option>5000.00</option></select>
+				<div class="clear"></div> 
+			</div>
+			
+			<div class="l item lianxi">
+				<span class="t l">联系人 </span>
+				<input type="text" class="text l w160 contactPerson" value=""  name="contacts[0].contactPerson" title="姓名"  tipMsg="" maxlength="10" index="5"/>
+				<span class="img l img0"></span>
+				<input type="text" class="text l w160 tel" value="" name="contacts[0].tel" title="座机" index="6" tipMsg=""  maxlength="11" onkeyup="javascript:this.value=this.value.replace(/\D/g,'');"/>
+				<span class="img l img1"></span>
+				<input type="text" class="text l w160 phone" value="" id="phone" name="contacts[0].phone"   index="7" title="手机" maxlength="11" tipMsg="" />
+				<span class="img l img2"></span>
+				<input type="text" class="text l mail" style="width:245px;width:243px\9;" value="" name="contacts[0].chat" title="邮箱" tipMsg="" index="8"/>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+			
+			<div class="l item" style="z-index: 0; width: 934px;">
+				<!-- <span class="t l">&nbsp;临时馆</span>
+				<input type="checkbox" value="1" name="isEffective" onclick="setIsEffective()"/> -->
+<!-- 				<input type="button" class="btn l disabled" disabled value="admin首次密码发送" id="validatePsw" style="width:180px;" onclick="sendpsw(this)"  send="0" /> -->
+				<input type="button" class="btn r "  value="确定" style="width:160px;margin-right:-5px\9" id="btnSubmit"  index="9"  />
+				<span class="r sumbit-msg" style="margin-right:10px;"></span>
+				<input type="password" class="text r w170 validate psw" value="" style="margin-right: 10px;visibility:hidden;"  tipMsg=""  rq="false"/>
+				<div class="l red validate" style="margin-left: 15px;display:none;">admin新密码发送，需验证操作员密码</div>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+		</div>
+		</form>
+	</body>
+</html>
+<script>
+function setIsEffective() {
+	var $isEffective = $("input[name='isEffective']");
+	var $libName = $('.libName');
+	var $address = $("#address");
+	var $agreementAccount = $("#agreementAccount");
+	var $accountName = $("input[name='acountName']");;
+	var $contactPerson = $(".contactPerson");
+	var $tel = $(".tel");
+	var $phone = $(".phone");
+	var $mail = $(".mail");
+	var $lngLat = $("#lngLat");
+	if($isEffective.is(':checked')) {
+		var $area = $("#area");
+		var $level = $("#level");
+		var $hallCode = $("#libraryCode");
+		if($area.val() == '') {
+			$isEffective.attr("checked",false);
+			pullSelect($area[0]);return false;
+		}
+		if($level.val() == '') {
+			$level.attr("checked",false);
+			pullSelect($level[0]);return false;
+		}
+		if($hallCode.val() == '') {
+			$hallCode.attr("checked",false);
+			pullSelect($hallCode[0]);return false;
+		}
+		$libName.val("临时馆");
+		$address.val("四川省成都市武侯区益州大道中段");
+		$lngLat.val("104.062691,30.55532");
+		$agreementAccount.val("临时馆");
+		$accountName.val("临时馆");
+		$contactPerson.val("徐跃帮");
+		$tel.val("02885988286");
+		$phone.val("18080992767");
+		$mail.val("xyb811122@qq.com");
+		$isEffective.val("2");
+	} else {
+		$libName.val("");
+		$address.val("");
+		$agreementAccount.val("");
+		$accountName.val("");
+		$contactPerson.val("");
+		$tel.val("");
+		$phone.val("");
+		$mail.val("");
+		$lngLat.val("");
+		$isEffective.val("1");
+	}
+}
+
+//通过馆名查询重复
+$(".libName").blur(function(){
+	 var libName = $('.libName').val();
+     $.get("${res}/cms/library/findLibraryByName.html?t="+new Date().getTime(),{"name":libName},function(data){
+   	 	var num = data.exists;
+	    if (num == 1) {
+    		$(".sumbit-msg").text("馆名已存在!");
+    		$(".libName").focus();
+			return false;
+    	} else {
+    		$(".sumbit-msg").text("");
+    		return true;
+    	}
+    })
+});
+
+$('#phone').blur(function(){
+	if(!validatePhone($(this).val())&&$(this).val()!=''){
+	  	showErrorTipMsg($(this),"手机格式错误!");
+	}
+});
+
+$('.mail').blur(function(){
+	if(!CheckMail($(this).val())&&$(this).val()!=''){
+	  	showErrorTipMsg($(this),"邮箱格式错误!");
+	}
+});
+
+//验证邮箱
+function CheckMail(mail) {
+	var filter  = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+	if (filter.test(mail)){
+		return true;
+	}else{
+		return false;
+	}
+}
+
+
+//显示验证操作员密码
+function sendpsw(self){
+	var send =$("#validatePsw").attr("send");
+	if(send=='1'){
+		$('.validate').css("visibility","visible").eq(0).focus();
+		$('.validate').show();
+		$('#validatePsw').addClass('disabled').attr('disabled','disabled');
+		return ;
+	}
+ 	var code = $("#libraryCode").val();
+	var pwd = $('.psw').val();
+	pwd =$.base64Encode(pwd);
+  	$.post("${res}/cms/user/valid/"+pwd+".do",{hallCode:code,phone:$('#phone').val()},function(data){
+	  if(data.success){
+		$('#btnSubmit').removeClass('disabled').removeAttr('disabled');
+		 Countdown();
+		 $('#validatePsw').addClass('disabled').attr('disabled','disabled').attr("send","1");
+	  }else {
+		 showErrorTipMsg($('.psw'),"密码错误!");
+	  }
+  })
+}
+
+//关闭验证框
+function closeFloatValidate(){
+	//self.value="发送新密码";
+	$('.float-validate').hide();
+	$('.float-validate input').focus();
+	$('#validatePsw').removeClass('disabled').removeAttr('disabled');
+}
+
+//发送密码倒计时
+	var timepd=true;
+	function Countdown(){
+		timepd=false;
+		$('.float-validate').hide();
+		var t=60,fors,val=$('#validatePsw').val();
+		fors=setInterval(function(){
+			if(t<=0){
+				clearInterval(fors);
+				$('#validatePsw').removeClass('disabled').removeAttr('disabled').val('admin新密码发送');
+				timepd = true;
+				return;
+			}
+			t--;
+			$('#validatePsw').val(val+"("+t+")");
+		},1000);
+	}
+
+	//点击图标查看导航
+	$('img.map').click(function(event){
+		event.stopPropagation();
+		var x=$(this).attr('x');
+		var y=$(this).attr('y');
+		if(x && y){			
+			setMap({
+				point:[x,y],
+			 	title:$(this).parent().parent().find('td').eq(3).text(),
+			 	address:'地址 '+$(this).parent().prev().text()
+			});
+			
+		}
+	});
+	//显示隐藏图书馆列表
+	$('.look').click(function(){
+		var isshow=parseInt($(this).attr('isshow'));
+		if(isshow==1){
+			$('.table-parent').slideUp(200);
+			$(this).attr('isshow',0).html('显示已有图书馆');
+		}else{
+			$('.table-parent').slideDown(200);
+			$(this).attr('isshow',1).html('隐藏已有图书馆');
+		}
+	});
+	
+	//自定义下拉列表
+	var select0=setSelect('.select0');
+	var select1=setSelect('.select1');
+	setSelect('.select3');
+	setSelect('.fuzheselect');
+	
+	/*添加导航*/
+	var map;//地图对象
+	var tmpmarker;//标注点
+	var address,isfirstshow=false;
+	var ac = new BMap.Autocomplete({"input" : "address"});
+	ac.addEventListener("onconfirm", function(e) {//鼠标点击下拉列表后的事件		
+	     setGeocoder($('#address').val());
+	});
+	setTimeout(function(){$('.tangram-suggestion-main').css("z-index",10000)},500);
+	
+	function closeMap(is){
+		$('.mapdiv,.bg').hide();
+		if(tmpmarker){
+			if(is && tmpmarker.point.lng && tmpmarker.point.lat){
+				var lngLat =tmpmarker.point.lng+","+tmpmarker.point.lat;				
+				document.getElementById('lngLat').value=lngLat;				
+				if(!$("#address").val()){
+					var p = tmpmarker.getPosition();  
+					getGeocoder(p);				
+				}
+			}
+		}
+	}
+	
+	function addMap(){	
+		var html='<div class="mapdiv"><div class="maperror" style="width:140px;color:#ff5400; text-align:center;height:28px;line-height:28px;position:absolute;display:none;left:0;top:30px; background:#fff;padding:0 20px;z-index:10000;">未搜索到结果!</div>';
+		html+='<div class="maptitle"></div><div id="allmap"></div></div><div class="bg"></div>';
+		$('body').append(html);
+		
+		$('.mapdiv').show().find('.close').hide();
+		$('.bg').show();
+		var tmpaddress=$('#address').val();//地址
+		var tmphtml='请点击/拖动标注设置图书馆位置';
+		tmphtml+='<a href="javascript:" onclick="closeMap(true)" style="right:75px;">确定</a>';
+		tmphtml+='<a href="javascript:" onclick="closeMap(false)">取消</a>';
+		$('.maptitle').show().html(tmphtml);		
+				
+		map = new BMap.Map("allmap");	
+		map.enableScrollWheelZoom(true);//开启鼠标滚轮缩放	
+		map.disableInertialDragging();
+		map.disableKeyboard();
+		
+		
+		//定位到当前城市
+		var myCity = new BMap.LocalCity();
+		myCity.get(function(result){
+			map.centerAndZoom(result.name,18);
+		});		
+		
+		
+		//城市列表
+		var size = new BMap.Size(20,40);
+		map.addControl(new BMap.CityListControl({
+		    anchor: BMAP_ANCHOR_BOTTOM_LEFT,
+		    offset: size
+		}));
+		
+		//没有标柱时，单击获取点击的经纬度		
+		map.addEventListener("click",function(e){
+			//if(!tmpmarker){
+				tmpmarker = new BMap.Marker(new BMap.Point(e.point.lng,e.point.lat));  // 创建标注
+				map.clearOverlays();
+				map.addOverlay(tmpmarker);
+				tmpmarker.enableDragging();				
+			//}
+		});
+		$('.mapdiv,.bg').hide();
+	}
+	addMap();
+	
+	var geoc = new BMap.Geocoder(); 
+	function getGeocoder(pt){
+		geoc.getLocation(pt, function(rs){
+			var addComp = rs.addressComponents;			
+			address =addComp.province+addComp.city+addComp.district+ addComp.street+ addComp.streetNumber;
+			$("#address").val(address);
+		});        
+	}
+	
+	//根据地址标注
+	function setGeocoder(address){
+		isfirstshow=true;
+		var myGeo = new BMap.Geocoder();
+		myGeo.getPoint(address,function(point){
+			if(point){				
+				tmpmarker = new BMap.Marker(point);
+				map.centerAndZoom(point,18);
+				map.clearOverlays();
+				map.addOverlay(tmpmarker);
+				tmpmarker.enableDragging();
+			}else{				
+				tmpmarker="";
+				var myCity = new BMap.LocalCity();
+				$('.maperror').html('未搜索到结果!').css({left:($('.mapdiv').width()-180)/2}).show();
+				setTimeout(function(){$('.maperror').fadeOut(500)},1500);
+				map.clearOverlays();					
+				myCity.get(function(result){
+					map.centerAndZoom(result.name,18);
+				});
+			}
+		});		
+	}
+	
+	//根据坐标定位
+	var tmppoint;
+	function setPosMap(){
+		$('.mapdiv,.bg').show();
+		if(!isfirstshow && $('#lngLat').val()!=""){
+			isfirstshow=true;
+			var point=$('#lngLat').val().split(',');
+			tmppoint=new BMap.Point(point[0],point[1]);
+			tmpmarker = new BMap.Marker(tmppoint);//创建标注				
+			map.clearOverlays();
+			map.addOverlay(tmpmarker);
+			tmpmarker.enableDragging();
+			setTimeout(function(){map.centerAndZoom(tmppoint,18)},300);
+		}
+	}	
+
+	//修改地址
+	$('#address').change(function(){
+		$('.mapdiv,.bg').show();
+		setGeocoder($(this).val());
+	});
+	$('.psw').keyup(function(event){
+		  if(event.keyCode ==13){
+			 $("#form").focus();
+			 sendPwd();
+		  }
+	});
+	
+	function sendPwd(){
+		 var code = $("#libraryCode").val();
+		  var pwd = $('.psw').val();
+		  pwd =$.base64Encode(pwd);
+		  $.post("${res}/cms/user/valid/"+pwd+".do",{hallCode:code,phone:$('#phone').val()},function(data){
+			  if(data.success){
+				$('#btnSubmit').removeClass('disabled').removeAttr('disabled');
+				 Countdown();
+				 showErrorTipMsg($('.psw'),"");
+				 $('.validate').css("visibility","hidden");
+				 $('.psw').css("visibility","hidden").val("");
+			  }else {
+				 showErrorTipMsg($('.psw'),"密码错误!");
+			  }
+		  })
+	}
+	
+	$("#address").keydown(function(event){
+		if(event.keyCode ==13){
+			$("#agreementAccount").focus();
+		}
+	});
+</script>

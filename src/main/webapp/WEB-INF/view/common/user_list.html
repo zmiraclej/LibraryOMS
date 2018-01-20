@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../head.html">	
+			<script type="text/javascript">
+		function page(n,s){
+			if(n==-1){
+				n = $(".pageNo").val();
+			}
+			$("#pageNo").val(n);
+			$("#pageSize").val(s);
+			$("#searchForm").submit();
+	    	return false;
+	    }
+		</script>
+	</head>
+	<body>
+		<div class="title">
+			<span class="l t">用户列表</span>
+			<img src="${res}/images/yun_back_img1.png" class="r" onclick="location.href=location.href"/>
+			<div class="clear"></div>
+		</div>
+		<div class="search">
+			<form action="${res}/cms/user/list.do" id="searchForm">
+			<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+			<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+			<input type="text" class="text tc" value="${search!}" name="search"  tipMsg="工号/姓名" maxlength="20"/><input type="submit" class="btn" value=" 搜索 "  />
+			</form>
+		</div>
+		<div class="table-parent">
+			<table cellspacing="0" class="table table-user" ul="user">
+				<thead class="thead">
+					<th class="th w60">序号</th>
+					<th class="th w60">工号</th>
+					<th class="th w75">姓名</th>
+					<th class="th w88">部门</th>
+					<th class="th w75">职务</th>
+					<th class="th w115">角色</th>
+					<th class="th w88">所属图书馆</th>
+					<th class="th w110">手机</th>
+					<th class="th w105">电话</th>
+					<th class="th w140">邮箱</th>
+					<th class="th w75">操作员</th>
+					<th class="th w82">修改日期</th>
+					<th class="th last tw t_last" style='text-align:left;padding-left:10px;'>操作</th>
+				</thead>
+				    <#if page.list?size=0>
+					<tr><td colspan='13' class='tl last'><div style='text-align:center;font-weight: bold;'>发现0条数据!</div></td></tr>;
+					</#if>
+					<#list page.list as user>
+						 <tr tid="${user.id}">
+						 	<td>${(page.pageNo-1)*page.pageSize+(user_index+1)}</td>
+							<td>${(user.jobNumber!)?html}</td>
+							<td t>${(user.userName!)?html}</td>
+							<td>${(user.depName!)?html}</td>
+							<td>${user.duty!}</td>
+							<td>
+							<#list user.roles as role>
+							${(role.name)!?html}
+							</#list>
+							</td>
+							<td>${(user.hallCode)!?html} </td>
+							<td title="${(user.phone)!?html}">${(user.phone)!?html}</td>
+							<td title="${(user.tel)!?html}">${(user.tel)!?html}</td>
+							<td title='${(user.chat)!?html}'>${(user.chat)!?html}</td>
+							<td>${(user.modifyUser)!?html}</td>
+							<td>${(user.modifyDate?string("yyyyMMdd"))!''}</td>
+							<td class="last" style='text-align:left;padding-left:10px;'>
+								<#if (user.remark!'1')='1' && CURRENT_USER.id!=user.id>
+									&nbsp;
+								<#else>
+									<a href="${res}/cms/user/edit/${user.id!}.do" title="编辑"><img src="${res}/images/yun_back_img2.gif"/></a>&nbsp;
+								</#if>
+								<#if (user.remark!'0')='0' && CURRENT_USER.id!=user.id>
+									<#if (user.isEffective!'0')=1>
+										<a href="#" onclick="del(${user.id})" title="停用" style="visibility:visible;"><img src="${res}/images/icon_guanbi.png"/></a>
+									<#else>
+										<a href="#" onclick="startUse(${user.id})" title="启用" style="visibility:visible;"><img src="${res}/images/icon_guanbi_1.png"/></a>
+									</#if>
+								</#if>
+							</td>
+						</tr>	
+					</#list>
+			</table>
+		</div>
+	<div class="paging">${page}</div>
+	</body>
+</html>
+<script>
+	$('img.map').click(function(event){
+		event.stopPropagation();
+		var x=$(this).attr('x');
+		var y=$(this).attr('y');
+		if(x && y){
+			$('.mapdiv').show();
+			$('.bg').show();
+			setMap({
+				point:[x,y],
+			 	title:$(this).parent().parent().find('td').eq(3).text(),
+			 	address:'地址：'+$(this).parent().text()
+			});
+		}
+	});
+	function startUse(id){
+		ZENG.msgbox.show("启用中...", 6);
+		$.post(config.contextPath+"/cms/user/startUse/"+id+".do",function(data){
+			ZENG.msgbox.hide();
+			if (!data.success) {
+				if(data.msg){
+					ZENG.msgbox.show(data.msg, 5);
+				}else{
+					ZENG.msgbox.show("启用失败,请联系管理员!", 5);
+				}
+			}else{
+				$(".listmsg").show();
+				document.location.reload();
+			}
+		});
+	}
+	
+	function del(id){
+		ZENG.msgbox.show("停用中...", 6);
+		$.post(config.contextPath+"/cms/user/del/"+id+".do",function(data){
+			ZENG.msgbox.hide();
+			if (!data.success) {
+				if(data.msg){
+					ZENG.msgbox.show(data.msg, 5);
+				}else{
+					ZENG.msgbox.show("停用失败,请联系管理员!", 5);
+				}
+			}else{
+				$(".listmsg").show();
+				document.location.reload();
+			}
+		});
+	}
+	
+</script>

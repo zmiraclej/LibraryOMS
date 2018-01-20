@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<link rel="stylesheet" href="css/style.css" />
+		<script src="js/jquery.min.js"></script>
+		<script src="js/common.js"></script>
+	</head>
+	<body>
+		<div class="gjltlist">
+				<div class="apply-info" >
+				<span class="unitname">申请单位：${audit.customerName!''}</span>				
+				<span>操作员：${audit.userName!''}</span>
+				<span>馆数：${audit.circulations?size}</span>
+			</div>
+			<table cellspacing="0" class="table">
+				<thead class="thead">
+					<th class="th w250">
+						<#if audit.action=='add'>
+							加入馆
+						<#else>
+							退出馆
+						</#if></th>
+					<th class="th w68">馆号</th>
+					<th class="th w88">馆别</th>
+					<th class="th w145">地区</th>
+					<th class="th w75">负责人</th>
+					<th class="th ">
+						<#if audit.action=='add'>
+							加入范围
+						<#else>
+							退出范围
+						</#if>
+					</th>
+				</thead>
+				<#list self as s>
+					<tr>
+						<td class="tl">${s.name!''}</td>
+						<td>${s.hallCode!''}</td>
+						<td>${s.libraryLevel!''}</td>
+						<td>${s.areaAddress!''}</td>
+						<td>${s.conperson!''}</td>
+						<td>${s.scopeString!''}</td>
+					</tr>
+				</#list>
+								
+			</table>
+			<div class="apply-info">				
+				<span class="unitname">对象单位：${audit.target?substring(5)}</span>
+				<span>代码：${audit.target?substring(0,4)} </span>
+				<span>联系人：${audit.targetContact!''} </span>
+				<span>操作员：${audit.userName!''}</span>
+				<span>馆数：${target?size}</span>
+			</div>
+			<table cellspacing="0" class="table">
+				<thead class="thead">
+					<th class="th w250">对象馆</th>
+					<th class="th w68">馆号</th>
+					<th class="th w88">馆别</th>
+					<th class="th w145">地区</th>
+					<th class="th w75">负责人</th>
+					<th class="th ">对象范围</th>
+				</thead>
+				
+				<#list target as s>
+					<tr>
+						<td class="tl">${s.name!''}</td>
+						<td>${s.hallCode!''}</td>
+						<td>${s.libraryLevel!''}</td>
+						<td>${s.areaAddress!''}</td>
+						<td>${s.conperson!''}</td>
+						<td>${s.scopeString!''}</td>
+					</tr>
+				</#list>
+			</table>
+			<div class="form">
+				<div class="item">
+					<input type="button" class="btn" value="返回" onclick="location.href='guanjiliutong_set_myapply.html'" style="margin-left: 0;"/>
+					<input type="button" class="btn2" value="同意" style="margin-left: 0; top: 1px; "/>
+					<input type="button" class="btn2 btn3" value="拒绝" style="top: 1px;"/>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

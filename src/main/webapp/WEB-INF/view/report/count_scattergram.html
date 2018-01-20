@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../head.html">
+		<script src="${res}/js/jquery.cookie.js" type="text/javascript" ></script>
+		<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=UqqYGVxXObQUlUp8S5YWmUxgNWww8hVU" ></script>
+		<link rel="stylesheet" type="text/css" href="${res}/css/report.css">
+		<link rel="stylesheet" type="text/css" href="${res}/css/css/fontello.css">
+		<script type="text/javascript">
+			var flag = "${isCustomer?string('true', 'false')}";
+		</script>
+		<style>
+			html{height:100%}
+			body{height:100%;margin:0px;padding:0px}
+
+			#mapContainer{height:85%}
+	        .dialog{
+                position: relative;
+                height: 80px;
+                width: 80px;
+                /*border-radius: 50%;
+                opacity: 0.8;
+                background-color: red;
+                box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);*/
+                padding: 14px 0;
+                box-sizing: border-box;
+	        }
+
+			.content{
+                position: relative;
+                line-height: 18px;
+                height: 18px;
+                color: #fff;
+                font-family: "Microsoft YaHei";
+                font-size: 12px;
+                text-align: center;
+                /*-webkit-transform-origin-x: 0;*/
+                -webkit-transform: scale(0.90);
+			}
+			.content_un{
+				font-size: 11px;
+			}
+			i.icon-circle{
+				position: absolute;
+				color: #e54545;
+				margin-left: -1px;
+				line-height: 0;
+				width: 82px;
+				top: 3px;
+				font-size: 82px;
+				opacity: 0.8;
+				filter: alpha(opacity=80);
+				/*z-index: -1;*/
+			}
+			i.icon-circle:before {
+				margin-left: 0;
+			}
+		</style>
+	</head>
+	<body >
+		<div class="form count">
+			<form action="${res}/report/scattergram/list.do" id="searchForm">
+
+				<div class="l item item2 t1" style="z-index: 20;display:none;" >
+					<input id="pageNo" name="pageNo" type="hidden" value=""/>
+					<input id="pageSize" name="pageSize" type="hidden" value=""/>
+					<span class="t l" style="width:60px;width:57px\9">地区</span>
+					<select class="l select1" width="220"  name="area" id="area"  value="${query.area!''}" onchange="changeSelect(this)">
+					<option value=""></option>
+					<#if area??>
+						<#list area as item>
+							<option>${item}</option>
+						</#list>
+					</#if>
+					</select>
+					<div class="clear"></div>
+				</div>
+				<div class="l item item2 n1" style="z-index: 20;display:none;">
+					<span class="t l" style="width:60px;width:57px\9">地区</span>
+					<select class="l select7" width="108" onchange="getCitys2($('.select8'),$('.select9'),this.value)" value="510000">
+						<option value="">省</option>
+					</select>
+					<div class="clear"></div>
+				</div>
+				<div class="l item item2 n2" style="z-index: 20; margin: 0 10px; margin: 0 8px 0 7px\9;display:none;">
+					<select class="l select8" width="107" onchange="getAreas2($('.select9'),this.value)" value="${query.city!''}">
+						<option value="">市</option>
+					</select>
+					<div class="clear"></div>
+				</div>
+				<div class="l item item2 n3" style="z-index: 20;display:none;">
+					<select class="l select9" width="108" value="${query.district!''}">
+						<option value="">区</option>
+					</select>
+					<div class="clear"></div>
+				</div>
+				<div class="l item item2" style="z-index: 20;">
+					<span class="t l" style="width:50px;width:47px\9">馆别 </span>
+					<select class="l select2" width="184"  name="lib"  value="${query.lib!''}" id="level">
+						<option></option>
+						<#list lib as item>
+							<option>${item}</option>
+						</#list>
+					</select>
+					<div class="clear"></div>
+				</div>
+				<div class="l item item2">
+					<input type="button" class="btn btn5 searchBtn" value="开始统计"  onclick="search()"  style="margin-left: 20px;margin-left: 16px\9;" />
+					<!-- <input type="button" class="btn btn5" value="导出清单"  onclick="exportPDF()"/> -->
+				</div>
+				<div class="clear"></div>
+
+				<div class="l item item2" style="z-index: 12;display:none;">
+					<!--onchange="setSearchCondition(this.value);$('.searchtxt').val('');"-->
+					<select class="l select5 " width="220" name="option" >
+						<option value="1" <#if '1'==(query.option!'')> selected="selected" </#if>>馆名</option>
+						<option value="6">馆号</option>
+						<option value="2" <#if '2'==(query.option!'')> selected="selected" </#if>>种数</option>
+						<option value="3" >总册数</option>
+						<option value="4">总码洋</option>
+						<option value="5">在馆册数</option>
+					</select>
+					<div class="clear"></div>
+				</div>
+				<div class="l item item2 conditions" style="width:478px;position:static;display: none;">
+					<span class="t l" style="width:50px;width:47px\9">从</span>
+					<input type="text" class="text l date_input" value="" style="width:180px;width:180px\9" isbottom="1" onKeyPress="myEnter('ea')"/>
+					<img src="${res}/images/yun_back_img9.png" class="l date"/>
+					<span class="t l t3" style="width:50px;">至</span>
+					<input type="text" class="text l date_input ea" value="" style="width:180px;width:180px\9" isbottom="1" onKeyPress="myEnter('searchBtn')"/>
+					<img src="${res}/images/yun_back_img9.png" class="l date"/>
+					<div class="clear"></div>
+				</div>
+				<div class="l item item2 conditions" style="width:478px;display: none;">
+					<span class="t l" style="width:50px;width:47px\9">从</span>
+					<input type="text" class="text l searchtxt sF"  style="width:180px;width:180px\9"  name="searchFrom"  id='searchFrom' onblur="validate('searchFrom')" onKeyPress="myEnter('sT')"/>
+					<span class="t l t3" style="width:50px;">至 </span>
+					<input type="text" class="text l searchtxt sT"  style="width:180px;width:180px\9"  name="searchTo" id='searchTo' onblur="validate('searchTo')" onKeyPress="myEnter('searchBtn')"/>
+					<div class="clear"></div>
+				</div>
+				<div class="l item item2 conditions" style="width:478px; display:none;">
+					<span class="t l" style="width:50px;width:47px\9">&nbsp;</span>
+					<input type="text" class="text l searchtxt kW" value="${query.keyWord!''}" style="width:421px;width:419px\9" onKeyPress="myEnter('searchBtn')" />
+					<div class="clear"></div>
+				</div>
+				<div class="l item item2 conditions" style="width:478px;display:none;">
+					<span class="t l" style="width:50px;width:47px\9">从</span>
+					<input type="text" class="text l searchtxt sF"  style="width:180px;width:180px\9"  onKeyPress="myEnter('sT')"/>
+					<span class="t l t3" style="width:50px;">至 </span>
+					<input type="text" class="text l searchtxt sT"  style="width:180px;width:180px\9" onKeyPress="myEnter('searchBtn')"/>
+					<div class="clear"></div>
+				</div>
+
+
+				<div class="clear"></div>
+			</form>
+		</div>
+			<!-- 地图容器 -->
+		<div id="mapContainer" ></div>
+		
+		<script type="text/javascript" src="${res}/js/getMoreSelect.js"></script>
+		<script>
+			if(flag == 'false'){
+				$('.n1').show();$('.n2').show();$('.n3').show();
+				$(".select2").attr("width","125");
+				//$(".select3").attr("width","120");
+				$(".select4").attr("width","120");
+			}else{
+				$(".t1").show();
+				$(".select2").attr("width","184");
+				//$(".select3").attr("width","184");
+				$(".select4").attr("width","184");
+			}
+			getProvinces('.select7');
+			//自定义下拉列表
+			var select1 = setSelect('.select1');
+			var select2 = setSelect('.select2');
+			//var select3=setSelect('.select3');
+			var select4 = setSelect('.select4');
+			var select5=setSelect('.select5');
+			setSelect('.select6');
+			var select7 = setSelect('.select7');
+			var select8 = setSelect('.select8');
+			setSelect('.select9');
+			//setSearchCondition(${query.option!1});
+			
+			function validate(id){
+				var  select =$(".select5").val();
+				if(select=='4'){
+					//formatToFixed(id,9999999);
+				}
+			}
+			
+			//切换搜索条件
+			function setSearchCondition(val){
+				$('.conditions').hide();
+				if(val==2 || val==3 || val==4 || val==5){
+					$('.conditions').eq(1).show();
+				}else if(val==1){
+					$('.conditions').eq(2).show();	
+				}else if(val==6){
+					$('.conditions').eq(1).show();	
+				}
+			}
+
+            //切换列表
+            function setListShow(val){
+                if(val==1){
+                    pageTo(1,-1)
+                    $('#listTable').show();
+                    $('#dateList,#imgBlock').hide();
+                    $(".select5").removeAttr("disabled").removeClass("disabled");
+                    $(".searchtxt").removeAttr("disabled").removeClass("disabled");
+
+                }else if(val==2){
+                    dataList(-1);
+                    $(".text").val("");
+                    $('#dateList').show();
+                    $('#listTable,#imgBlock').hide();
+                    $(".select5").attr("disabled","disabled").addClass("disabled");
+                    $('.searchtxt').attr("disabled","disabled").addClass("disabled");
+                }else if(val==3){
+                    chart(-1);
+                    $(".text").val("");
+                    $('#listTable,#dateList').hide();
+                    $('#imgBlock').show();
+                    $(".select5").attr("disabled","disabled").addClass("disabled");
+                    $('.searchtxt').attr("disabled","disabled").addClass("disabled");
+                }
+                select5.reset();
+            }
+
+            var url = "${res}";
+            var vala4 = "";
+
+            //搜索条件
+            var p1='',c1='',a1='',a2='',a3='',a5='',df1='',dt1='',pf1='',pt1='',keyword='';
+            function searchField(n){
+                a1 = "";
+                var expiresDate = new Date();
+                expiresDate.setTime(expiresDate.getTime() + (5 * 1440* 60 * 1000));
+                if(flag == 'true'){
+                    a1 = $(".select1").val();
+                    $.cookie('select1',a1,{expires:expiresDate});
+                }else{
+                    p1 = $('.n1').find("option:selected").val();
+                    c1 = $('.n2').find("option:selected").val();
+                    a1 = $('.n3').find("option:selected").val();
+                    $.cookie('select7',p1,{expires:expiresDate});
+                    $.cookie('select8',c1,{expires:expiresDate});
+                    $.cookie('select9',a1,{expires:expiresDate});
+                }
+                //判断ie选择的值
+                if (typeof(p1) == "undefined") {
+                    p1 = "";
+                }
+                if (typeof(c1) == "undefined") {
+                    c1 = "";
+                }
+                if (a1==null) {
+                    a1 = "";
+                }
+                if(n!=-1){
+                    a2 = $(".select2").find("option:selected").text();
+                }else {
+                    a2 = "change select";
+                }
+                $.cookie('select2', a2, {expires:expiresDate});
+                // a3 = $(".select3").val();
+                a5 = $(".select5").val();
+                $.cookie('select5', a5, {expires:expiresDate});
+// 		 df1 = $(".dF").val();
+// 		 dt1 = $(".dT").val();
+                pf1 = $(".sF").val();
+                pt1 = $(".sT").val();
+                keyword = $(".kW").val();
+                $.cookie('sF', pf1, {expires:expiresDate});
+                $.cookie('sT', pt1, {expires:expiresDate});
+                $.cookie('kW', keyword, {expires:expiresDate});
+            }
+
+            function checkSelect(){
+                if(flag == 'true'){
+                    if(p1==""&&a1==""&&a2==""&&a3==""&&df1==""&&dt1==""&&pf1==""&&pt1==""&&keyword==""){
+                        pullSelect($(".select1")[0]);
+                        return false;
+                    }
+                    return true;
+                }
+                if(flag == 'false'){
+                    if(p1==""&&a2==""&&a3==""&&df1==""&&dt1==""&&pf1==""&&pt1==""&&keyword==""){
+                        pullSelect($(".select7")[0]);
+                        return false;
+                    }
+                    if(c1==""&&a2==""&&a3==""&&df1==""&&dt1==""&&pf1==""&&pt1==""&&keyword==""){
+                        pullSelect($(".select8")[0]);
+                        return false;
+                    }
+                }
+                return true;
+            }
+            function myEnter(str){
+                if (event.keyCode == 13){
+                    $("."+str).focus();
+                }
+            }
+            function loadCookie(){
+                if(flag=='false'){
+                    $(".select7").html($('.select7').html()).val($.cookie('select7'));
+                    select7.reset();
+                    var province = $(".select7").val();
+                    if(province!='')
+                        getCitys3($('.select8'),$('.select9'),$.cookie('select7'),$.cookie('select8'));
+                }else{
+                    $(".select1").html($('.select1').html()).val($.cookie('select1'));
+                    select1.reset();
+                }
+                $(".select2").html($('.select2').html()).val($.cookie('select2'));
+                select2.reset();
+
+                $(".select4").html($('.select4').html()).val($.cookie('select4'));
+                select4.reset();
+
+                $(".select5").html($('.select5').html()).val($.cookie('select5'));
+                select5.reset();
+
+                var val = $('.select5 option:selected') .val();
+                $('.conditions').hide();
+                if(val==2 || val==3 || val==4 || val==5){
+                    //$('.conditions').eq(1).show();
+                    $(".sF").html($('.sF').html()).val($.cookie('sF'));
+                    $(".sT").html($('.sT').html()).val($.cookie('sT'));
+                }else if(val==1){
+                    //$('.conditions').eq(2).show();
+                    $(".kW").html($('.kW').html()).val($.cookie('kW'));
+                }else if(val==6){
+                    //$('.conditions').eq(1).show();
+                    $(".sF").html($('.sF').html()).val($.cookie('sF'));
+                    $(".sT").html($('.sT').html()).val($.cookie('sT'));
+                }
+                $(".kW").html($('.kW').html()).val($.cookie('kW'));
+            }
+            setTimeout(window.onload=loadCookie,100);
+
+            /*******************************自定义覆盖物************************************/
+            // 定义自定义覆盖物的构造函数
+            function SquareOverlay(point, color, data){
+                this._point = point;
+                this._color = color;
+                this._data = data;
+            }
+            // 继承API的BMap.Overlay
+            SquareOverlay.prototype = new BMap.Overlay();
+            // 实现初始化方法
+            SquareOverlay.prototype.initialize = function(map){
+                // 保存map对象实例
+                this._map = map;
+                // 创建div元素，作为自定义覆盖物的容器
+                var dialogDiv = document.createElement("div");
+                dialogDiv.className= "dialog";
+                dialogDiv.setAttribute("hallCode",this._data.hallCode);
+                dialogDiv.style.position = "absolute";
+                //dialogDiv.style.backgroundColor = this._color;
+                //大框
+                var frag ="	<div class='content content_un'>                     "+
+					"		<div class='info user'>               "+
+					"			<span class='number'>"+this._data.readership+"</span>  "+
+					"			<span class='unit'>人</span>      "+
+					"		</div>                                "+
+					"	</div>                                    "+
+					"	<div class='content content_un'>                     "+
+					"		<div class='info'>                    "+
+					"			<span class='number'>"+this._data.totalBook+"</span>  "+
+					"			<span class='unit'>册</span>      "+
+					"		</div>                                "+
+					"	</div>                                    "+
+					"	<div class='content content_un'>                     "+
+					"		<div class='info'>                    "+
+					"			<span class='number'>("+this._data.totalBookBelong+")</span>"+
+					"		</div>                                "+
+					"	</div>                                    ";
+
+                // 箭头
+                var iCircle = document.createElement("i");
+                iCircle.className = "icon-circle";
+                iCircle.style.color = this._color;
+                dialogDiv.appendChild(iCircle);
+                dialogDiv.innerHTML += frag;
+
+                // 将div添加到覆盖物容器中
+                map.getPanes().markerPane.appendChild(dialogDiv);
+                // 保存div实例
+                this._div = dialogDiv;
+                // 需要将div元素作为方法的返回值，当调用该覆盖物的show、
+                // hide方法，或者对覆盖物进行移除时，API都将操作此元素。
+                return dialogDiv;
+            }
+            // 实现绘制方法
+            SquareOverlay.prototype.draw = function(){
+                // 根据地理坐标转换为像素坐标，并设置给容器
+                var position = this._map.pointToOverlayPixel(this._point);
+                // 以固定点为坐标原点, 往正方向画
+                this._div.style.left = (position.x - 44 ) + "px";
+                this._div.style.top = (position.y - 90) + "px";
+            }
+
+            //当调用map.removeOverlay或者map.clearOverlays方法时，API会自动将initialize方法返回的DOM元素进行移除
+            // 实现显示方法
+            SquareOverlay.prototype.show = function(){
+                if (this._div){
+                    this._div.style.display = "";
+                }
+            }
+            // 实现隐藏方法
+            SquareOverlay.prototype.hide = function(){
+                if (this._div){
+                    this._div.style.display = "none";
+                }
+            }
+
+            // 添加自定义方法
+            SquareOverlay.prototype.toggle = function(){
+                if (this._div){
+                    if (this._div.style.display == ""){
+                        this.hide();
+                    }
+                    else {
+                        this.show();
+                    }
+                }
+            }
+            /*******************************自定义覆盖物************************************/
+
+            var zoomafter = 13;
+            var flag = false;//第一次打开不加载
+			var map = new BMap.Map("mapContainer",{enableMapClick:false});  // 创建地图实例,  {enableMapClick:false}: 底图点击功能
+		    var point = new BMap.Point(104.072217, 30.663383);      // 创建点坐标 (天府广场: 104.072217, 30.663383)
+		    map.centerAndZoom(point, zoomafter); // 初始化地图,设置中心点坐标和地图级别
+		    map.enableScrollWheelZoom(); //启用滚轮放大缩小
+            var scaleControl = new BMap.ScaleControl();
+		    map.addControl(scaleControl);  // 尺标
+            
+			
+			map.addEventListener("tilesloaded", function() {
+				//第一次打开不加载图书馆标记
+				if (!flag) {
+					flag = true;
+					return;
+				}
+				//"load 事件结束触发
+				var zoom = map.getZoom(); // 地图缩放级别.  12: 5km; 13: 2km; 14: 1km;
+
+				//当视图在14之间切换时才去请求数据
+				if (zoom == zoomafter) { 
+					//地图尺标没有变化,不需要重新加载.  
+					return;
+				} else if (zoomafter <= 14 && zoom <= 14) {
+					//当缩放级别都小于或等于14时,不用重新请求数据
+					zoomafter = zoom;
+					return;
+				} else if (zoomafter > 14 && zoom <= 14) {
+					//当缩放级别大于14时,请求所有管数据
+// 					map.clearOverlays();
+					showLightInfo();
+					zoomafter = zoom;
+					return;
+				} else if (zoomafter<=14&&zoom>14) {
+					//当缩放级别小于14时,请求有效管数据
+// 					map.clearOverlays();
+					showDataInMap();
+					zoomafter = zoom;
+					return;
+				}
+				// to show data ---
+				// 				map.clearOverlays();
+				// 				if (zoom >= 14) { // 显示细节
+				// 					showDataInMap();
+				// 				} else {
+				// 					showLightInfo();
+				// 				}
+				//                map.removeEventListener("tilesloaded",function () {
+				//					console.log("解除地图load事件监听"); // 初次打开时才能触发搜索.
+				//                });
+			});
+
+			// 开始统计按钮
+			function search() {
+				//拿到省份
+				var Province = $('.select7').next().find('li').first().html() == '省' ? null
+						: $('.select7').next().find('li').first().html();
+				//拿到市
+				var city = $('.select8').next().find('li').first().html() == '市' ? null
+						: $('.select8').next().find('li').first().html();
+				//如果没有选择省份,提示用户
+				if (Province == null) {
+					pullSelect($(".select7")[0]);
+					return;
+				}
+				//如果没有选择市,提示用户
+				if (city == null) {
+					pullSelect($(".select8")[0]);
+					return;
+				}
+				if (city != null) {
+					//如果城市不会空,使用城市名定位
+					map.centerAndZoom(city, 12);
+				} else if (Province != null) {
+					//城市为空,则使用省份名定位
+					map.centerAndZoom(Province, 12);
+				} else {
+					//如果用户没有选择区域默认使用当前ip城市定位
+					function myFun(result) {
+						var cityName = result.name;
+						map.centerAndZoom(cityName, 12);
+					}
+					var myCity = new BMap.LocalCity();
+					myCity.get(myFun);
+				}
+				var zoomInSearch = map.getZoom(); // 地图缩放级别.  12: 5km; 13: 2km; 14: 1km;
+				if (zoomInSearch >= 14) { // 显示细节
+					showDataInMap();
+				} else {
+					showLightInfo();
+				}
+			}
+
+			//获取查询参数
+			function getSearchKeywords() {
+				searchField();
+				vala4 = $(".select4").val();
+				var expiresDate = new Date();
+				expiresDate.setTime(expiresDate.getTime()
+						+ (5 * 1440 * 60 * 1000));
+				$.cookie('select4', vala4, {
+					expires : expiresDate
+				});
+
+				var bs = map.getBounds(); //获取可视区域
+				var bssw = bs.getSouthWest(); //可视区域左下角
+				var bsne = bs.getNorthEast(); //可视区域右上角
+				//console.log("当前地图可视范围是：" + bssw.lng + "," + bssw.lat + "到" + bsne.lng + "," + bsne.lat);
+
+				var keywords = {
+					leftLng : bssw.lng, // 区域左边经度(低)
+					rigthLng : bsne.lng, // 区域右边经度(高)
+					downLat : bssw.lat, // 区域下边纬度(低)
+					topLat : bsne.lat, // 区域上边纬度(高)
+					province : p1,
+					city : c1,
+					area : a1,
+					lib : a2, // 馆别,(级别,类型)
+					hallCode : a3, // 类型为馆名
+					option : a5, // 条件
+					searchFrom : pf1, //from
+					searchTo : pt1, //to
+					keyWord : keyword
+				//关键字, 即,馆名
+				}
+				return keywords;
+			}
+
+			// 展示详细数据
+			function showDataInMap() {
+				// 获取查询参数
+				var keywords = getSearchKeywords();
+				//alert("list");
+				$.get("${res}/report/scattergram/list",
+						keywords,
+						function(data) {
+							map.clearOverlays(); // 清除所有的覆盖物
+							data = JSON.parse(data);
+							$(".searchBtn").attr("disabled", false); //设置disabled为false
+							$(".searchBtn").removeAttr("disabled"); //移除属性
+							$(".searchBtn").css('background', '#2561b0');
+							var point;
+							var color;
+							for ( var i in data) {
+								if (!data[i].longitude || !data[i].longitude) {
+									continue;
+								}
+								point = new BMap.Point(data[i].longitude,data[i].latitude);
+	
+								var sData = {
+									readership : data[i].readership || 0,
+									totalBook : data[i].totalBook || 0,
+									totalBookBelong : data[i].totalBookBelong || 0,
+									hallCode : data[i].hallCode
+								}
+								color = getColor(sData);
+								//展示详细数据
+								var mySquare = new SquareOverlay(point,color, sData);
+								map.addOverlay(mySquare);
+	
+								/*var myMarker = new BMap.Marker(point);  // 创建标注, 找准定位.
+								map.addOverlay(myMarker);*/
+							}
+						}, "json");
+			}
+
+			//展示点亮数据
+			
+			function showLightInfo() {
+				var keywords = getSearchKeywords();
+				//alert("listlight");
+
+				$.get("${res}/report/scattergram/listlight",
+						keywords,
+						function(data) {
+							map.clearOverlays(); // 清除所有的覆盖物
+							data = JSON.parse(data);
+							$(".searchBtn").attr("disabled", false); //设置disabled为false
+							$(".searchBtn").removeAttr("disabled"); //移除属性
+							$(".searchBtn")
+									.css('background', '#2561b0');
+							var point;
+							var color;
+							var myIcon;
+							for ( var i in data) {
+								if (!data[i].longitude
+										|| !data[i].latitude) {
+									continue;
+								}
+								point = new BMap.Point(
+										data[i].longitude,
+										data[i].latitude);
+	
+								//console.log("point: " + data[i].longitude + " , " +data[i].latitude);
+								var sData = {
+									totalBook : data[i].totalBook || 0,
+									totalBookBelong : data[i].totalBookBelong || 0
+								}
+								//color = getColor(sData);
+								myIcon = new BMap.Icon(
+										"${res}/images/light_open.png",
+										new BMap.Size(20, 26));
+								if (data[i].lightFlag == "close") {
+									myIcon = new BMap.Icon(
+											"${res}/images/light_close.png",
+											new BMap.Size(20, 26));
+								} else if (data[i].lightFlag == "open") {
+									//console.log(data[i])  // 开放的图书馆
+								}
+								var myMarker = new BMap.Marker(point, {
+									icon : myIcon
+								}); // 创建标注
+								map.addOverlay(myMarker);
+							}
+						}, "json");
+			}
+
+			//判断颜色
+			function getColor(data) {
+				if (0 == data.totalBookBelong) {
+					return "#e54545"
+				}
+				var colorFlag = data.totalBook / data.totalBookBelong;
+				//console.log(colorFlag);
+				if (colorFlag < 0.85) {
+					return "#1873f8"; // 蓝色
+				} else if (colorFlag >= 0.85 && colorFlag < 0.95) {
+					return "#15a330"; //青色
+				} else if (colorFlag >= 0.95 && colorFlag < 1.05) {
+					return "#7f492d"; //棕色
+				} else if (colorFlag >= 1.05 && colorFlag < 1.15) {
+					return "#ff7200"; //黄色
+				} else {
+					return "#e54545"; //红色
+				}
+			}
+		</script>
+	</body>
+</html>

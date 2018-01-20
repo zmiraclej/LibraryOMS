@@ -1,0 +1,55 @@
+body{background-color: white;}
+.widget-box>.table-responsive > form > div{
+	padding: 10px 10px;
+}
+.gray-theme-bkg{
+	background-color: #535353 !important;
+}
+.gray-theme-border{
+	border-color: #535353 !important;
+}
+
+.my-placeholder{
+	color: red;
+}
+textarea{
+	resize:none;
+}
+.error{
+	border-color: red !important;
+}
+button.error{
+	color: red !important;
+}
+.clearFloat:after {
+　　visibility: hidden;
+　　clear: both;
+　　display: block;
+　　height: 0px;
+　　content: "."
+　}
+input{height: 34px;}
+.btn-success,.but-search{background-color: #FF7300 !important;border-color: #FF7300 !important}
+.btn-success:HOVER,.but-search:HOVER{background-color: #db6300!important;border-color: #FF7300 !important}
+.btn-success:ACTIVE,.but-search:ACTIVE{background-color: #bd5500!important;border-color: #FF7300 !important}
+.btn-success:FOCUS,.but-search:FOCUS{background-color: #bd5500 !important;border-color: #FF7300 !important}
+.uppercase{text-transform: uppercase;}
+::-ms-clear{display:none;}/* 去掉ie 后×*/
+::-ms-reveal{display:none;}/* 去掉ie 后查看密码*/
+.form-horizontal .form-group{margin-right:0px !important;margin-left:0px!important;}
+.input_panel .img_panel img{cursor: pointer;}
+.input_panel .img_panel img.uselect{opacity:0.3;}
+.input_panel .img_panel img.uselect:HOVER{opacity:0.8;}
+.input_panel .img_panel img.uselect:ACTIVE{opacity:1;}
+.pagination li.action a{background-color:#2283C5;color:white;}
+.input_panel .input-medium{width: 100%;height: 33px;}
+.input_panel textarea {width: 100%;}
+.header-color-blue{background:#307ECC none repeat scroll 0% 0%;background-color: #307ECC;}
+.ui-dialog .ui-dialog-titlebar{padding:0.5em 0.8em;}
+.tags{width: 100%;}
+table thead tr td{text-align: center;}
+.table{margin-bottom: 0px;}
+div.widget-body{clear: both;}
+input.editor{border:0px;width:100%;background-color: transparent;height: 100%;line-height: 0px;}
+.center input.editor{text-align: center;}
+.table-responsive tr:HOVER{background-color: #eee;}

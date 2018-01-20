@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../head.html">
+		<script type="text/javascript">
+		$(function(){
+	    	$("#submitBtn").bind("click",function(){
+	    		var menuIds =[];
+	    		$("input[type='checkbox']").each(function(){
+   					if($(this).is(':checked')){
+   						var id = this.value;
+   						if(id!=""){
+   							menuIds.push(id);
+   						}
+   					}
+    			});
+	    		if(menuIds.length==0){
+	    			$(".tswords").text("请选择馆!");
+    				return false;
+    			}
+	    		var operation =$("#operation").val();
+	    		$("#form").ajaxSubmit({  
+	    			type:"post",
+					async:false,
+					data:{
+						operation:operation,
+						menuIds:menuIds
+					},
+					url:"${res}/cms/libset/deposit.do",
+                    traditional:true,
+					dataType: 'json',
+                    success:function(data){  
+                    	  window.location.href="${res}/cms/libset/list/deposit.do";
+                    },  
+                    error: function(XmlHttpRequest, textStatus, errorThrown){  
+                    	removeDisabled('submitBtn'); 
+                    }  
+                });  
+	    	});
+	    })
+		function page(n,s){
+			$("#pageNo").val(n);
+			$("#pageSize").val(s);
+			$("#searchForm").submit();
+	    	return false;
+	    }
+		</script>
+	</head>
+	<body>		
+		<div class="gjltlist">
+			<div class="search" style="padding-left:0;padding-top:10px\9;height:0\9;">
+			<form action="${res}/cms/libset/list/deposit.do" id="searchForm">
+				<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+				<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+				<input type="text" class="text l gray"  name="search" maxlength="20" tipMsg="馆号/馆名"/><input type="submit" class="btn" value="确定"/>
+			</form>
+			</div>
+			<div class="clear" style="margin-bottom:10px\9;"></div>
+			<form class="form-horizontal" id="form"  action="${res}/cms/libset/deposit.do" method="post"  autocomplete="off">
+			
+				<table cellspacing="0" class="table">
+				<thead class="thead">
+					<th class="th w45"><input type="checkbox" value="" id="all"/></th>
+					<th class="th w60">序号</th>
+					<th class="th w188">馆名</th>
+					<th class="th w68">馆号</th>
+					<th class="th w88">馆别</th>
+					<th class="th w145">地区</th>
+					<th class="th w75">联系人</th>
+					<th class="th w120">启用状态</th>
+				</thead>
+					<#list page.list as library>
+						<tr tid="${library.id}">
+							<td class="th w45"><input type="checkbox" value="${library.id}" id="all"  class="checkbox1"/></td>
+							<td>${(page.pageNo-1)*10+(library_index+1)}</td>
+							<td >${library.name!''}</td>
+							<td>${library.hallCode!''}</td>
+							<td>${library.libraryLevel!''}</td>
+							<td class="tl" title="${library.province.name!''}${library.city.name!''}${library.area.name?trim}">${library.province.name!''}${library.city.name!''}${library.area.name?trim}</td>
+							<td>${library.conperson!''}</td>
+							<td>
+							 <#if (library.needDeposit!'')=='1'> 
+								启用
+							<#elseif (library.needDeposit!'')=='0'>
+								不启用
+							</#if>
+							</td>
+						</tr>
+					</#list> 
+			</table>
+			</form>
+		</div>
+		<div class="form" style="width:auto; margin-top:-10px;">
+			<span class="l" style="margin-right: 5px; font-size: 16px; line-height: 34px;">设置为</span>
+			<select class="jieshu" width="120" isup="1"  id="operation">
+				<option  value="1">启用</option>
+				<option  value="0">不启用</option>				
+			</select>		
+			<div class="item l" style="margin-top:-2px">
+				<input type="button" value="确定" class="btn" style="height:34px;width:100px; margin-left: 5px;" id="submitBtn"   />
+				<span class="tswords" ></span>
+			</div>			
+		</div>
+		<div class="r" style="margin-top:-30px">${page}</div>
+	</body>
+</html>
+<script>
+	setSelect('.jieshu');
+	//$('#scroll').css({maxHeight:document.documentElement.clientHeight-122});
+	
+	//范围内全选	/取消全选
+	$('#all').click(function(){
+		var classStr='.table .checkbox1';
+		if($(this).is(':checked')){
+			$(classStr).each(function(){$(this)[0].checked=true;});
+		}else{
+			$(classStr).each(function(){$(this)[0].checked=false;});			
+		}
+	});
+	
+	//点击复选框
+	$('.table .checkbox1').click(function(){
+		if($(this).is(':checked')){
+			$(this).next().css('visibility',"visible");
+			if($('.table .checkbox1').length== $('.table .checkbox1:checked').length){
+				$('#all')[0].checked=true;
+			}
+		}else{
+			$(this).next().css('visibility',"hidden");
+			$('#all')[0].checked=false;
+		}
+	});
+	
+</script>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../head.html" >
+		<style type="text/css">
+			@media (min-width: 980px) and (max-width: 1199px) {
+				.libraryNmaes{width:340px;max-widtg:340px !important;}/*客户维护 辖管列宽度定制*/
+			}
+			@media (min-width: 1200px) and (max-width: 1380px) {
+				.libraryNmaes{width:460px;max-widtg:460px !important;}/*客户维护 辖管列宽度定制*/
+				
+				.libraryNmaes1{width:430px;max-widtg:430px !important;}/*客户维护 辖管列宽度定制*/
+			}
+		</style>
+		<script type="text/javascript">
+		function page(n,s){
+			if(n==-1){
+				n = $(".pageNo").val();
+			}
+			$("#pageNo").val(n);
+			$("#pageSize").val(s);
+			$("#searchForm").submit();
+	    	return false;
+	    }
+		
+		</script>
+	</head>
+	<body>
+		<div class="title">
+			<span class="l t">客户列表</span>
+			<img src="${res}/images/yun_back_img1.png" class="r" onclick="location.href=location.href"/>
+			<div class="clear"></div>
+		</div>
+		<div class="search">
+			<form action="${res}/cms/customer/list.do" id="searchForm">
+				<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+				<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+				<input type="text" class="text tc" name="search" value="${search!}" maxlength="20" tipMsg="客户代码/单位名称"/><input type="submit" class="btn" value=" 搜索 "/>
+			</form>
+		</div>
+		<div class="table-parent">
+			<table cellspacing="0" class="table table-width"  ul="customer">
+				<thead class="thead">
+					<th class="th w60">序号</th>
+					<th class="th w68">客户代码</th>
+					<th class="th twname">单位名称</th>
+					<th class="th twaddress">地址</th>
+					<th class="th twcode libraryNmaes libraryNmaes1">辖馆</th> 
+					<th class="th w75">操作员</th>
+					<th class="th w82">修改日期</th>
+					<th class="th last tw operation t_last" style="padding-left:10px;">操作</th>
+				</thead>
+			<#list page.list as customer>
+				<tr  tid="${customer.id}">
+					<td>${(page.pageNo-1)*page.pageSize+(customer_index+1)}</td>
+					<td>${customer.hallCode!''}</td>
+					<td class="tl" title="${(customer.name!'')?html}">${(customer.name!'')?html}</td>
+					<td class="tl" title="${customer.address!''}">${customer.address!''}</td>
+
+					<td class="tl" title="<#list customer.libras as library>${library.libraryLevel!''}&nbsp;${library.libraryNumber}<#if ((customer.libras?size)==library_index+1)><#else>,</#if></#list> ">
+						<#list customer.libras as library>
+						${library.libraryLevel!''}&nbsp;${library.libraryNumber}
+							<#if ((customer.libras?size)==library_index+1)>
+							<#else>
+								,
+							</#if>
+						</#list> 
+					</td>
+					<td>${(customer.modifyUser)!?html}</td>
+					<td>${(customer.modifyDate?string("yyyyMMdd"))!''}</td>
+					<#assign del="0"/>
+					<td class="last operation" style="padding-left:10px;">
+						<a href="${res}/cms/customer/edit.do?id=${customer.id}"><img src="${res}/images/yun_back_img2.gif"/></a>&nbsp;
+						<#list customer.libras as library>
+								<#if ((library.usedCodeNumber!)>0)>
+									<#assign del="1"/>
+								</#if>
+						</#list> 
+						<#if del!="1">
+								<a href="#" onclick="del(this)"><img src="${res}/images/yun_back_img3.gif"/></a>
+						<#else>
+							<a href="#" onclick="del(this)" style="visibility:hidden;"><img src="${res}/images/yun_back_img3.gif"/></a>
+						</#if>
+						
+					</td>
+				</tr>
+				</#list> 
+			</table>
+		</div>
+	<div class="paging">${page}</div>
+	</body>
+</html>
+<script>
+	$('img.map').click(function(event){
+		event.stopPropagation();
+		var x=$(this).attr('x');
+		var y=$(this).attr('y');
+		if(x && y){
+			$('.mapdiv').show();
+			$('.bg').show();
+			setMap({
+				point:[x,y],
+			 	title:$(this).parent().parent().find('td').eq(3).text(),
+			 	address:'地址：'+$(this).parent().text()
+			});
+			
+		}
+	});
+</script>

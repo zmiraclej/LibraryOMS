@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../head.html">
+		<script type="text/javascript">
+		function page(n,s){
+			$("#pageNo").val(n);
+			$("#pageSize").val(s);
+			$("#searchForm").submit();
+	    	return false;
+	    }
+		var flag = "${isCustomer?string('true', 'false')}";
+		</script>
+	</head>
+	<body>
+	<form action="${res}/ranking/clicklike/list.do" id="searchForm" style="display:none">
+				<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+				<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+	</form>
+		<div class="form count">
+					
+			<div class="l item item2 t1" style="z-index: 20;display:none;">
+				<span class="t l" style="width:60px;width:57px\9" onchange="changeSelect(this)">地区</span>
+				<select class="l select1" width="220">
+				<option></option>
+				<#list area as item>
+					<option>${item}</option>
+				</#list>
+				</select>
+				<div class="clear"></div>
+			</div>
+			
+			<div class="l item item2 n1" style="z-index: 20;display:none;">
+				<span class="t l" style="width:60px;width:57px\9">地区</span>
+				<select class="l select7" width="108" onchange="getCitys2($('.select8'),$('.select9'),this.value)">
+					<option value="">省</option>
+				</select>					
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 n2" style="z-index: 20; margin: 0 10px; margin: 0 8px 0 7px\9;display:none;">
+				<select class="l select8" width="107" onchange="getAreas2($('.select9'),this.value)">
+					<option>市</option>
+				</select>					
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 n3" style="z-index: 20;display:none;">
+				<select class="l select9" width="108">
+					<option>区</option>
+				</select>					
+				<div class="clear"></div>
+			</div>
+			
+			
+			
+			<div class="l item item2" style="z-index: 20;">
+				<span class="t l" style="width:50px;width:47px\9">馆别 </span>
+				<select class="l select2" width="125">
+				<option></option>
+				<#list lib as item>
+					<option>${item}</option>
+				</#list>
+				</select>
+				<div class="clear"></div>
+			</div>
+			<!-- <div class="l item item2" style="z-index: 20;">
+				<span class="t l" style="width:50px;width:47px\9">馆号</span>
+				<select class="l select3" width="120" onchange="setselectText(this.value)">
+					<option></option>
+				</select>
+				<div class="clear"></div>
+			</div> -->			
+			<div class="l item item2" style="z-index:12;">
+				<span class="t l" style="width:50px;width:47px\9">表现 </span>
+				<select class="l select4 disabled" width="120" disabled onchange="setListShow(this.value)">
+					<option value="0">列表</option>
+				</select>
+			</div>
+			<div class="clear"></div>
+			
+			
+			<div class="l item item2" style="z-index: 12;">
+				<span class="t l" style="width:60px;width:57px\9">条件</span>
+				<select class="l select5" width="220" onchange="setSearchCondition(this.value)">	
+					<option value="9">馆号</option>				
+					<option value="0">名次</option>
+					<option value="1">ISBN</option>
+					<option value="2">书名</option>
+					<option value="3">出版社</option>
+					<option value="4">定价</option>
+					<option value="5">著者</option>
+					<option value="6">年份</option>
+					<option value="7">分类号</option>
+					<option value="8">赞次</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 conditions" style="width:478px;position:static;display: none;">
+				<span class="t l" style="width:50px;width:47px\9">从</span>	
+				<input type="text" class="text l date_input dF" value="" style="width:180px;width:180px\9" isbottom="1" readonly="readonly" onKeyPress="Myenter('dT')"/>
+				<img src="${res}/images/yun_back_img9.png" class="l date"/>
+				<span class="t l t3" style="width:50px;">至</span>
+				<input type="text" class="text l date_input dT" value="" style="width:180px;width:180px\9" isbottom="1" readonly="readonly" onKeyPress="Myenter('tongji')"/>
+				<img src="${res}/images/yun_back_img9.png" class="l date"/>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 conditions" style="width:478px;">
+				<span class="t l" style="width:50px;width:47px\9">从</span>	
+				<input type="text" class="text l pF" value="" style="width:180px;width:180px\9" onKeyPress="Myenter('pT')"/>
+				<span class="t l t3" style="width:50px;">至</span>
+				<input type="text" class="text l pT" value="" style="width:180px;width:180px\9" onKeyPress="Myenter('tongji')"/>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 conditions" style="width:478px;display: none;">
+				<span class="t l" style="width:50px;width:47px\9">&nbsp;</span>	
+				<input type="text" class="text l cont" value="" style="width:419px;width:419px\9" onKeyPress="Myenter('tongji')"/>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 conditions" style="width:478px;display:none;">
+				<span class="t l" style="width:50px;width:47px\9">&nbsp;</span>	
+				<select class="l select6" width="184">
+					<option>AAAA</option>
+					<option>AAAB</option>
+					<option>AAAC</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2">
+				<input type="button" class="btn btn5 tongji" value="开始统计" id="search" onclick="pageTo(1,10,false)" style="margin-top:-4px;margin-left: 20px;margin-left: 16px\9;"/>
+				<input type="button" class="btn btn5" value="导出清单" onclick="pageTo(1,10,true)" style="margin-top:-4px;"/>
+			</div>
+			<div class="clear"></div>		
+		</div>
+		
+		<div id="listTable">
+			<div class="table-parent">
+				<table cellspacing="0" class="table" style="min-width:1080px;">
+					<thead class="thead">
+						<th class="th w62">名次</th>
+						<th class="th w120">ISBN</th>
+						<th class="th w230">书名</th>
+						<th class="th w100">出版社</th>
+						<th class="th w70">定价</th>
+						<th class="th w75">著者</th>
+						<th class="th w54">年份</th>
+						<th class="th w88">分类号</th>
+						<th class="th tw88 last operation">赞次</th>
+					</thead>
+					
+					<#if isCustomer?string("yes","no")=="yes">
+						<#list page.list as li>
+							<tr>
+								<td>${li.ranking!''}</td>
+								<td>${li.isbn!''}</td>
+								<td class="tl">${li.bookName!''}</td>
+								<td>${li.press!''}</td>
+								<td class="tr">${li.price?string('0.00')}</td>
+								<td>${li.author!''}</td>		
+								<td>${li.date!''}</td>
+								<td>${li.typeNumber!''}</td>
+								<td>${li.click}</td>
+							</tr>
+						</#list>
+					</#if>
+					
+					<!-- <tr>
+						<td colspan='9' class='tl last'>
+								<#if isCustomer?string("yes","no")=="yes">
+								<div class='heji'>合计种数<span>${sum?split("-")[0]!0}</span>合计赞次<span>${sum?split("-")[1]!0}</span></div>
+								<#else>
+								<div class='heji'>合计种数<span>0</span>合计赞次<span>0</span></div>
+								</#if>
+						</td>
+					</tr> -->
+				</table>
+			</div>
+			<div class='zongji'>
+				<div class='zongji-left'>
+			    	合计种数<span class='left-span'>0</span>
+			    	合计赞次<span class='left-span'>0</span>
+	   				<div class="paging">
+						${page}
+					</div>
+	   			</div>
+			</div>
+			<!-- <div class="paging center">
+			${page}
+			</div> -->
+		</div>
+		
+	</body>
+</html>
+<script type="text/javascript" src="${res}/js/getMoreSelect.js"></script>
+<script>	
+
+if(flag == 'false'){
+	$('.n1').show();$('.n2').show();$('.n3').show();
+	$(".select2").attr("width","125");
+	$(".select3").attr("width","120");
+	$(".select4").attr("width","120");
+}else{
+	$(".t1").show();
+	$(".select2").attr("width","184");
+	$(".select3").attr("width","184");
+	$(".select4").attr("width","180");
+}
+
+	getProvinces('.select7');
+	//自定义下拉列表
+	var select1 = setSelect('.select1');
+	var select2=setSelect('.select2');
+	var select3=setSelect('.select3');
+	var select4=setSelect('.select4');
+	setSelect('.select5');
+	setSelect('.select6');
+	var select7 = setSelect('.select7');
+	setSelect('.select8');
+	setSelect('.select9');
+	
+	
+	
+	
+	
+	select4.find('.head').css({background:'none'});
+	//切换馆号下拉列表文字显示
+	select3.find('.head').html($('.select3').val());
+	function setselectText(val){		
+		select3.find('.head').html(val);		
+	}
+
+	//切换搜索条件
+	function setSearchCondition(val){
+		$('.conditions').hide();
+		$(".dF").val("");$(".cont").val("");$(".pT").val("");$(".dT").val("");$(".pF").val("");
+		if(val==0 || val==1 || val==4 || val==6 || val==7 || val==8 || val==9){
+			$('.conditions').eq(1).show();
+		}else if(val==2 || val==3 || val==5){
+			$('.conditions').eq(2).show();	
+		}
+	}
+	
+	
+	
+	//加载日历控制
+	$(function(){		
+		$('.date_input').date_input();
+		//点击选择日期按钮，调用日期控件
+		$('img.date').click(function(event){
+			event.stopPropagation();
+			$(this).prev().prev().focus();
+		});	
+	});	
+	var url = "${res}";
+	function checkSelect(a1, p1, c1){
+		 if(flag == 'true'){
+			 if(a1 == ""){
+				pullSelect($(".select1")[0]);
+	 			return false;
+			 }
+			return true;
+		 }
+		 if(flag == 'false'){
+			 if(p1==""){
+				pullSelect($(".select7")[0]);
+				return false;
+			 }
+			 if(c1==""){
+				pullSelect($(".select8")[0]);
+				return false;
+			}
+		}
+		 return true;
+	}
+	//翻页+查询
+	function pageTo(n,s,flagT){
+		var ss = autoHeight();
+		var a1 = "";
+		var expiresDate = new Date();
+  		expiresDate.setTime(expiresDate.getTime() + (5 * 1440* 60 * 1000));
+		if(flag == 'true'){
+			 a1 = $(".select1").val();
+			 $.cookie('select1', a1, {expires:expiresDate});
+		}else{
+			var sheng = $('.n1').find("option:selected").text();
+			var shi = $('.n2').find("option:selected").text();
+			var qu = $('.n3').find("option:selected").text();
+			sheng = sheng=='省'?'':sheng;
+			shi = shi=='市'?'':shi;
+			qu = qu=='区'?'':qu;
+			a1 = sheng+"-"+shi+"-"+qu
+			if(a1.length == 2){
+				a1=''
+			}else if(sheng.length!=0&&shi.length==0&&qu.length==0){
+				a1=sheng
+			}else if(sheng.length!=0&&shi.length!=0&&qu.length==0){
+				a1=sheng+"-"+shi
+			}else if(sheng.length!=0&&shi.length!=0&&qu.length!=0){
+				a1=sheng+"-"+shi+"-"+qu
+			}
+			$.cookie('select7', sheng, {expires:expiresDate});
+			$.cookie('select8', shi, {expires:expiresDate});
+			$.cookie('select9', qu, {expires:expiresDate});
+		}
+		if (a1==null) {
+			a1 = "";
+		}
+		var a2 = $(".select2").find("option:selected").text();
+		$.cookie('select2', a2, {expires:expiresDate});
+		var a3 = "";
+		var a5 = $(".select5").val();
+		var df1 = $(".dF").val();
+		var dt1 = $(".dT").val();
+		var pf1 = $(".pF").val();
+		var pt1 = $(".pT").val();
+		var ct1 = $(".cont").val();
+		if(!checkSelect(a1, sheng, shi))return false;
+		if(flagT==true){
+			
+			//判断查询的结果是否有结果集
+			$.post("${res}/ranking/clicklike/queryInfo.do?pageNo="+n+"&pageSize="+s,{area:a1,lib:a2,hallCode:a3,option:a5,dateFrom:df1,dateTo:dt1,searchFrom:pf1,searchTo:pt1,keyWord:ct1 },function(data){
+				data=JSON.parse(data);
+				var arr = data.list;
+				if(arr.length != 0){
+					location.href ="${res}/ranking/clicklike/exportList.do?area="+a1+"&lib="+a2+"&hallCode="+a3+"&option="+a5+"&dateFrom="+df1+"&dateTo="+dt1+"&searchFrom="+pf1+"&searchTo="+pt1+"&keyWord="+ct1;					
+				}
+			});
+			
+		
+		}else{
+		//${res}/report/readerReport/queryInfo.do   需要改链接---------------
+			ZENG.msgbox.show("加载中....", 6, 15000);//加载中
+			$("#search").attr("disabled", true);
+			$("#search").attr("disabled", "disabled");
+			$("#search").css('background', '#9da4ad');
+		$.post("${res}/ranking/clicklike/queryInfo.do?pageNo="+n+"&pageSize="+ss,{area:a1,lib:a2,hallCode:a3,option:a5,dateFrom:df1,dateTo:dt1,searchFrom:pf1,searchTo:pt1,keyWord:ct1 },function(data){
+			$(".table-parent").html("");
+			data=JSON.parse(data);
+			var arr = data.list;
+			var strPage;
+			var str = "<table cellspacing='0' class='table' style='min-width:1080px;'> <thead class='thead'>";
+				str += "<th class='th w62'>名次</th>";
+				str += "<th class='th w120'>ISBN</th>";
+				str += "<th class='th w230'>书名</th>";
+				str += "<th class='th w100'>出版社</th>";
+				str += "<th class='th w70'>定价</th>";
+				str += "<th class='th w75'>著者</th>";
+				str += "<th class='th w54'>年份</th>";
+				str += "<th class='th w88'>分类号</th>";
+				str += "<th class='th tw88 last operation'>赞次</th></thead>";
+			if(arr.length == 0)
+			{
+				str += "<tr> <td colspan='9' class='tl'><div style='text-align:center;font-weight: bold;'>发现0条数据!</div></td></tr>";	
+			}
+			for ( var i=0;i<arr.length;i++) {
+				str+="<tr>";
+				str+="<td>"+arr[i].ranking+"</td>";
+				str+="<td>"+arr[i].isbn+"</td>";
+				str+="<td class='tl' title='"+arr[i].bookName+"'>"+arr[i].bookName+"</td>";
+				str+="<td title='"+arr[i].press+"'>"+arr[i].press+"</td>";
+				str+="<td class='tr'>"+parseFloat(arr[i].price).toFixed(2)+"</td>";
+				str+="<td title='"+arr[i].author+"'>"+arr[i].author+"</td>";
+				str+="<td>"+arr[i].date+"</td>";
+				str+="<td>"+arr[i].typeNumber+"</td>";
+				str+="<td class='last operation'>"+arr[i].click+"</td>";
+				str+="</tr>";
+				if(i == arr.length-1)
+				{
+					var num1 = arr[i].sumNumber.split(",")[0];
+					var num2 = arr[i].sumNumber.split(",")[1];
+					//str += "<tr> <td colspan='9' class='tl'><div class='heji last'>合计种数<span>"+num1+"</span>合计赞次<span>"+parseFloat(num2).toFixed(2)+"</span></div></td></tr>";
+					strPage = "<div class='zongji-left'>合计种数<span class='left-span'>"+num1+"</span>合计赞次<span class='left-span'>"+num2+"</span>";
+					strPage += "<div class='paging'></div></div>";
+				}
+			}
+			str+="</table>";
+			$(".table").remove();
+			$(".table-parent").html(str);
+			$(".zongji").html(strPage);
+			$(".paging").html(data.cont);
+			ZENG.msgbox.hide();
+			//js jquery 恢复置灰按钮
+			$("#search").attr("disabled", false); //设置disabled为false
+			$("#search").removeAttr("disabled");  //移除属性
+			$('#search').css('background','#2561b0');
+		},"json");}
+	}
+	function Myenter(str){
+		  if (event.keyCode == 13){  
+		   		 $("."+str).focus();
+		    }
+	}
+	function loadCookie(){
+		if(flag=='false'){
+			$(".select7").html($('.select7').html()).val($.cookie('select7'));
+			select7.reset();
+			var province = $(".select7").val();
+			if(province!='')
+			getCitys3($('.select8'),$('.select9'),$.cookie('select7'),$.cookie('select8'));
+		}else{
+			$(".select1").html($('.select1').html()).val($.cookie('select1'));
+			select1.reset();
+		}
+		$(".select2").html($('.select2').html()).val($.cookie('select2'));
+		select2.reset();
+	}
+	setTimeout(window.onload=loadCookie, 100);
+</script>

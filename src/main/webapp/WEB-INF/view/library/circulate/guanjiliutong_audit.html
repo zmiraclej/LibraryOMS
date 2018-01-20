@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>客户管理-跨客户馆际流通审核</title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../../head.html">
+	<style>
+@media (min-width:1720px) {
+	.twname{width:295px;}
+	.twaddress{width:300px;}
+	.twcode{width:275px;}
+	.libname{width:295px;} 
+	.libaddress{width:445px;}
+	.twObject{width:445px;}
+}
+@media (min-width:1580px) and (max-width: 1720px) { 
+	.twname{width:245px;}
+	.twcode{width:275px;}
+	.libname{width:295px;} 
+	.libaddress{width:445px;}
+	.twObject{width:430px;}
+	.twaddress{width:295px;}
+	.t_space{width:220px;}
+	/* .table-lib{min-width:1760px; margin: 0 auto;} */
+	}
+@media (min-width: 1480px) and (max-width: 1580px) { 
+	.twname{width:225px;}
+	.twcode{width:265px;}
+	.libname{width:265px;} 
+	.libaddress{width:425px;}
+	.twObject{width:410px;}
+	.twaddress{width:280px;}
+	.t_space{width:200px;}
+	/* .table-lib{min-width:1760px; margin: 0 auto;} */
+	}
+@media (min-width: 1380px) and (max-width: 1480px) { 
+	.twname{width:170px;}
+	.twObject{width:280px;}
+	.t_bohui{width:132px;}
+	.t_laiyuan{width:170px;}
+	.twaddress{width:260px;}
+	.t_space{width:120px;}
+	}	
+@media (min-width: 1200px) and (max-width: 1380px) { 
+	.twname{width:130px;}
+	.twObject{width:240px;}
+	.t_bohui{width:110px;}
+	.t_laiyuan{width:150px;}
+	.twaddress{width:240px;}
+	.t_space{width:90px;}
+	.t_wlast{width:40px};
+	}
+@media (min-width: 980px) and (max-width: 1199px) { 
+	.twname{width:105px;} 
+	.twaddress{width:220px;}
+	.twcode{width:110px;}
+	.libname{width:90px;}
+	.libaddress{width:90px;}
+	.twObject{width:125px;}
+	.t_bohui{width:100px;}
+	.t_laiyuan{width:120px;}
+	.t_space{width:90px;}
+	.t_wlast{width:40px};
+	}
+@media (min-width: 768px) and (max-width: 979px) { 
+	.twname{width:90px;} 
+	.twaddress{width:90px;}
+	.twcode{width:90px;}
+	.libname{width:90px;} 
+	.libaddress{width:90px;}
+	.twObject{width:120px;}
+	.t_bohui{width:100px;}
+	.t_laiyuan{width:110px;}
+	.t_space{width:90px;}
+	}
+@media (max-width: 767px) { 
+	.twname{width:90px;}
+	.twaddress{width:90px;}
+	.twcode{width:90px;}
+	.libname{width:90px;}
+	.libaddress{width:90px;}
+	.twObject{width:120px;}
+	.t_bohui{width:110px;}
+	.t_laiyuan{width:120px;}
+	.t_space{width:90px;}
+	}	
+	</style>		
+	</head>
+
+	<body>		
+		<div class="title">
+			<span class="l t">客户管理-跨客户馆际流通审核</span>
+			<img src="${res}/images/yun_back_img1.png" class="r" onclick="location.href=location.href"/>
+			<div class="clear"></div>
+		</div>
+		<div class="gjltlist">
+			<div class="search">
+				<form action="${res}/system/circulationAudit/audit.do" id="searchForm" class="searchForm">
+					<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+					<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}" />
+					<input type="text" class="text l gray"  name="search" maxlength="20" tipMsg="申请人/对象" value="${search!''}"/>
+					<input type="submit" class="btn" value="搜索"/>
+				</form>
+			</div>
+			
+			<table cellspacing="0" class="table" style="min-width:960px;">
+				<thead class="thead">
+					<th class="th w82">日期</th>
+					<th class="th twObject">申请人</th>
+					<th class="th w75">操作员</th>
+					<th class="th twObject">对象</th>
+					<th class="th w88">对象操作员</th>
+					<th class="th w60">状态</th>
+					<th class="th t_last operation last" style="text-align:left;padding-left:10px;">操作</th>					
+				</thead>
+				<#list page.list as audit>
+					<tr>
+						<td>${audit.createDate?string('yyyyMMdd')}</td>
+						<td class="tl" title="${audit.oneself!''}">${audit.oneself!''}</td>
+						<td>${audit.userName!''}</td>
+						<td class="tl" title="${audit.target!''}">${audit.target!''}</td>
+						<td>${audit.targetUser!''}</td>
+						<td>
+							<#if audit.status=='1'>
+								已同意
+							<#elseif audit.status=='2'>
+								已拒绝
+							<#else>
+								已同意
+							</#if>
+						</td>
+						<td class="last" style="text-align:left;padding-left:10px;">
+						<#if audit.status=='1'>
+							<a href="${res}/system/circulationAudit/detail.do?auditId=${audit.id}&review=3&operator=3" class="green">审阅</a>
+						<#else>
+							<a href="${res}/system/circulationAudit/detail.do?auditId=${audit.id}&review=0" style="color:#000">查看</a>
+						</#if>
+							
+						</td>
+					</tr>
+				</#list> 	
+							
+			</table>
+		</div>
+			<div class="paging">${page}</div>
+	</body>
+</html>
+<script>
+	setSelect('.jieshu');
+	setSelect('.jieshu2');
+	$('#scroll').css({maxHeight:document.documentElement.clientHeight-122});
+	window.onresize=function(){
+		$('#scroll').css({maxHeight:document.documentElement.clientHeight-122});
+	}
+	
+	//范围内全选	/取消全选
+	$('#all').click(function(){
+		var classStr='.table .checkbox1';
+		if($(this).is(':checked')){
+			$(classStr).each(function(){$(this)[0].checked=true;});
+		}else{
+			$(classStr).each(function(){$(this)[0].checked=false;});			
+		}
+	});
+	
+	function page(n,s){
+		if(n==-1){
+			n = $(".pageNo").val();
+		}
+		$("#pageNo").val(n);
+		$("#pageSize").val(s);
+		$(".searchForm").submit();
+		return false;
+	}
+	
+	//点击复选框
+	$('.table .checkbox1').click(function(){
+		if($(this).is(':checked')){
+			$(this).next().css('visibility',"visible");
+			if($('.table .checkbox1').length== $('.table .checkbox1:checked').length){
+				$('#all')[0].checked=true;
+			}
+		}else{
+			$(this).next().css('visibility',"hidden");
+			$('#all')[0].checked=false;
+		}
+	});
+	
+</script>

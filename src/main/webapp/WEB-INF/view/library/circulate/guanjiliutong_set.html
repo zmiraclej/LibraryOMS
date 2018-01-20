@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>馆际流通设置</title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../../head.html">
+		<script src="${res}/js/jquery.cookie.js" type="text/javascript" ></script>
+		<script type="text/javascript">
+			$(document).ready(function(){ 
+				var state = ''; 
+				state = $.cookie('the_cookie');
+				if(state==''){return;};
+				if(!state == undefined || state !=null){
+					state = state.substring(0,state.length-1);
+					var arr = state.split(",");
+					for(var i=0;i<arr.length;i++){
+						if($("."+arr[i])[0]){
+							$("."+arr[i])[0].checked=true;
+						}
+					}
+					
+				}
+			}); 
+		</script>
+	</head>
+	<body>		
+		<div class="title">
+			<span class="l t">馆际流通设置</span>
+			<img src="${res}/images/yun_back_img1.png" class="r" onclick="location.href=location.href"/>
+			<div class="clear"></div>
+		</div>
+		<div class="search">
+			<form action="${res}/system/circulation/list.do" id="searchForm" class="searchForm">
+				<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+				<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+				<input type="text" class="text l gray"  name="search" maxlength="20" tipMsg="馆号/馆名" value="${search!''}"/>
+				<input type="submit" class="btn" value="搜索"/>
+<!-- 					<a href="${res}/system/circulation/cross.do" class="sethref r">跨客户流通申请</a> -->
+			</form>
+		</div>
+				<table cellspacing="0" class="table" style="min-width:1080px;">
+				<thead class="thead">
+					<th class="th w45"><input type="checkbox" value="" id="all"/></th>
+					<th class="th w60">序号</th>
+					<th class="th twname">馆名</th>
+					<th class="th w68">馆号</th>
+					<th class="th w88">馆别</th>
+					<th class="th w145">地区</th>
+					<th class="th w75">负责人</th>
+					<th class="th last tw188 t_last" style="text-align:left;padding-left:1%;">流通范围</th>
+				</thead>
+				<#list page.list as library>
+						<tr tid="${library.id}">
+							<td class="th w45"><input type="checkbox" value="${library.hallCode}" id="all"  class="checkbox1 ${library.hallCode}" onclick="changeState('.${library.hallCode}')"/></td>
+							<td>${(page.pageNo-1)*page.pageSize+(library_index+1)}</td>
+							<td class="tl" title="${library.name!''}">${library.name!''}</td>
+							<td>${library.hallCode!''}</td>
+							<td>${library.libraryLevel!''}</td>
+							<td title="${(library.areaAddress?replace('-', ''))!''}">${(library.areaAddress?replace('-', ''))!''}</td>
+							<td>${library.conperson!''}</td>
+							<td class="last" style="text-align:left;padding-left:1%;">
+							${library.scopeString!''}
+							</td>
+						</tr>
+				</#list> 
+			</table>
+		
+		<div class="form" style="width:auto; margin-top:-10px;">
+			<select class="jieshu" width="135" isup="1">
+				<option value="add">加入</option>
+				<option value="exit">退出</option>				
+				<option value="replace">替换为</option>
+			</select>
+			<span class="l">&nbsp;</span>
+			<select class="jieshu2" width="135" isup="1">
+				<#list max as item>
+				<option value='${item_index+1}'>${item.name}</option>
+				</#list>
+			</select>	
+			<span class="l" style="color:#9a581b;font-size: 16px; line-height: 34px; margin-left: 10px;">范围数自动增加</span>	
+			<input type="button" value="确定" class="btn saveBtn l" style="height:34px;width:100px; margin-left: 5px;"/>
+			<#if add??>
+				<span class="l waring tswords" style="color:red;font-size: 16px; line-height: 34px; margin-left: 20px;">成功!</span>
+			</#if>
+			<div class="r" style="margin-top: -18px;">
+				<div class="paging">${page}</div>
+			</div>
+		</div>
+	</body>
+</html>
+<script>
+	var cook = ""; 
+	setSelect('.jieshu');
+	setSelect('.jieshu2');
+	
+	
+	//范围内全选	/取消全选
+	$('#all').click(function(){
+		var classStr='.table .checkbox1';
+		var cook = $.cookie('the_cookie');
+		var expiresDate = new Date();
+		expiresDate.setTime(expiresDate.getTime() + (5 * 60 * 1000));
+		if(cook == 'null' || cook == null ){cook="";}
+		if($(this).is(':checked')){
+			var str = "";
+			$(classStr).each(function(){
+				$(this)[0].checked=true;
+				var vl = $(this).val();
+				str += vl+",";
+			});
+			cook += str;
+			$.cookie('the_cookie',cook,{expires:expiresDate});
+		}else{
+			var str = "";
+			$(classStr).each(function(){
+				$(this)[0].checked=false;
+				var vl = $(this).val();
+				str += vl+",";
+			});
+			cook = cook.replace(str,"");
+			$.cookie('the_cookie',cook,{expires : expiresDate});
+		}
+	});
+	
+	
+	
+	//点击复选框
+	$('.table .checkbox1').click(function(){
+		if($(this).is(':checked')){
+			$(this).next().css('visibility',"visible");
+			if($('.table .checkbox1').length== $('.table .checkbox1:checked').length){
+				$('#all')[0].checked=true;
+			}
+		}else{
+			$(this).next().css('visibility',"hidden");
+			$('#all')[0].checked=false;
+		}
+	});
+	
+	//点击按钮确定
+	$('.saveBtn').on('click',function(){
+		$('.tswords').text("");
+		//得到cookie里面的数组 
+		var allId = $.cookie('the_cookie');
+		//判断取得的cookie值
+		if(allId != 'null'&&allId != 'nul'&&allId != ''&&allId != undefined){
+		//得到选中的模式
+		var val=$('.jieshu2').find("option:selected").val();
+		if(val==''){
+			$('.tswords').html('请选择范围!');
+			return false;
+		}else {
+			$('.tswords').html('');
+		}
+		var action=$('.jieshu').find("option:selected").val();
+		//console.log(allId.substring(0,allId.length-1)+"---------------------"+parseInt(val));
+	    $.post("${res}/system/circulation/circulate.do",{checkedId:allId.substring(0,allId.length-1),scope:parseInt(val),action:action},function(data){
+	    		$.cookie('the_cookie','');
+	    		if(data=='false'){
+	    			$('.waring').html('保存失败!');
+	    		}else{
+	    			//清除cookie
+	    			//location.reload();
+	    			location.href="${res}/system/circulation/list.do?add=1pageNo="+$("#pageNo").val()+"&pageSize="+$("#pageSize").val()+"";
+	    			//$('.sd').submit();
+	    		}
+			});  
+		}
+		else
+		{
+			$('.tswords').html("请先选择条目!");
+		}
+	});
+	
+	function page(n,s){
+		if(n==-1){
+			n = $(".pageNo").val();
+		}
+		$("#pageNo").val(n);
+		$("#pageSize").val(s);
+		$(".searchForm").submit();
+		return false;
+    }
+	//设置既已选择模式     时常三分钟
+	function changeState(cls){
+		var expiresDate = new Date();
+		expiresDate.setTime(expiresDate.getTime() + (1 * 60 * 1000));
+		var cook = $.cookie('the_cookie');
+		if(cook == 'null' || cook == null){cook = "";}
+		if($(cls)[0].checked)
+		{
+			cook += cls.substring(1,cls.length)+",";
+			$.cookie('the_cookie',cook,{expires:expiresDate});
+		}
+		else
+		{
+			cook = cook.replace(cls.substring(1,cls.length)+",","");
+			$.cookie('the_cookie',cook,{expires : expiresDate});
+		}
+	}
+	
+</script>

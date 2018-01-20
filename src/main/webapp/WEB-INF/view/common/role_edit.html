@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../head.html">
+		<script type="text/javascript">
+		var menuIds = new Array();
+			$(function(){
+				changePower();
+				$('#form').lineFeedValidate();
+				$("#rolename").focus();
+				initValue();
+				$("#roleButton").click(function(){
+					$(".sumbit-msg").text("");
+					menuIds =[];
+					$("input[type='checkbox']").each(function(){
+							if($(this).is(':checked')){
+								menuIds.push(this.value);
+							}
+					});
+					setDisabled('roleButton');
+					$("#form").ajaxSubmit({
+		  	  	 		type:"post",
+						async:false,
+						url:config.contextPath+"/cms/role/edit.html",
+						data:{
+							menuIds:menuIds
+						},
+						beforeSubmit:function(){
+							if(null == $("#rolename").val() || "" == $("#rolename").val()){
+								showErrorTipMsg($("#rolename"),"角色名称不能为空");
+								removeDisabled('roleButton');
+								return false;
+							}
+							else {
+								var flag = checkRoleName();
+								return flag;
+							}
+						},
+						traditional:true,
+						dataType: 'json',
+						success:function(data){
+							$(".sumbit-msg").text("成功!");
+						},
+						error:function(){
+							ZENG.msgbox.hide();
+							 $(".sumbit-msg").text("失败!");
+						}
+					});
+				});
+				var roleId = $("#roleId").val();
+				if(roleId=="1"||roleId=="3"){
+					//维护的是平台超级权限和
+					$("#level").addClass("disabled");
+					$("#level").attr("readonly","readonly");
+					$("#rolename").addClass("disabled");
+					$("#rolename").attr("readonly","readonly");
+					$("#roledesc").addClass("disabled");
+					$("#roledesc").attr("readonly","readonly");
+				} else {
+					//非以及二级超级权限新增和审核互斥
+					$('#15').attr('class', 'sys-new-add');
+					$('#17').attr('class', 'second sys-new-em');
+					$("#16").addClass("disabled");
+					
+					$('#18').attr('class', 'sys-activity-add');
+					$('#20').attr('class', 'second sys-activity-em');
+					$("#19").addClass("disabled");
+					
+					$('#33').attr('class', 'sys-notice-add');
+					$('#35').attr('class', 'second sys-notice-em');
+					$("#34").addClass("disabled");
+				}
+			})
+			
+			
+			function checkRoleName(){
+				  var result=false;
+				$.ajax({
+					type:"get",
+					async:false,
+					url:config.contextPath+"/cms/role/valiRoleName.html",
+					data:{
+						roleid:$("#roleId").val(),
+						roleName:$("#rolename").val()
+					},
+					dataType: 'json',
+					success:function(data){
+						if(!data){
+							showErrorTipMsg($("#rolename"),"角色名称已存在");
+							result=false;
+						}else{
+							removeDisabled('roleButton');
+	 						$("#roledesc").focus();
+	 						result=true;
+						}
+					}
+				});
+				return result;
+		}
+			
+			function initValue(){
+				var menus = new Array();
+				menus = eval('(' + "${menusId}" + ')');;
+				if(null != menus){
+					$.each(menus,function(index,item){
+						$("#"+item).attr("checked",true);
+					});
+				}
+			}
+			
+			function meth(){
+				document.getElementById("37").checked = true
+			}
+			
+		</script>
+	</head>
+	<body onload="meth()">
+		<div class="form">
+			<form class="form-horizontal" id="form" action="${res}/common/role/edit.do" method="post"	autocomplete="off">
+			<div class="l item" style="z-index: 12;">
+				<span class="t l">角色级别 </span>
+				<select class="w230 select0 l disabled" width="220" name="level" id="level" onchange="changePower()"  value="${erole.level!''}"  readonly="readonly">
+					<option <#if erole.level=='0'> selected="selected" </#if> value="0">一级</option>
+					<option <#if erole.level=='1'> selected="selected" </#if> value="1">二级</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+			<div class="l item">
+				<span class="t l">角色名称</span> 
+				<input type="text" class="text l w220" value="${erole.name}" name="name" index="1" id="rolename"   tipMsg=""  maxlength="10"/>
+				<div class="clear"></div>
+			</div>
+			<div class="l item">
+				<span class="t l">描述 </span>
+				<input type="text"   style="margin-left: 13px; margin-left: 7px\9;" class="text l w220" value="${erole.description}" name="description" index="2" id="roledesc" tipMsg=""  maxlength="18"/>
+				<input type="hidden" class="text l w220" value="${erole.id}" name="id"  id="roleId" tipMsg=""/>
+				<input type="hidden" class="text l w220" value="${erole.isEffective}" name="isEffective"  id="isEffective" tipMsg=""/>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+			<div class="l item" style="height: auto;">
+				<span class="t l">授权 </span>
+				<div class="power l">
+					<table class="table2" cellspacing="0" border="0">
+						<tr>
+							<td class="tr tr2">用户管理</td>
+							<td>
+								<input type="checkbox" value="1" id="1"/><label>用户新增</label>
+								<input type="checkbox" value="2" id="2"/><label>用户维护</label>
+							</td>
+						</tr>
+						<tr>
+							<td class="tr td">客户管理</td>
+							<td>
+								<input type="checkbox" value="5"  id="5" /><label>客户新增</label>
+								<input type="checkbox" value="6" id="6"/><label>客户维护</label>
+								
+							</td>
+						</tr>
+						<tr>
+							<td class="tr tr2" alt="图书馆管理">图书馆管理(一级)</td>
+							<td>
+								<#if erole.level=='1'><input type="checkbox" value="3" id="3"/><label>图书馆新增</label></#if>
+								<#if erole.level=='0'><input type="checkbox" value="38" id="38"/><label>图书馆审核</label></#if>
+								<input type="checkbox" value="4" id="4"/><label>图书馆维护</label>
+							</td>
+						</tr>
+						<tr>
+							<td class="tr tr2" alt="馆际流通管理">馆际流通管理(一级)</td>
+							<td>
+								<#if erole.level=='1'><input type="checkbox" value="9" id="9"/><label>馆际流通审核</label></#if>
+								<#if erole.level=='1'><input type="checkbox" value="13" id="13"/><label>馆际流通设置</label></#if>
+								<#if erole.level=='1'><input type="checkbox" value="14" id="14"/><label style="width:140px;">跨单位馆际流通设置</label></#if>
+								<#if erole.level=='1'><input type="checkbox" value="31" id="31"/><label style="width:140px;">跨客户馆际流通审核</label></#if>
+								<#if erole.level=='0'><input type="checkbox" value="31" id="31"/><label style="width:140px;">跨客户馆际流通审核</label></#if>
+							</td>
+						</tr>
+						<tr>
+							<td class="tr td" alt="电子书管理">电子书管理(一级)</td>
+							<td>
+								<input type="checkbox" value="21" id="21"/><label>电子书新增</label>
+								<input type="checkbox" value="22" id="22"/><label>电子书维护</label>
+								<input type="checkbox" value="36" id="36"/><label>电子书配发</label>
+							</td>
+						</tr>
+						<tr>
+							<td class="tr tr2" alt="资讯管理">资讯管理(一级)</td>
+							<td>
+								<input type="checkbox" value="15" id="15" class="sys-new-add"/><label>资讯新增</label>
+								<input type="checkbox" value="17" id="17" class="second sys-new-em"/><label class="second">资讯审核</label>
+								<input type="checkbox" value="16" id="16" disabled="disabled"/><label>资讯维护</label>
+							</td>
+						</tr>
+						<tr class='tr-notice'>
+							<td class="tr tr2" alt="消息管理">消息管理(一级)</td>
+							<td>
+								<input type="checkbox" value="33" id="33" class="sys-notice-add"/><label>消息新增</label>
+								<#if erole.level=='0'> <input type="checkbox" value="35" id="35" class="second sys-notice-em"/><label class="second">消息审核</label> </#if>
+								<input type="checkbox" value="34" id="34" disabled="disabled"/><label>消息维护</label>
+							</td>
+						</tr>
+						<tr>
+							<td class="tr tr2" alt="读友会管理">读友会管理(一级)</td>
+							<td>
+								<input type="checkbox" value="18" id="18" class="sys-activity-add"/><label>读友会新增</label>
+								<input type="checkbox" value="20" id="20" class="second sys-activity-em"/><label class="second">读友会审核</label>
+								<input type="checkbox" value="19" id="19" disabled="disabled"/><label>读友会维护</label>
+							</td>
+						</tr>
+<!-- 						<tr> -->
+<!-- 							<td class="tr tr2" alt="数据管理">数据管理(一级)</td> -->
+<!-- 							<td> -->
+<!-- 								<input type="checkbox" value=""/><label>数据管理</label> -->
+<!-- 							</td> -->
+<!-- 						</tr> -->
+						<tr>
+							<td class="tr tr2" alt="统计分析">统计分析(一级)</td>
+							<td>
+								<input type="checkbox" value="30" id="30"/><label>统计分析</label>
+							</td>
+						</tr>
+						<tr>
+							<td class="tr tr2" alt="排行榜">排行榜(一级)</td>
+							<td>
+								<input type="checkbox" value="32" id="32"/><label>排行榜</label>
+							</td>
+						</tr>
+						<tr>
+							<td class="tr tr2">系统管理</td>
+							<td ><!-- <#if erole.id==1 || erole.id==3> </#if> -->
+								<#if erole.level=='0'>
+									<input type="checkbox" value="7" id="7" disabled="disabled"/><label>角色新增</label>
+								<#else>
+									<input type="checkbox" value="7" id="7"/><label>角色新增</label>
+								</#if>
+								<#if erole.level=='0'>
+									<input type="checkbox" value="8" id="8" disabled="disabled"/><label>角色维护</label>
+								<#else>
+									<input type="checkbox" value="8" id="8"/><label>角色维护</label>
+								</#if>
+								<input type="checkbox" value="37" id="37" disabled="disabled" checked="checked"/><label>关于本系统</label>
+							</td>
+						</tr>
+<!-- 						<tr> -->
+<!-- 							<td class="tr tr2" alt="财务管理">财务管理(一级)</td> -->
+<!-- 							<td> -->
+<!-- 								<input type="checkbox" value=""/><label>财务管理</label> -->
+<!-- 							</td> -->
+<!-- 						</tr> -->
+<!-- 						<tr> -->
+<!-- 							<td class="tr">安全管理</td> -->
+<!-- 							<td> -->
+<!-- 								<input type="checkbox" value=""/><label>安全管理</label> -->
+<!-- 							</td> -->
+<!-- 						</tr> -->
+					</table>
+				</div>
+				<div class="clear"></div>
+			</div>
+			<div class="l item">
+				<span class="t l">&nbsp;</span>
+				<input type="button" class="btn" value="确定" id="roleButton"/><span class="sumbit-msg"></span>
+				<div class="clear"></div>
+			</div>
+			</form>
+		</div>		
+	</body>
+</html>
+<script>	
+setSelect('.select0');//自定义下拉列表
+
+//设置input复选框id
+$('.table2 input').each(function(i){
+	if(!$(this).attr('id')){
+		$(this).attr('id','input'+i).next().attr('for','input'+i);
+	}else{
+		$(this).next().attr('for',$(this).attr('id'));
+	}
+});
+
+//切换角色级别
+function changePower(is){
+	var res=$('#level').val(),tmpstr;
+	if(!is)$('input[type=checkbox]').attr('checked',false);
+	if(res==0){
+		$('.table2 tr').show();
+		$('.tr2').each(function(){
+			tmpstr=$(this).attr('alt');
+			if(tmpstr){
+				$(this).html(tmpstr+'(一级)')
+			}
+		});
+	}else if(res==1){
+		$('.table2 tr').hide();
+		$('.tr2').each(function(){
+			tmpstr=$(this).attr('alt');//通过alt去修改
+			if(tmpstr){
+				$(this).html(tmpstr+'(二级)')
+			}
+		}).parent().show();
+		//二级屏蔽消息
+		$('.table2 .tr-notice').hide();
+	}
+}
+changePower(true);
+//资讯维护、审核选择框
+$(".sys-new-add").click(function(){
+	if ($('#15').is(':checked')) {
+		$('#16').attr("checked", true);
+		$('#17').attr("checked", false);
+	}
+	if (!$('#15').is(':checked') && !$('#17').is(':checked')) {
+		$('#16').attr("checked", false);
+	}
+});
+$(".sys-new-em").click(function(){
+	if ($('#17').is(':checked')) {
+		$('#16').attr("checked", true);
+		$('#15').attr("checked", false);
+	}
+	if (!$('#15').is(':checked') && !$('#17').is(':checked')) {
+		$('#16').attr("checked", false);
+	}
+});
+
+//消息维护、审核选择框
+$(".sys-notice-add").click(function(){
+	if ($('#33').is(':checked')) {
+		$('#34').attr("checked", true);
+		$('#35').attr("checked", false);
+	}
+	if (!$('#33').is(':checked') && !$('#35').is(':checked')) {
+		$('#34').attr("checked", false);
+	}
+	
+});
+$(".sys-notice-em").click(function(){
+	if ($('#35').is(':checked')) {
+		$('#34').attr("checked", true);
+		$('#33').attr("checked", false);
+	}
+	if (!$('#33').is(':checked') && !$('#35').is(':checked')) {
+		$('#34').attr("checked", false);
+	}
+});
+
+//读友会维护、审核选择框
+$(".sys-activity-add").click(function(){
+	if ($('#18').is(':checked')) {
+		$('#19').attr("checked", true);
+		$('#20').attr("checked", false);
+	}
+	if (!$('#18').is(':checked') && !$('#20').is(':checked')) {
+		$('#19').attr("checked", false);
+	}
+});
+//读友会维护、审核选择框
+$(".sys-activity-em").click(function(){
+	if ($('#20').is(':checked')) {
+		$('#19').attr("checked", true);
+		$('#18').attr("checked", false);
+	}
+	if (!$('#18').is(':checked') && !$('#20').is(':checked')) {
+		$('#19').attr("checked", false);
+	}
+});
+</script>

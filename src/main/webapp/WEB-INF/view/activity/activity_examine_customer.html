@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>用户读友会详情</title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../head.html">
+		<script type="text/javascript">
+		$.ajaxSetup({
+			async:true
+		});
+		 function audit(result){
+	    	var id =$("#newsId").val();
+	    	var reject = $("#reject").val();
+	    	$("#subForm").attr("action","${res}/activity/audit.do?id="+id+"&status="+result+"&reject="+reject);
+	    	$("#subForm").submit();
+		 }
+		 $(function(){
+				var stt = ${status};
+				if(stt == '1')
+				{
+					$("#b1").hide();
+					$("#b2").hide();
+					$("#b3").css({marginLeft:0});
+				}
+				else
+				{
+					$("#b3").css("display","none");	
+				}
+			})
+		</script>
+	</head>
+	<body>
+		<div class="form">			
+			<div class="l item item2">
+				<form method="post" id="subForm"></form>
+				<input type="hidden" class="text l w230" value="${activity.id}" id="newsId" />
+				<span class="t l">类别 </span>
+				<input type="text" class="text l w230 disabled" value="${activity.type}" disabled style="background:transparent;"/>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2">
+				<span class="t l" style="width:81px;">来源 </span>
+				<input type="text" class="text l w230 disabled" value="${activity.source}" disabled style="background:transparent;"/>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+			<div class="l item item2">
+				<span class="t l">标题 </span>
+				<input type="text" class="text l disabled" disabled value="${activity.title}" style="width:550px;background:transparent;"/>
+				<div class="clear"></div>
+			</div>	
+			<div class="l item item2">
+				<span class="t l">时间 </span>
+				<input type="text" class="text l disabled" disabled value="${(activity.startDate?string('yyyyMMdd HH:mm'))!''}   ——  ${(activity.endDate?string('yyyyMMdd HH:mm'))!''}" style="width:550px;background:transparent;"/>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>		
+			
+			<div class="l item item2">
+				<span class="t l">地址</span>
+				<input type="text" class="text l disabled" disabled value="${activity.activeAddress}" style="width:550px;background:transparent;"/>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>	
+			
+			<div class="l item item2" style="height: auto;">
+				<span class="t l">缩略图 </span>
+				<img src="https://img.ytsg.cn/images/newsImages/${activity.image!''}" class="l" width="123" height="80"/>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+			<div class="l item item2" style="height: auto;">
+				<span class="t l">内容 </span>
+				<div class="text l" style="width:810px;min-height:376px; height: auto; padding: 20px 15px; text-align:justify;">
+					${activity.content}
+				</div>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2" style="height: auto;">
+				<span class="t l">&nbsp;</span>
+				<div class="text l" style="width:830px; height:32px; padding-left: 10px; text-align:justify;">
+					<!-- 敏感词:<font class="red" style="margin-right:100px;">10</font> -->
+					确定人:<font style="margin-right:100px;">${activity.author.userName!''}</font>
+					联系电话:${activity.author.phone!''}
+				</div>
+				
+				
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+			<div class="l item">
+				<!-- status控制器传过来的参数，0审核，1查看 -->
+				<#if status=='0' >
+					<span class="t l">驳回理由</span>
+					<input type="text" class="text l w230" name=reject id="reject" maxLength="100" value="${activity.rejectReason!''}" tipMsg="" style="width:562px;height:32px;margin-right:8px; padding-left: 10px;"/>
+				<#else>
+					<span class="t l">&nbsp;</span>
+				</#if>
+				<input type="button" class="btn2 btn3" id="b1" value="驳回" style="margin-left: 0;position:static;" onclick="audit(3)"/>
+				<input type="button" class="btn2" style="position:static;" id="b2" value="通过"  onclick="audit(2)"/>
+				<input type="button" class="btn2" style="position:static;" id="b3" value="返回" onclick="history.go(-1)"/>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+		</div>		
+	</body>
+</html>

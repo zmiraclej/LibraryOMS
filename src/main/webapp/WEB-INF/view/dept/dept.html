@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>dept.html</title>
+	
+    <meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+    <#include "../head.html">
+    <!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+	<script type="text/javascript">
+		
+		//添加部门
+		function addDept(fatherId,level,name){
+			
+			$.ajax({
+				type:'POST',
+				async:false,
+				url:config.contextPath+"/cms/systemDept/addDept.do",
+				data:{
+					fatherId:fatherId,
+					level:level,
+					name:name
+				},
+				dataType: 'json',
+				success:function(item){
+					//新增成功
+						if(1 == level){
+							var	content='<li><span class="seria seria2"></span><span class="add_option option2" level_id="'+item.id+'" level="2" data="true">'+item.name+'</span>'
+								+'<span class="add_box" style="display:none;"><span class="add_operate add"></span>'
+								+'<span class="reduce_operate reduce reduce2" level_id="'+item.id+'"></span><span class="related_operate"></span>'
+								+'<span class="modify" style="display:none;"><input type="text" class="c_related" id="input'+item.id+'" tipmsg="部门名称"/>'
+								+'<input class="m_certain m2" type="button" temp="button'+item.id+'"  level_id="'+item.id+'" level="2" value="确定"/></span></span><ul id="'+item.id+'" class="forth" style="display:none"></ul></li>';
+								 $(".info_header").append(content);
+							
+						}else if(2 == level){
+							var	content='<li><span class="seria seria3"></span><span class="add_option option3" level_id="'+item.id+'" level="3" data="true">'+item.name+'</span>'
+								+'<span class="add_box" style="display:none;"><span class="add_operate add"></span>'
+								+'<span class="reduce_operate reduce reduce2" level_id="'+item.id+'"></span><span class="related_operate"></span>'
+								+'<span class="modify" style="display:none;"><input type="text" class="c_related" id="input'+item.id+'" tipmsg="部门名称"/>'
+								+'<input class="m_certain m3" type="button" temp="button'+item.id+'"  level_id="'+item.id+'" level="3" value="确定"/></span></span><ul id="'+item.id+'" class="forth" style="display:none"></ul></li>';
+								 $("#"+fatherId).append(content);
+						}else if(3 == level){
+							var	content='<li><span class="seria seria4"></span><span class="add_option option4" level_id="'+item.id+'" level="4" data="true">'+item.name+'</span>'
+								+'<span class="add_box" style="display:none;"><span class="operate4 add1"></span>'
+								+'<span class="reduce_operate reduce reduce2" level_id="'+item.id+'"></span><span class="related_operate"></span>'
+								+'<span class="modify" style="display:none;"><input type="text" class="c_related" id="input'+item.id+'" tipmsg="部门名称"/>'
+								+'<input class="m_certain m4" type="button" temp="button'+item.id+'"  level_id="'+item.id+'" level="4" value="确定"/></span></span><ul class="fifth"></ul></li>';
+								 $("#"+fatherId).append(content);
+							
+						}
+						showErrorTipMsg($(".c_related"),"部门名称");
+						show();
+						setSeria();
+						initTipMsg();
+						checkContent()
+				},
+				error:function(data){
+				}
+			});
+		
+		}
+		//删除部门
+		function delDept(obj){
+			$.ajax({
+				type:'POST',
+				async:false,
+				url:config.contextPath+"/cms/systemDept/delDept.do",
+				data:{
+					id:obj.attr("level_id")
+				},
+				dataType: 'json',
+				success:function(data){
+					obj.parent().parent().remove();
+					setSeria();
+					checkContent();
+				},
+				error:function(data){
+				}
+			});
+		}
+		
+		//更新部门信息
+		function updateDept(id,name,obj){
+			
+			$.ajax({
+				type:'POST',
+				async:false,
+				url:config.contextPath+"/cms/systemDept/updateDept.do",
+				data:{
+					id:id,
+					name:name
+				},
+				dataType: 'json',
+				success:function(data){
+					if("success" == data){
+						obj.parents(".add_box").prev().find(".add_option").text(name);
+						obj.parents().find(".c_related").val("");
+						showErrorTipMsg(obj.parents().find(".c_related"),"部门名称");
+					}
+				},
+				error:function(data){
+				}
+			});
+		}
+		
+		
+		
+		//得到下级
+		function getSubLevel(fatherId,level){
+			
+			$.ajax({
+				type:'get',
+				async:false,
+				url:config.contextPath+"/cms/systemDept/getSubLevel.do?time="+new Date(),
+				data:{
+					fatherId:fatherId
+				},
+				dataType: 'json',
+				success:function(data){
+				
+					if("2" == level){
+						$.each( data,function(index,item){
+							var	content='<li><span class="seria seria3"></span><span class="add_option option3" level_id="'+item.id+'" level="3" data="true">'+item.name+'</span>'
+							+'<span class="add_box" style="display:none;"><span class="add_operate add"></span>'
+							+'<span class="reduce_operate reduce reduce2" level_id="'+item.id+'"></span><span class="related_operate"></span>'
+							+'<span class="modify" style="display:none;"><input type="text" class="c_related" id="input'+item.id+'" tipmsg="部门名称"/>'
+							+'<input class="m_certain m3" type="button" temp="button'+item.id+'"  level_id="'+item.id+'" level="3" value="确定"/></span></span><ul id="'+item.id+'" class="forth" style="display:none"></ul></li>';
+							 $("#"+fatherId).append(content);
+							
+						});
+						
+					}else if("3" == level){
+						$.each( data,function(index,item){
+							var	content='<li><span class="seria seria4"></span><span class="add_option option4" level_id="'+item.id+'" level="4" data="true">'+item.name+'</span>'
+								+'<span class="add_box" style="display:none;"><span class="operate4 add1"></span>'
+								+'<span class="reduce_operate reduce reduce2" level_id="'+item.id+'"></span><span class="related_operate"></span>'
+								+'<span class="modify" style="display:none;"><input type="text" class="c_related" id="input'+item.id+'" tipmsg="部门名称"/>'
+								+'<input class="m_certain m4" type="button" temp="button'+item.id+'"  level_id="'+item.id+'" level="4" value="确定"/></span></span><ul class="fifth"></ul></li>';
+								$("#"+fatherId).append(content);
+						});
+					
+					}
+					show();
+							setSeria();
+							checkContent()
+							initTipMsg();
+				},
+				error:function(data){
+				}
+			});
+		}
+		
+	</script>
+  </head>
+<body>
+<div class="depart">
+	<ul class="first">
+		<!--级别1-->
+		<li class="info_header">
+			<span class="add_option option1" level ="1">${fatherName}</span>
+			<!--操作框-->
+			<span class="add_box" style="display:none;">
+				<span class="operate1 add add_operate"></span>
+				<span class="modify" style="display:none;">
+					<input type="text" class="c_related text tc" tipmsg="部门名称"  /><input type="button"  class="m_certain m1" level = "1" value="确定"/>
+				</span>
+			</span>
+			
+		<#if listDept?exists> 
+		   <#list listDept as dept> 
+		      <ul class="second" >
+
+				<!--级别2-->
+				<li class="depart_related" >
+					<span class="seria seria2" ></span>
+					<span class="add_option option2" level_id="${dept.id}"  level="2" data="true">${dept.name}</span>
+					<!--操作框-->
+					<span class="add_box"  style="display:none;">
+						<span class="add_operate operate2 add"></span>
+						<span class="reduce" level_id =${dept.id} ></span>
+						<span class="related_operate"></span>
+						<span class="modify" style="display:none;">
+							<input type="text" class="c_related" id="input${dept.id}" tipmsg="部门名称"/><input type="button" class="m_certain m2" temp="button${dept.id}" level_id="${dept.id}" level="2" value="确定"/>
+						</span>
+					</span>
+					<ul id="${dept.id}" class="third" style="display:none">
+						
+						
+					</ul>
+				</li>
+			 </ul>
+		    </#list> 
+		</#if>
+			
+	</ul>
+</div>
+</body>
+</html>
+<script>
+
+		
+	
+
+	//检测当前项是否含有子项，如果含有子项则不能执行删除。
+	function checkContent(){
+		$(".reduce").each(function(){
+			var t=$(this);
+			var len=t.parents(".add_box").next().find("li").length;
+			if(len>0){
+				t.addClass("reduce1").removeClass("reduce2");
+				t.off("click");
+			}else{
+				t.addClass("reduce2").removeClass("reduce1");
+			}
+		});
+	}
+	checkContent();
+	//为最后一级单位添加类名。
+	function forth(){
+		var forth=$(".forth");
+		var len=forth.length;
+		for(i=0;i<len;i++){
+			var num=i+1;
+			var a_num="forth"+num;
+			forth.eq(i).addClass(a_num);
+		}
+	}
+	forth();
+	//设置.seria4的序号。
+	function setforth(obj){
+		forth();
+		len=obj.find(".seria4").length;
+		for(var i=0;i<len;i++){
+			var info=obj.find(".seria4").eq(i).attr("data");
+			var num=i+1;
+			var a_num=info+num+".";
+			obj.find(".seria4").eq(i).text(a_num)
+		}
+	}
+	//设置级别1和级别2的序号。
+	function setSeria(){
+		var seria2=$(".seria2");
+		var seria3=$(".seria3");
+		var len=seria2.length;
+		var num,a_num,b_num,c_num,d_num,e_num,len1,level1,leavel2,a, b, c;
+		for(a=0;a<len;a++){
+			var second=seria2.eq(a);
+			var third=second.parent().find(".third").find("li");
+			num=a+1;
+			level1=num+".";
+			second.text(level1).attr("index",num);
+			len1=third.length;
+			for(b=0;b<len1;b++){
+				b_num=b+1;
+				c_num=""+num+b_num;
+				leavel2=c_num+".";
+				third.find(".seria3").eq(b).text(leavel2).attr("index",c_num);
+				third.find(".seria3").eq(b).parent().find(".seria4").attr("data",c_num)
+			}
+		}
+		d_num=$(".forth").length;
+		for(c=0;c<d_num;c++){
+			e_num=c+1;
+			a_num=".forth"+e_num;
+			var selector=$(a_num);
+			setforth(selector);
+		}
+	}
+	setSeria();
+	
+	
+	//点击减少按钮，删除当前级别的信息
+	
+		$(document).on("click",".reduce",function(){
+			delDept($(this));
+		});
+	
+	//add_option类所绑定的事件。
+	$(document).on("click",".add_option",function(){
+		var add_option=$(".add_option");
+		var t=$(this),son,data,m;
+		t.addClass("selected1");
+		t.prev().addClass("selected");
+		add_option.not(t).prev().removeClass("selected");
+		add_option.not(t).removeClass("selected1");
+		add_option.not(t).next().css({display:"none"});
+		add_option.not(t).next().find(".modify").css({display:"none"});
+		t.next().css({display:"inline-block"});
+		son=t.next().next();
+		 m=son.css("display");
+		if(t.hasClass("option2")){
+			if(m==="block"||m==undefined){
+				t.next().next().hide();
+				t.next().next().find(".forth").hide();
+			}else{
+				t.next().next().show();
+			}
+		}else if(t.hasClass("option3")){
+			if(m==="block"||m==undefined){
+				t.next().next().hide();
+			}else{
+				t.next().next().show();
+			}
+		}
+		if(1 == $(this).attr("level")){
+			return;
+		}
+		if(0 >= $("#"+$(this).attr("level_id")+" li").length){
+			getSubLevel($(this).attr("level_id"),$(this).attr("level"));
+		}
+	});
+
+
+	function show(){
+		//点击修改按钮展示输入框以及确认按钮。
+		$(".related_operate").on("click",function(){
+			var t=$(this);
+			var name=t.parent().prev().text();
+			t.next().find(".c_related").val(name);
+			t.parent().find(".modify").css({display:"inline-block"});
+			showErrorTipMsg(t,"");	
+			t.next().find(".m_certain").on("click",function(){
+				var isClick= t.parents(".add_box").attr("isClick");
+				if(isClick==="modify"){
+					var tempVal=t.next().find(".c_related").val();
+					t.parent().prev().text(tempVal);
+				}
+			});
+				t.next().find(".c_related").select();
+				t.next().find(".c_related").focus();
+			
+			
+		});
+		
+		$(".add_operate").on("click",function() {
+			var t = $(this);
+			var temp="";
+			t.parents(".add_box").find(".c_related").val(temp);
+			t.parent().find(".modify").css({display: "inline-block"});
+			initTipMsg();
+			t.parents(".add_box").find(".c_related").focus();
+		});
+	}
+
+	//判定点击的是添加按钮还是修改按钮。
+	function checkClick(){
+		$(document).on("click",".add_operate,.related_operate",function(event){
+			var t=$(this);
+			var target=event.target.className;
+			if(target==="related_operate"){
+				t.parents(".add_box").attr("isClick","modify");
+			}else{
+				t.parents(".add_box").attr("isClick","add");
+			}
+		});
+	}
+	checkClick();
+
+	//点击添加按钮展示输入框以及确认按钮。
+	function operate(){
+		$(document).on("click",".m_certain",function(){
+			var t=$(this);
+			var isClick= t.parents(".add_box").attr("isClick");
+			var content;
+			var tempVal=t.parent().find(".c_related").val();
+			t.parent().parent().next().show();
+			if(null == isClick){
+				isClick ="add";
+			}
+			if(isClick==="add"){
+				if(0 == t.parents().find(".c_related").val().length){
+					showErrorTipMsg(t.parents().find(".c_related"),"错误值!");
+					return;
+				}
+				addDept($(this).attr("level_id"),$(this).attr("level"),t.parents().find(".c_related").val());
+			//点击出现部门级别。
+			/*
+				if(t.hasClass("m1")){
+					content='<li class="depart_related"><span class="seria seria2"></span><span class="add_option option2" data="true">'+tempVal+'</span>'
+							+'<span class="add_box" style="display:none;"><span class="add_operate add"></span>'
+							+'<span class="reduce_operate reduce reduce2"></span><span class="related_operate"></span>'
+							+'<span class="modify" style="display:none;"><input type="text" class="c_related" tipmsg="部门名称"/>'
+							+'<input class="m_certain m2" type="button" value="确定"/></span></span><ul class="third"></ul></li>';
+					$("ul.second").append(content);
+
+				}else if(t.hasClass("m2")){
+					content='<li><span class="seria seria3"></span><span class="add_option option3" data="true">'+tempVal+'</span>'
+							+'<span class="add_box" style="display:none;"><span class="add_operate add"></span>'
+							+'<span class="reduce_operate reduce reduce2"></span><span class="related_operate"></span>'
+							+'<span class="modify" style="display:none;"><input type="text" class="c_related" tipmsg="部门名称"/>'
+							+'<input class="m_certain m3" type="button" value="确定"/></span></span><ul class="forth"></ul></li>';
+					t.parent().parent().next().append(content);
+
+				}else if(t.hasClass("m3")){
+					content='<li><span class="seria seria4"></span><span class="add_option option4" data="true">'+tempVal+'</span>'
+							+'<span class="add_box" style="display:none;"><span class="operate4 add1"></span>'
+							+'<span class="reduce_operate reduce reduce2"></span><span class="related_operate"></span>'
+							+'<span class="modify" style="display:none;"><input type="text" class="c_related" tipmsg="部门名称"/>'
+							+'<input class="m_certain m4" type="button" value="确定"/></span></span><ul class="fifth"></ul></li>';
+					t.parent().parent().next().append(content);
+				}
+			*/
+			}else{
+				updateDept($(this).attr("level_id"),t.parents().find(".c_related").val(),$(this));
+			}
+			/*
+			show();
+			setSeria();
+			initTipMsg();
+			checkContent()
+			*/
+		})
+	}
+	show();
+	operate();
+</script>

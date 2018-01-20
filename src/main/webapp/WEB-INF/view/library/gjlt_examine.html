@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>馆际流通审核-审阅</title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../head.html">
+		<link rel="stylesheet" href="${res}/css/style.css" />
+		<script src="${res}/js/jquery.min.js"></script>
+		<script src="${res}/js/common.js"></script>
+		<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=EmWvece0GHuKBjnfjSm2DwOO"></script>
+	</head>
+	<body>
+		<div class="form form3">
+			<div class="l item">
+				<span class="t l">单号</span>
+				<div class="text w270 l tl">${lc.outCode!''}</div>
+				<div class="clear"></div>
+			</div>
+			<div class="l item">
+				<span class="t l">日期</span>
+				<div class="text w270 l tl">${(lc.outDate?string("yyyyMMdd"))!''}</div>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+			<div class="l item">
+				<span class="t l">流出馆</span>
+				<div class="text w270 l tl">
+					<label>详情</label>
+					<div>
+						<span>${book.outLib!''}</span> 
+						<span>联系人：${outLib.username!''}</span>
+						<span>电话：${outLib.phone!''}</span>
+					</div>
+				</div>			
+				<div class="clear"></div>
+			</div>
+			<div class="l item">
+				<span class="t l">流入馆</span>
+				<div class="text w270 l tl">
+					<label>详情</label>
+					<div>
+						<span>${book.inLib!''}</span> 
+						<span>联系人：${inLib.username!''}</span>
+						<span>电话：${inLib.phone!''}</span>
+					</div>
+				</div>				
+				<div class="clear"></div>
+			</div>
+			<div class="r item">
+				<form id="demo" method="post"></form>
+				<input type="button" class="btn2" onclick="sub(1,${lc.id})" value="批准"/>
+				<input type="button" class="btn2 btn3" onclick="sub(2,${lc.id})" value="否决"/>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+		</div>
+		
+		<div class="table-parent">
+			<table cellspacing="0" class="table" style="min-width:1100px;">
+				<thead class="thead">
+					<th class="th w70">条码号</th>
+					<th class="th w120">ISBN</th>
+					<th class="th twname">书名</th>
+					<th class="th w100">出版社</th>
+					<th class="th w70">定价</th>
+					<th class="th w75">著者</th>
+					<th class="th w88">分类号</th>
+					<th class="th tw88 last" style="text-align:left;padding-left:10px;">排架号</th>
+				</thead>
+				<#list listbook as lcc>
+				<tr>
+					<td>${lcc.barNumber!''}</td>
+					<td>${lcc.isbn!''}</td>
+					<td class="tl" title="${lcc.properTitle!''}">${lcc.properTitle!''}</td>
+					<td>${lcc.press!''}</td>
+					<td class="tr">${lcc.price?string('0.00')}</td>
+					<td title="${lcc.author!''}">${lcc.author!''}</td>
+					<td>${lcc.classificationNumber!''}</td>	
+					<td class="last" style="text-align:left;padding-left:10px;">${lcc.frameCode}</td>
+				</tr>
+				</#list>
+			</table>
+		</div>
+		
+	</body>
+</html>
+<script>
+	$('.form3 .text label').hover(function(){
+		$(this).parent().height('auto');
+	},function(){
+		$(this).parent().height(32);
+	})
+	function sub(n,b){
+		$("#demo").attr("action","${res}/cms/library/selectReview.do?state="+n+"&id="+b);
+		$("#demo").submit();
+	}
+</script>

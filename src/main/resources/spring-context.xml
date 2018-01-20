@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+   http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+   http://www.springframework.org/schema/context
+   http://www.springframework.org/schema/context/spring-context-3.2.xsd
+   http://www.springframework.org/schema/aop      
+   http://www.springframework.org/schema/aop/spring-aop-3.2.xsd     
+   http://www.springframework.org/schema/tx      
+   http://www.springframework.org/schema/tx/spring-tx-3.2.xsd ">
+	<!-- 配置为采用注解方式 <context:annotation-config /> -->
+	<!-- 配置为在类路径底下寻找标注了@Component、@Service、@Controller、@Repository注解的类 -->
+	<context:component-scan
+		base-package="com.flea.*" />
+
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:jdbc.properties</value>
+				<value>classpath:config.properties</value>
+			</list>
+		</property>
+	</bean>
+	<!-- 导入Spring配置文件 -->
+	
+	<bean id="localBookSolrContent" class="com.flea.common.SolrContent">
+	   <constructor-arg value="http://175.155.13.131:8080/solr/localbook"/>
+	</bean>
+	
+	<bean id="newSolrContent" class="com.flea.common.SolrContent">
+	        <constructor-arg value="${news.url}"/>
+	</bean>
+	<bean id="ebookSolrContent" class="com.flea.common.SolrContent">
+	        <constructor-arg value="${ebook.url}"/>
+	</bean>
+	
+	<bean id="deptSolrContent" class="com.flea.common.SolrContent">
+	        <constructor-arg value="${library.url}"/>
+	</bean>
+	
+	<bean id="activitySolrContent" class="com.flea.common.SolrContent">
+	        <constructor-arg value="${activity.url}"/>
+	</bean>
+	
+	 <bean id="springCacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+        <property name="cacheManager" ref="cacheManager"/>
+    </bean>
+   
+   <!-- 缓存配置 -->
+	<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+		<property name="configLocation" value="classpath:${ehcache.configFile}" />
+	</bean>
+	
+   <!-- 数据库层配置文件 -->
+   <import resource="spring-dao.xml"/>
+   <!-- 服务层配置文件 -->
+   <import resource="spring-service.xml"/>
+   <!-- shiro配置文件 -->
+   <import resource="spring-shiro.xml"/>
+   
+<!--      <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager"> -->
+<!--         <property name="sessionFactory" ref="sessionFactory"/> -->
+<!--     </bean> -->
+<!--    <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/> -->
+</beans>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../head.html">
+		<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=EmWvece0GHuKBjnfjSm2DwOO"></script>
+		<script type="text/javascript">
+	    $(function(){
+	    	$('.select0').attr("disabled","disabled");
+	    	$('#form').lineFeedValidate();
+	    	$("#btnSubmit").bind("click",function(){
+	    		$(".sumbit-msg").text("");
+	    		setDisabled('btnSubmit');
+	    		$("#form").ajaxSubmit({  
+                    type: 'post',  
+                    beforeSubmit:function(){
+                    	var $obj=isEmpty();
+                    	if($obj!=true){
+                    		var title =$($obj).attr("title");
+	                    	showErrorTipMsg($($obj),$.trim(title)+"不能为空!");
+	                    	removeDisabled('btnSubmit');
+	                    	return false;
+                    	}
+                    	return true;
+                    },
+                    success: function(data){  
+                    	var action = $('.psw').css("visibility");
+        	    		if(action == 'visible'){
+        	    			sendPwd();
+        	    		}
+						$(".sumbit-msg").text("成功!");
+                    },  
+                    error: function(XmlHttpRequest, textStatus, errorThrown){  
+                    	setDisabled('btnSubmit');
+                    	 $(".sumbit-msg").text("保存失败!");
+                    }  
+                });  
+	    	})
+	    	setTimeout(function(){
+	    		$("#address").val($("#libAddress").val());
+	    	},500)
+	    	
+	    });
+	    
+    	function isEmpty(){		
+			var list = $('input.text,select');
+			var tmpobj,is = true;
+			for(var i=0;i<list.length;i++){
+				tmpobj = list.eq(i);
+				var rq =tmpobj.attr("rq");
+				if(rq!=undefined)continue;
+				if(tmpobj.val() ==""){				
+					is = tmpobj[0];
+					break;
+				}
+			}
+			return is;
+		}
+    	
+		function findLevelByArea(){
+			var  areaCode = $("#area").val();
+			  var tmpstr="";
+			  $("#level").empty();
+			$.get("${res}/cms/customerLibrary/findByArea.html",{"area":areaCode},function(data){
+				if(data instanceof Array){   
+					$.each(data,function(index){
+						tmpstr+=" <option value='"+data[index].level+","+data[index].id+"'>"+data[index].level+"</option>";
+					})
+				}
+				$("#level").append(tmpstr);				
+				select1.reset();
+			})
+			
+		}
+		
+		function findLibraryCodeById(){
+			var customerLibraryId =$("#level option:selected").attr("label");
+			  var tmpstr="";
+			  $("#customerLibraryId").val(customerLibraryId);
+			  $("#libraryCode").empty();
+			$.get("${res}/cms/customerLibrary/findCodesById.html",{"id":customerLibraryId},function(data){
+				var number = data.codeNumber;
+				$.each(data.codes,function(index){
+					tmpstr+=" <option value='"+data.codes[index]+"' >"+data.codes[index]+"</option>";
+				})
+				$("#codeNumber").text(number);
+				if(tmpstr!=""){
+					$("#libraryCode").append(tmpstr);				
+					select2.reset();
+				}else{
+					$("#btnSubmit").attr("disabled","disabled");
+				}
+			})
+			
+		}
+		 function audit(result){
+		    	var id =$("#libraryId").val();
+		    	$("#subForm").attr("action","${res}/cms/library/audit.do?id=" + id + "&libraryStatus=" + result);
+		    	$("#subForm").submit();
+			 }
+		 $(function(){
+				var stt = ${libraryStatus};
+				if(stt == '1')
+				{
+					$("#b1").hide();
+					$("#b2").hide();
+					$("#b3").css({marginLeft:0});
+				}
+				else
+				{
+					$("#b3").css("display","none");	
+				}
+			})
+		</script>
+	</head>
+	<body>
+	<form class="form-horizontal" method="post" id="subForm"  enctype="multipart/form-data" autocomplete="off">
+	<input type="hidden" class="text l w230" value="${library.id}" id="libraryId" />
+		<div class="form">
+			<div class="l item item2" style="z-index: 20;">
+				<span class="t l">地区 </span>
+				<input type="text" class="text l w230" style="background:transparent;width:228px" value="${library.areaAddress!}" disabled   name="area.code" maxlength="20" index="3" id="area"/>				
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2" style="z-index: 19;">
+				<span class="t l t3">馆别 </span>
+				<input type="text" class="text l w230" style="background:transparent;width:230px" value="${library.libraryLevel!}" disabled   name="libraryLevel" maxlength="20" index="3" id="level"/>				
+				<div class="clear"></div>
+			</div>
+			<div class="l" style="padding-left:15px;line-height:32px; color:#999"></div>
+			<div class="clear"></div>
+			<div class="l item item2"  style="z-index: 18;">
+				<span class="t l">馆号 </span>
+				<input type="text" class="text l w230" style="background:transparent;width:228px" value="${library.hallCode!}" disabled   name="hallCode" maxlength="20" index="3" id="libraryCode"/>				
+					<input type="hidden" id="customerLibraryId"  name="customerLibraryId"  value="${library.customerLibraryId!}"/>		
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2">
+				<span class="t l t3">馆名 </span>
+				<input type="text" class="text l w230 libName" value="${library.name!}" disabled  style="background:transparent" name="name" maxLength="64" title="馆名" index="1"/>		
+				<input type="hidden" class="text l w230" value="${library.id!}"  disabled  style="background:transparent" name="id" />		
+				<div class="clear"></div>
+			</div>
+            <div class="l" style="padding-left:15px;line-height:32px;color:#999"><span id="codeNumber"></span></div>
+			<div class="clear"></div>
+			<div class="l item">
+				<span class="t l">地址 </span>
+				<input type="text" class="text l" style="background:transparent;width:550px" value="" maxLength="64" name="address" id="address" disabled  title="地址" index="2"/>
+				<input type="hidden" id="libAddress"  value="${library.address!}" disabled  style="background:transparent"/>
+				<input type="hidden" id="lngLat" name="lngLat"  value="${library.lngLat!}" disabled  style="background:transparent"/>
+				 <img src="${res}/images/yun_back_img6.gif" class="l addnav"/>
+				<div class="clear"></div>
+			</div>
+			<div class="l item fuzhe" style="z-index: 55;">
+				<span class="t l">协议账号</span>
+				<input type="text" class="text l w230" style="background:transparent;width:228px" value="${library.agreementAccount!}" disabled   name="agreementAccount" maxlength="20" index="3" id="agreementAccount" title="协议账号"  tipMsg=""/>				
+				<span class="img l t3" style="text-align: right;">户名</span>
+				<input type="text" class="text l w230" value="${library.acountName!}" disabled style="background:transparent" name="acountName" maxlength="20" index="4" title="户名" tipMsg=""/>
+				<span class="img l t3" style="text-align: right;">授信额度</span>
+				<!-- <select class="w191 l select3" width="187" name="creditLines" value="${library.creditLines!}">
+					<option>${library.creditLines?string('0.00')}</option>
+				</select> -->
+				<input type="text" class="text l w230" style="background:transparent; width:186px" value="${library.creditLines!}" disabled   name="creditLines"/>				
+				<div class="clear"></div> 
+			</div>
+			
+			<#assign _index = 6 >
+			<#if (library.contacts?size > 0)>
+					<div class="l item lianxi">
+						<span class="t l">联系人 </span>
+						<input type="hidden" class="text l" value="${library.contacts[0].id!}" disabled style="background:transparent" name="contacts[0].id" title="主键"  tipMsg="" maxlength="10" rq="false"/>
+						<input type="text" class="text l w160 contactPerson"  value="${library.contacts[0].contactPerson!}" disabled style="background:transparent" name="contacts[0].contactPerson" title="联系人"  tipMsg="" maxlength="10"  index="6"/>
+						<span class="img l img0"></span>
+						<input type="text" class="text l w160 tel" value="${library.contacts[0].tel!}" disabled style="background:transparent" name="contacts[0].tel" title="座机"   index="7" tipMsg=""  maxlength="11" onkeyup="javascript:this.value=this.value.replace(/\D/g,'');"/>
+						<span class="img l img1"></span>
+						<input type="text" class="text l w160 phone" value="${library.contacts[0].phone!}" disabled style="background:transparent" name="contacts[0].phone"  index="8"  title="手机" maxlength="11" tipMsg="" id="phone"/>
+						<span class="img l img2"></span>
+						<input type="text" class="text l mail" style="background:transparent; width:245px;width:243px\9;" value="${library.contacts[0].chat!}" disabled    name="contacts[0].chat" index="9" title="邮箱" tipMsg=""/>
+						<div class="clear"></div>
+					</div>
+			<#else>
+			<div class="l item lianxi">
+				<span class="t l">联系人 </span>
+				<input type="hidden" class="text l" value="" disabled style="background:transparent" name="contacts[0].id" title="主键"  tipMsg="" maxlength="10" rq="false"/>
+				<input type="text" class="text l w160 contactPerson"  value="" disabled style="background:transparent" name="contacts[0].contactPerson" title="联系人"  tipMsg="" maxlength="10"  index="6"/>
+				<span class="img l img0"></span>
+				<input type="text" class="text l w160 tel" value="" disabled style="background:transparent" name="contacts[0].tel" title="座机"   index="7" tipMsg=""  maxlength="11" onkeyup="javascript:this.value=this.value.replace(/\D/g,'');"/>
+				<span class="img l img1"></span>
+				<input type="text" class="text l w160 phone" value="" disabled style="background:transparent" name="contacts[0].phone"  index="8"  title="手机" maxlength="20" tipMsg="" id="phone"/>
+				<span class="img l img2"></span>
+				<input type="text" class="text l mail" style="background:transparent;width:245px;width:243px\9;" value="" disabled name="contacts[0].chat" index="9" title="邮箱" tipMsg=""/>
+				<div class="clear"></div>
+			</div>
+			</#if>
+			
+			<div class="l item" style="z-index: 0; width: 934px;">
+				
+				<span class="t l">&nbsp;</span>
+				
+				<#if (library.libraryUpdateStatus!0) == 4>
+				<input type="button" class="btn2 btn3" id="b1" value="驳回" style="margin-left: 0;position:static;" onclick="audit(4)"/>
+				<#elseif (library.libraryUpdateStatus!0) == 9>
+				<input type="button" class="btn2 btn3" id="b1" value="驳回" style="margin-left: 0;position:static;" onclick="audit(9)"/>
+				<#else>
+				<input type="button" class="btn2 btn3" id="b1" value="驳回" style="margin-left: 0;position:static;" onclick="audit(3)"/>
+				</#if>
+				<input type="button" class="btn2" style="position:static;" id="b2" value="通过"  onclick="audit(2)"/>
+				<input type="button" class="btn2" style="position:static;" id="b3" value="返回" onclick="history.go(-1)"/>
+				<div class="clear"></div>
+			<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+		</div>
+		</form>
+	</body>
+</html>
+ 

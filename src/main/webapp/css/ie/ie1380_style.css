@@ -1,0 +1,14 @@
+/*1200<width<1380*/
+.twname{width:130px;}
+.twObject{width:240px;}
+.t_bohui{width:110px;}
+.t_laiyuan{width:150px;}
+.twaddress{width:240px;}
+.t_space{width:90px;}
+.t_wlast{width:40px};.
+
+.libraryNmaes{width:560px !important;max-width:560px !important;}/*客户维护 辖管列宽度定制*/
+.companyName{width:290px;}/*图书馆列表，单位名称宽度定制*/
+.informationSource{width:305px;}/*资讯审核，来源列宽度定制*/
+.informationName{width:385px;}/*资讯审核，标题列宽度定制*/
+.messageContent{width:550px}/*消息审核，内容列宽度定制*/

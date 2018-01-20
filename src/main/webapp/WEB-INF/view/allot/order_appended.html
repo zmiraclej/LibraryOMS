@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title></title>
+<meta name="renderer" content="webkit|ie-comp|ie-stand" />
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1" />
+<#include "../head.html">
+<link rel="stylesheet" href="${res}/css/ebook_style.css" />
+<style type="text/css">
+.p_year{margin-left:137px;}
+#ad_text{width:655px;background:#eeeeee;height:32px;}
+        /*火狐兼容*/
+        @-moz-document url-prefix() {
+            .conditions span{width:48px !important;}
+            #ad_text{width:654px !important;}
+            .p_year{margin-left:129px !important;;}
+        }
+</style>
+</head>
+<body>
+<!-- 订单补充 -->
+	<div class="form pos" style="">
+		<div class="l item item2">
+			<span class="t l">客户代码</span> <input type="text" class="text l w158"
+				value="${(orders.customer.hallCode)!''}"
+				style="background: #eeeeee; height: 32px;" readonly="readonly" />
+			<div class="clear"></div>
+		</div>
+		<div class="l item">
+			<span class="t l t3">单位名称</span> <input id="ad_text" type="text" class="text l"
+				style="width:651px\9;"
+				value="${(orders.customer.name)!''}" readonly="readonly" />
+			<div class="clear"></div>
+		</div>
+		<div class="l item lianxi">
+			<span class="t l">联系人 </span> <input type="text" class="text l w195 "
+				style="background: #eeeeee; height:32px;"
+				value="${(orders.contactPerson)!''}" readonly="readonly" /> <span
+				class="img l img0"></span> <input type="text" class="text l w195 "
+				value="${(orders.tel)!''}" style="background: #eeeeee; height: 32px;"
+				readonly="readonly" /> <span class="img l img1"></span> <input
+				type="text" class="text l w195 firefox_input2"
+				style="width: 197px; background: #eeeeee; width: 193px\9; height: 32px;"
+				value="${(orders.phone)!''}" readonly="readonly" /> <span
+				class="img l img2"></span> <input type="text" class="text l"
+				value="${(orders.chat)!''}"
+				style="width: 216px; background: #eeeeee; height: 32px;"
+				readonly="readonly" />
+			<div class="clear"></div>
+		</div>
+				<form action="${res}/cms/order/appendedOrders/${id}/${orders.customer.id}" id="appendedForm">
+			<div class="l item item2" style="z-index: 11;clear:left;">
+				<span class="t l">条件</span>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 search_condition" style="z-index:999;">
+				<select id="role0" class="w158 l role1" width="158" name="searchRole">
+					<option value="0">出版年</option>
+					<option value="1">分类</option>
+					<option value="2" >ISBN</option>
+					<option value="3">书名</option>
+					<option value="4">著译者</option>
+					<option value="5">出版社</option>
+				</select> <input type="text" name="keywords" class="e_text" value="${(keywordMap['0'])!''}"
+					style="margin-left:5px;" tipmsg />
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 p_year search_condition"
+				style="margin-left:125px\9; z-index: 998;
+			<#if ((keywordMap['1'])??) >
+			     display: block;">
+			<#else>
+				display: none;">
+			</#if>
+				<select id="role1" class="w158 l role2" width="158" name="searchRole">
+					<option value="0">出版年</option>
+					<option value="1">分类</option>
+					<option value="2">ISBN</option>
+					<option value="3">书名</option>
+					<option value="4">著译者</option>
+					<option value="5">出版社</option>
+				</select> <input type="text" name="keywords" class="e_text" value="${(keywordMap['1'])!''}"
+					width="158" style="margin-left: 5px;" />
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 search_condition"
+				style="z-index: 996; margin-left: 105px; 
+			<#if ((keywordMap['2'])??) >
+			     display: block;">
+			<#else>	
+				display: none;">
+			</#if>
+				<select id="role2" class="w158 l role3" width="158" name="searchRole">
+					<option value="0"  >出版年</option>
+					<option value="1">分类</option>
+					<option value="2">ISBN</option>
+					<option value="3">书名</option>
+					<option value="4">著译者</option>
+					<option value="5">出版社</option>
+				</select> <input type="text" name="keywords" class="e_text" value="${(keywordMap['2'])!''}"
+					width="158" style="margin-left: 5px;" />
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 p_year search_condition" style="margin-left:137px;margin-left:125px\9; z-index: 995;
+			<#if ((keywordMap['3'])??) >
+			 display:block;">
+				<#else>	
+				display:none;">
+				</#if>
+				<select id="role3" class="w158 l role4" width="158" name="searchRole">
+					<option value="0">出版年</option>
+					<option value="1">分类</option>
+					<option value="2">ISBN</option>
+					<option value="3">书名</option>
+					<option value="4">著译者</option>
+					<option value="5">出版社</option>
+				</select> <input type="text" name="keywords" class="e_text" value="${(keywordMap['3'])!''}"
+					width="158" style="margin-left: 5px;" />
+				<div class="clear"></div>
+			</div>
+<script type="text/javascript">
+var i = 0;
+//存储上次检索条件
+<#if roleMap??>
+i = ${roleMap?size} - 1;
+<#list roleMap?keys as key>
+$("#role"+${key}).val(${roleMap[key]});
+</#list>
+</#if>
+setSelect('.role1');
+setSelect('.role2');
+setSelect('.role3');
+setSelect('.role4');
+setSelect('.role5');
+setSelect('.role6');
+</script>
+			<div class="l item item2" id="se_box" style="z-index:11;">
+				<input type="button" class="se_btn" value=" 搜索 " onclick="searchBooks()">
+			<div class="sub_btn" style="height:33px\9;display:none"></div>
+			<div class="add_btn" style="height:33px\9;"></div>
+				<div class="clear"></div>
+			</div>
+		</form>
+		<div class="clear" id="clear"></div>
+	</div>
+	<div class="table-parent">
+		<table cellspacing="0" class="table">
+			<thead class="thead" id="thead4">
+				<tr>
+					<th class="th w30"><input type="checkbox" name="checkname"
+						id="all"></th>
+					<th class="th w88">类别</th>
+					<th class="th w120">ISBN</th>
+					<th class="th w230">书名</th>
+					<th class="th w100">出版社</th>
+					<th class="th w75">著者</th>
+					<th class="th w54">年份</th>
+					<th class="th w75">操作员</th>
+					<th class="th tw" id="last"
+						style="border-right-width: 0; padding-left: 10px; text-align: left;">
+						上传日期</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div class="table-parent">
+		<div class="table_out" style="">
+	<script>		
+    autodivheight();
+    function autodivheight(){ //函数：获取尺寸
+        //获取浏览器窗口高度
+        var winHeight=0;
+        if (window.innerHeight)
+            winHeight = window.innerHeight;
+        else if ((document.body) && (document.body.clientHeight))
+            winHeight = document.body.clientHeight;
+        //对body进行检测，获取浏览器窗口高度
+        if (document.documentElement && document.documentElement.clientHeight)
+            winHeight = document.documentElement.clientHeight;
+        $(".table_out").height(Math.floor((winHeight - 333)/37)*37);
+    }
+    window.onresize=autodivheight; //浏览器窗口发生变化时同时变化DIV高度
+    </script>		
+			<table cellspacing="0" class="table" id="tab1" style="border-top-width:0;">
+			</table>
+		</div>	
+		<table class="table" style="margin-top:10px; border: #a9a9a9 1px solid; padding-left: 15px;">
+			<tbody>
+				<tr>
+					<td style="border-bottom-width: 0; border-right-width: 0;"><span
+						class="paging_left">合计总数<#if (ebooks)??> ${ebooks?size}<#else>0</#if></span><span
+						class="p_count"> &nbsp;(已去重 )</span></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class="l item item2"
+		style="margin:15px 0 0px 0;; width:100%;">
+		<input type="button" class="e_btn" onclick="appendedOrders()" value="加入订单">
+		<div class="rel_info">
+			<span class="hint_info">
+			<#if (status??) && status == 1>加入成功 ，订单号${orders.orderNumber}！ <#elseif (status??) && status == 2>加入成功！ </#if></span>
+		</div>
+		<div class="odform" style="float: right;">
+			<a href="${res}/cms/order/analysis/${id}.do?fromUrl=appended" id="danchor">订单分析</a> <a
+				href="${res}/cms/order/orderDetail/${id}.do" id="banchor">返回订单</a>
+			<div class="clear"></div>
+		</div>
+		</form>
+	</div>
+</body>
+<script>
+var btn = $(".add_btn");
+var sbtn = $(".sub_btn");
+if(i > 0) {
+	sbtn.css({display:"block"});
+} else {
+	sbtn.css({display:"none"});
+}
+if(i >= 3) {
+	btn.css({display:"none"});
+}
+	//范围内全选	/取消全选
+	$('#all').click(function() {
+		var classStr = '.table .checkbox1';
+		var num = 0;
+		if ($(this).is(':checked')) {
+			$(classStr).each(function() {
+				num++;
+				$(this)[0].checked = true;
+				$('.hint_info').html("选中图书" + num + "种，确认加入${orders.orderNumber!''}号订单？");
+			});
+		} else {
+			$(classStr).each(function() {
+				$(this)[0].checked = false;
+			});
+			$('.hint_info').html("");
+		}
+	});
+	//点击复选框
+	$('.table .checkbox1')
+			.click(
+					function() {
+						if ($(this).is(':checked')) {
+							$(this).next().css('visibility', "visible");
+							if ($('.table .checkbox1').length == $('.table .checkbox1:checked').length) {
+								$('#all')[0].checked = true;
+							}
+							$('.hint_info')
+									.html(
+											"选中图书"
+													+ $('.table .checkbox1:checked').length
+													+ "种，确认加入${orders.orderNumber!''}号订单？");
+						} else {
+							$(this).next().css('visibility', "hidden");
+							$('#all')[0].checked = false;
+							$('.hint_info')
+									.html(
+											"选中图书"
+													+ $('.table .checkbox1:checked').length
+													+ "种，确认加入${orders.orderNumber!''}号订单？");
+							if ($('.table .checkbox1:checked').length == 0) {
+								$('.hint_info').html("");
+							}
+						}
+					});
+
+	$("#thead6").css({
+		borderBottom : 0
+	});
+	$("#table7 th").css({
+		borderBottom : "none"
+	});
+	$("#table_page td").css({
+		borderBottom : "none"
+	});
+	//去除input——点击之后出现了蓝色的边框。
+	$("input").focus(function() {
+		$(this).css({
+			outline : 0
+		});
+	});
+
+	//点击添加搜素框
+	btn.bind("click", function() {
+		if(i >= 2) {
+			btn.css({
+				display : "none"
+			});
+		}
+		if(i > 3) {
+			sbtn.css({
+				display : "none"
+			});
+			return;
+		}
+		i++;
+		sbtn.css({
+			display : "block"
+		});
+		$(".search_condition").eq(i).css({
+			display : "block"
+		});
+	});
+	$("#thead3 td").css({
+		background : "#fff"
+	});
+	
+	//点击删除搜素框
+	sbtn.bind("click", function() {
+		//清除输入值
+		$("input[name='keywords']").eq(i).attr("value","");
+		if(i <= 1 ) {
+			sbtn.css({
+				display : "none"
+			});
+		}
+		if(i <= 0 ) {
+			return;
+		}
+		i--;
+		$(".search_condition").eq(i+1).css({
+			display : "none"
+		});
+
+		btn.css({
+			display : "block"
+		});
+	});
+	$("#thead3 td").css({
+		background : "#fff"
+	});
+	
+	function searchBooks(){
+		var keywords = $.makeArray($(".keywords"));
+		var flagIsNull = false;
+		$("input[name='keywords']").each(function(index, item) {
+			if(null != $(this).val() && "" != $(this).val()) {
+				flagIsNull = true;
+		    }});
+		if(!flagIsNull) {
+			$("input[name='keywords']:visible").attr("placeholder","条件不能为空");
+			return;
+		}
+		$("#appendedForm").attr("action", "${res}/cms/order/appendedSearch/${id}/${orders.customer.id}.do");
+		$('#appendedForm').submit();
+	}
+	
+	//加入订单
+	function appendedOrders() {
+    var ids = $.makeArray($("input[name='ebookDetail']:checked"));
+    var searchRole = $.makeArray($("select[name='searchRole']"));
+    var keywords = $.makeArray($("input[name='keywords']"));
+    var url = $('#appendedForm').attr("action");
+    if(ids.length <1) return;
+    for(var i in ids) {
+    	//遍历数组
+        var hiddenField = document.createElement("input");
+        hiddenField.setAttribute("type", "hidden");
+        hiddenField.setAttribute("name", "ebookIds");
+        hiddenField.setAttribute("value", ids[i].value);
+        document.getElementById("appendedForm").appendChild(hiddenField);
+        }
+    $("#appendedForm").attr("action", url);
+    $("#appendedForm").attr("method", "post");
+    $('#appendedForm').submit();
+    }
+	var content;
+	 <#if (ebooks)??> <#list ebooks as ebook>
+	 content += '<tr><td class="w30"><input type="checkbox" name="ebookDetail" value="${(ebook.id)!''}" class="checkbox1"></td>'
+         + '<td class="w88" title="${ebook.categoryName!''}">${ebook.categoryName!''}</td>'
+         + '<td class="w120" style="text-align: center;">${ebook.isbn!''}</td>'
+         + '<td class="w230" title="${ebook.bookName!''}">${ebook.bookName!''}</td>'
+         + '<td class="w100" title="${ebook.publisher?replace('出版社','' )!''}">${ebook.publisher?replace("出版社","" )!''}</td>'
+         + '<td class="w75" title="${ebook.author!''}">${ebook.author!''}</td>'
+         + '<td class="w54"><#if (ebook.publishDate!'')?length gt 3> ${ebook.publishDate?substring(0,4)}</#if></td>'
+         + '<td class="w75">${(ebook.user.userName)!''}</td>'
+         + '<td class="tw" style="padding-left: 10px; text-align: left;">${(ebook.createDate?string("yyyyMMdd"))!''}</td></tr>';
+	 </#list></#if>
+	 $("#tab1").append(content);
+	 $(".table_out").show();
+	 
+	    autodivheight();
+	    function autodivheight(){ //函数：获取尺寸
+	        //获取浏览器窗口高度
+	        var winHeight=0;
+	        if (window.innerHeight)
+	            winHeight = window.innerHeight;
+	        else if ((document.body) && (document.body.clientHeight))
+	            winHeight = document.body.clientHeight;
+	        //对body进行检测，获取浏览器窗口高度
+	        if (document.documentElement && document.documentElement.clientHeight)
+	            winHeight = document.documentElement.clientHeight;
+	        var minheight = Math.floor((winHeight - 333)/37)*37;
+	        if (minheight <= 111) minheight = 111;
+	        $(".table_out").height(minheight);
+	    }
+	    window.onresize=autodivheight; //浏览器窗口发生变化时同时变化DIV高度
+	 
+	 window.onkeydown = function(event){if (event.keyCode == 13){searchBooks();} }
+</script>
+</html>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resourceModules>
+	<resourceModule name="dept" description="平台管理">
+		<resource name="direct" description="直营平台">
+			<permission description="添加" name="add" />
+			<permission description="删除" name="del" />
+			<permission description="编辑" name="edit" />
+		</resource>
+		<resource name="league" description="加盟平台">
+			<permission description="添加" name="add" />
+			<permission description="删除" name="del" />
+			<permission description="编辑" name="edit" />
+			<permission description="停用" name="stop" />
+		</resource>
+		<resource name="user" description="用户管理">
+		    <permission description="密码重置" name="repassword"/>
+			<permission description="查看" name="view" />
+			<permission description="添加" name="add" />
+			<permission description="删除" name="del" />
+			<permission description="编辑" name="edit" />
+			<permission description="停用" name="stop" />
+		</resource>
+	</resourceModule>
+	<resourceModule name="advertisement" description="广告管理">
+		<resource name="large" description="大平台广告管理">
+			<permission description="发布" name="add" />
+			<permission description="删除" name="del" />
+			<permission description="编辑" name="edit" />
+		</resource>
+		<resource name="small" description="小平台广告管理">
+			<permission description="发布" name="add" />
+			<permission description="删除" name="del" />
+			<permission description="编辑" name="edit" />
+		</resource>
+	</resourceModule>
+	<resourceModule name="info" description="信息管理">
+		<resource name="large" description="大平台信息管理">
+			<permission description="发布" name="add" />
+			<permission description="删除" name="del" />
+			<permission description="编辑" name="edit" />
+		</resource>
+		<resource name="small" description="小平台信息管理">
+			<permission description="发布" name="add" />
+			<permission description="删除" name="del" />
+			<permission description="编辑" name="edit" />
+		</resource>
+	</resourceModule>
+	<resourceModule name="data" description="数据管理">
+	    <resource name="data" description="数据管理"></resource>
+	    <resource name="local" description="本地数据管理"></resource>
+	    <resource name="library" description="商品信息管理">
+	        <permission description="新增" name="add" />
+	        <permission description="查看" name="view" />
+	        <permission description="删除" name="del" />
+			<permission description="编辑" name="edit" />
+	    </resource>
+	</resourceModule>
+	<resourceModule name="finance" description="财务管理">
+		<resource name="directDept" description="直营平台财务管理">
+		    <permission description="统计报表" name="statisticalReportForms"/>
+		    <permission description="收款付款" name="moneyHarvestOrPayment"/>
+		</resource>	    
+		<resource name="leagueDept" description="加盟平台财务管理">
+		    <permission description="统计报表" name="statisticalReportForms"/>
+		    <permission description="收款付款" name="moneyHarvestOrPayment"/>
+		</resource>	    
+	</resourceModule>
+	<resourceModule name="web" description="网站管理">
+		<resource name="page" description="页面管理">
+			<permission description="新增" name="add" />
+	        <permission description="查看" name="view" />
+	        <permission description="删除" name="del" />
+			<permission description="编辑" name="edit" />		    
+		</resource>	    
+	</resourceModule>
+	<resourceModule name="system" description="系统管理">
+	     <resource name="login" description="登录"/>
+	     <resource name="deptSet" description="平台设置"/>
+	     <resource name="role" description="角色管理">
+	        <permission description="新增" name="add" />
+	        <permission description="查看" name="view" />
+	        <permission description="删除" name="del" />
+			<permission description="编辑" name="edit" />		    
+	     </resource>
+	     <resource name="indexPageStatec" description="首页静态化" />
+	     <resource name="timingTask" description="定时任务" />
+	</resourceModule>
+	<resourceModule name="type" description="类别管理">
+	    <resource name="category" description="交易类别管理">
+	        <permission description="新增" name="add" />
+	        <permission description="查看" name="view" />
+	        <permission description="删除" name="del" />
+			<permission description="编辑" name="edit" />
+	    </resource>
+	    <resource name="goodsCode" description="商品代码管理"/>
+	</resourceModule>
+</resourceModules>

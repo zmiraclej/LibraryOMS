@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>借书统计</title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../head.html">
+		<script src="${res}/js/jquery.cookie.js" type="text/javascript" ></script>
+		<script src="http://echarts.baidu.com/build/dist/echarts.js"></script>
+		<link rel="stylesheet" type="text/css" href="${res}/css/report.css"/>
+		<script type="text/javascript">
+			function page(n,s){
+				if(n==-1){
+					n = $(".pageNo").val();
+					}
+				$("#pageNo").val(n);
+				$("#pageSize").val(s);
+				$("#searchForm").submit();
+		    	return false;
+		    }
+			var flag = "${isCustomer?string('true', 'false')}";
+		</script>
+	</head>
+	<body>
+		<div class="form count">	
+		<form action="${res}/report/borrower/list.do" id="searchForm">
+			<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+			<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>		
+			<div class="l item item2 t1" style="z-index: 20;display:none;" >
+				<span class="t l" style="width:60px;width:57px\9">地区</span>
+				<select class="l select1" width="220"  name="area" id="area"  value="${query.area!''}" onchange="changeSelect(this)">
+				<option></option>
+				<#if area??>
+					<#list area as item>
+						<option>${item}</option>
+					</#list>
+				</#if>
+				</select>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 n1" style="z-index: 20;display:none;">
+				<span class="t l" style="width:60px;width:57px\9">地区</span>
+				<select class="l select7" width="108" style="width:128px;visibility:hidden;" onchange="getCitys2($('.select8'),$('.select9'),this.value)" >
+					<option value="">省</option>
+				</select>					
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 n2" style="z-index: 20; margin: 0 10px; margin: 0 8px 0 7px\9;display:none;">
+				<select class="l select8" width="107" style="width:127px;visibility:hidden;" onchange="getAreas2($('.select9'),this.value)" value="${query.city!''}">
+					<option value="">市</option>
+				</select>					
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 n3" style="z-index: 20;display:none;">
+				<select class="l select9" width="108" style="width:128px;visibility:hidden;" value="${query.district!''}">
+					<option value="">区</option>
+				</select>					
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2" style="z-index: 20;">
+				<span class="t l" style="width:50px;width:47px\9">馆别 </span>
+				<select class="l select2" width="184" style="width:184px;visibility:hidden;"  name="lib"  value="${query.lib!''}" id="level">
+				<option>全部</option>
+				<#list lib as item>
+					<option>${item}</option>
+				</#list>
+				</select>
+				<div class="clear"></div>
+			</div>
+			<!-- <div class="l item item2" style="z-index: 20;">
+				<span class="t l" style="width:50px;width:47px\9">馆号</span>
+				<select class="l select3" width="184" style="width:184px;visibility:hidden;" onchange="setselectText(this.value)"  name="hallCode">
+				<option value=""></option>
+					<option value="AAAA">AAAA - 绵阳市图书馆</option>
+					<option value="AAAB">AAAB - 绵阳市图书馆</option>
+				</select>
+				<div class="clear"></div>
+			</div> -->			
+			<div class="l item item2" style="z-index:12;">
+				<span class="t l" style="width:50px;width:47px\9">表现 </span>
+				<select class="l select4" width="184" onchange="setListShow(this.value)"  name="type">
+
+					<option value="1"  <#if 1==(query.type!0)> selected="selected" </#if>>列表</option>
+					<option value="2"  <#if 2==(query.type!0)> selected="selected" </#if>>数表</option>
+					<option value="3"  <#if 3==(query.type!0)> selected="selected" </#if>>图表</option>
+				</select>
+			</div>
+			<div class="clear"></div>
+			
+			
+			<div class="l item item2" style="z-index: 12;">
+				<span class="t l" style="width:60px;width:57px\9">条件</span>
+				<select class="l select5 " width="220"  onchange="setSearchCondition(this.value);$('.searchtxt').val('');"  name="option" >					
+					<option value="1">馆名</option>
+					<option value="7">馆号</option>
+					<option value="2">日期</option>
+					<option value="3">单号</option>
+					<option value="4">册数</option>
+					<option value="5">码洋</option>
+					<option value="6">操作员</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 conditions" style="width:478px;position:static;display: none;">
+				<span class="t l" style="width:50px;width:47px\9">从</span>	
+				<input type="text" class="text l date_input dF" value="" style="width:180px;width:180px\9" isbottom="1" onKeyPress="myEnter('dT')"/>
+				<img src="${res}/images/yun_back_img9.png" class="l date"/>
+				<span class="t l t3" style="width:50px;">至</span>
+				<input type="text" class="text l date_input dT" value="" style="width:180px;width:180px\9" isbottom="1" onKeyPress="myEnter('searchBtn')"/>
+				<img src="${res}/images/yun_back_img9.png" class="l date"/>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 conditions" style="width:478px;display: none;">
+				<span class="t l" style="width:50px;width:47px\9">从</span>	
+				<input type="text" class="text l searchtxt sF"  style="width:180px;width:180px\9"  onblur="validate('JS','searchFrom')" onKeyPress="myEnter('sT')" onkeyup="value=value.replace(/[^\w\.\/]/ig,'')" id="searchFrom"  name="searchFrom" value="${query.searchFrom!''}"/>
+				<span class="t l t3" style="width:50px;">至 </span>
+				<input type="text" class="text l searchtxt sT"  style="width:180px;width:180px\9" onblur="validate('JS','searchTo')" onKeyPress="myEnter('searchBtn')"  onkeyup="value=value.replace(/[^\w\.\/]/ig,'')" id="searchTo"  name="searchTo" value="${query.searchTo!''}"/>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 conditions" style="width:478px;">
+				<span class="t l" style="width:50px;width:47px\9">&nbsp;</span>	
+				<input type="text" class="text l searchtxt kW" value="${query.keyWord!''}" style="width:419px;width:419px\9" onKeyPress="myEnter('searchBtn')" />
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 conditions" style="width:478px;display:none;">
+				<span class="t l" style="width:50px;width:47px\9">&nbsp;</span>	
+				<select class="l select6" width="184">
+					<option>AAAA</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2">
+				<input type="button" class="btn btn5 searchBtn" value="开始统计"  onclick="search()"  style="margin-left: 20px;margin-left: 16px\9;"/>
+				<input type="button" class="btn btn5" value="导出清单"  onclick="exportPDF()"/>
+			</div>
+			<div class="clear"></div>
+			</form>		
+		</div>
+		<div id="listTable">
+			<div class="table-parent">
+				<table cellspacing="0" class="table">
+					<thead class="thead">
+						<th class="th w60">序号</th>
+						<th class="th w68">馆号</th>
+						<th class="th twname statisticsName">馆名</th>
+						<th class="th w82">日期</th>
+						<th class="th w98">单号</th>
+						<th class="th w70">册数</th>
+						<th class="th w70">码洋</th>
+						<th class="th w75" style='border-right:none;'>操作员</th>
+						<th class="th tw88 last operation"></th>
+					</thead>
+						<#list page.list as li>
+							<tr >
+								<td>${(page.pageNo-1)*page.pageSize+(li_index+1)}</td>
+				 				<td>${li.hallCode!''} </td>
+								<td class='tl'>${li.name!''}</td>
+								<td>${li.borrowDate!''}</td>
+								<td>${li.borrowNumber!''}</td>
+								<td class='tr'>${li.totalBook!''}</td>
+								<td class='tr'>${li.totalPrice?string('0.00')}</td>
+								<td style='border-right:none;'>${li.userName!''}</td>
+								<td class='last operation'></td>
+							</tr>
+						</#list>
+						<!-- <tr>
+						<td colspan="7" class="tl last">
+							<div class='heji'>合计人次<span>0</span>合计册数<span>0</span>合计码洋<span>0.00</span></div>
+						</td>
+					</tr> -->
+				</table>
+			</div>
+			<div class='zongji'>
+				<div class='zongji-left'>
+					合计人次<span class='left-span'>0</span>
+			    	合计册数<span class='left-span'>0</span>
+			    	合计码洋<span class='left-span'>0.00</span>
+	   				<div class="paging">
+						${page}
+					</div>
+	   			</div>
+			</div>
+			<!-- <div class="paging">
+				${page}
+			</div> -->
+		</div>
+		<div id="dateList" style="display: none;">
+			<div class="table-parent parent2">
+				<table cellspacing="0" class="l table table2" style="width:49.5%">
+					<thead class="thead">
+						<th class="th">类别</th>
+						<th class="th w100">数量</th>
+						<th class="th w120">码洋</th>
+						<th class="th w62 last">占比</th>
+					</thead>
+				</table>
+				<table cellspacing="0" class="r table table2" style="width:49.5%">
+					<thead class="thead">
+						<th class="th">类别</th>
+						<th class="th w100">数量</th>
+						<th class="th w120">码洋</th>
+						<th class="th w62 last">占比</th>
+					</thead>
+				</table>
+				<div class="clear"></div>
+				<div class="heji block">合计数量<span>0</span>合计码洋<span>0.00</span></div>
+			</div>
+		</div>
+		<div id="imgBlock" class="imgBlock" style="display:none"  >
+			<div class="center"  id="main"  style="width: 950px;height:400px;line-height:25px;"></div>
+		</div>
+	</body>
+</html>
+<script type="text/javascript" src="${res}/js/getMoreSelect.js"></script>
+<script>	
+	if(flag == 'false'){
+		$('.n1').show();$('.n2').show();$('.n3').show();
+		$(".select2").attr("width","125");
+		$(".select3").attr("width","120");
+		$(".select4").attr("width","120");
+	}else{
+		$(".t1").show();
+		$(".select2").attr("width","184");
+		$(".select3").attr("width","184");
+		$(".select4").attr("width","184");
+	}
+	getProvinces('.select7');
+	//自定义下拉列表
+	var select1=setSelect('.select1');
+	var select2=setSelect('.select2');
+	var select3=setSelect('.select3');
+ 	var select5=setSelect('.select5');
+	setSelect('.select4');
+	//setSelect('.select5');
+	setSelect('.select6');
+	var select7=setSelect('.select7');
+	var select8=setSelect('.select8');
+	setSelect('.select9');
+	
+	function validate(obj,id){
+		var val = $("#"+id).val().toUpperCase();
+		var  select =$(".select5").val();
+		if(select=='5'){
+			formatToFixed(id,9999999);
+		}
+		if(select!='3')return true;
+		
+		var zero='';
+		var number = 0;
+		var last='';
+		if(val=='')return true;
+		if(val.indexOf('JS')>-1){
+			number = 10-val.length;
+			val = val.substring(2);
+		}else {
+			number = 10-val.length-2;
+		}
+		console.log(number);
+		for(var i=0;i<number;i++){
+			zero+="0";
+		}
+		$("#"+id).val(obj+zero+val);
+	}
+	setSearchCondition(${query.option!1})
+	
+	//切换馆号下拉列表文字显示
+	select3.find('.head').html($('.select3').val());
+	function setselectText(val){		
+		select3.find('.head').html(val);		
+	}
+	
+	//切换搜索条件
+	function setSearchCondition(val){
+		$('.conditions').hide();
+		if(val==3 || val==4 || val==5){
+			$('.conditions').eq(1).show();
+		}else if(val==1 || val==6){
+			$('.conditions').eq(2).show();	
+		}else if(val==7){
+			$('.conditions').eq(1).show();	
+		}else if(val==2){
+			$('.conditions').eq(0).show();	
+		}
+	}
+	
+	//切换列表
+	function setListShow(val){
+		if(val==1){
+			//pageTo(1,10)
+			$('#listTable').show();
+			$('#dateList,#imgBlock').hide();
+			$(".select5").removeAttr("disabled").removeClass("disabled");
+			$(".searchtxt").removeAttr("disabled").removeClass("disabled");
+			
+		}else if(val==2){	
+			dataList(-1);
+			$(".text").val("");
+			$('#dateList').show();
+			$('#listTable,#imgBlock').hide();
+			$(".select5").attr("disabled","disabled").addClass("disabled");		
+			$('.searchtxt').attr("disabled","disabled").addClass("disabled");
+		}else if(val==3){
+			chart(-1);
+			$(".text").val("");
+			$('#listTable,#dateList').hide();
+			$('#imgBlock').show();
+			$(".select5").attr("disabled","disabled").addClass("disabled");		
+			$('.searchtxt').attr("disabled","disabled").addClass("disabled");
+		}
+		select5.reset();
+	}
+	
+	//加载日历控制
+	$(function(){		
+		$('.date_input').date_input();
+		//点击选择日期按钮，调用日期控件
+		$('img.date').click(function(event){
+			event.stopPropagation();
+			$(this).prev().prev().focus();
+		});	
+	});	
+	var url = "${res}";
+	
+	function search(){
+  		var val =$(".select4").val();
+  		if(val==1){
+  			pageTo(1,10)
+		}else if(val==2){	
+			dataList(1);
+			$('#dateList').show();
+			$('#listTable,#imgBlock').hide();
+			$(".select5").removeAttr("disabled").removeClass("disabled");
+		}else if(val==3){
+			chart(1);
+		}
+  	}
+  	//var p1,c1,a1="",a2,a3="",a5,df1='',dt1='',pf1='',pt1='',keyword='';
+  //搜索条件
+  	var p1='',c1='',a1='',a2='',a3='',a5='',df1='',dt1='',pf1='',pt1='',keyword='';
+  	function searchField(n){
+  		var expiresDate = new Date();
+  		expiresDate.setTime(expiresDate.getTime() + (5 * 60 * 1000));
+		if(flag == 'true'){
+			 a1 = $(".select1").val();
+			 $.cookie('select1', a1, {expires:expiresDate});
+		}else{
+			 p1 = $('.n1').find("option:selected").val();
+			 c1 = $('.n2').find("option:selected").val();
+			 a1 = $('.n3').find("option:selected").val();
+			 $.cookie('select7', p1, {expires:expiresDate});
+			 $.cookie('select8', c1, {expires:expiresDate});
+			 $.cookie('select9', a1, {expires:expiresDate});
+		}
+		//判断ie选择的值
+		if (typeof(p1) == "undefined") {
+			p1 = "";
+		}
+		if (typeof(c1) == "undefined") {
+			c1 = "";
+		}
+		if (a1==null) {
+			a1 = "";
+		}
+		if(n!=-1){
+			 a2 = $(".select2").find("option:selected").text();
+		}else {
+			a2 = "change select";
+		}
+		 a5 = $(".select5").val();
+		 if(a5==2){
+			 pf1 = $(".dF").val();
+			 pt1 = $(".dT").val();
+		 }else {
+			 pf1 = $(".sF").val();
+			 pt1 = $(".sT").val();
+		 }
+		 keyword = $(".kW").val();
+  	}
+  	
+  	function exportPDF(){
+  		searchField();
+  		var val =$(".select4").val();
+  		var exportMethod ="";
+  		if(val==1){
+  			var len = $("#listTable table tr").length;
+  			if(len<2)return false;
+  			exportMethod="exportList"
+		}else if(val==2){
+			var len = $("#dateList table tr").length;
+			if(len<3)return false;
+			exportMethod="exportData"
+		}else if(val==3){
+			var html =$("#main").html();
+			if(html=="暂无数据")return false;
+			exportMethod="exportData"
+		}
+  		location.href ="${res}/report/borrower/"+exportMethod+".do?province="+p1+"&city="+c1+"&area="+a1+"&lib="+a2+"&hallCode="+a3+"&option="+a5+"&searchFrom="+pf1+"&searchTo="+pt1+"&keyWord="+keyword;
+//   		$.post("${res}/report/vLibraryBook/exportList.do",{area:a1,lib:a2,hallCode:a3,option:a5,dateFrom:df1,dateTo:dt1,searchFrom:pf1,searchTo:pt1 },function(){
+//   		});
+  	}
+  	
+	require.config({
+		paths: {
+            echarts: '${res}/js/plugin'
+        }
+    });
+  	/**图表*/
+  	function chart(n){
+	require(  
+	        [  
+	            //这里的'echarts'相当于'./js'  
+	            'echarts',  
+	            'echarts/chart/bar',
+	            'echarts/chart/line'
+	        ],  
+	  function(ec){	
+	    searchField(n);
+	    if(!checkSelect())return false;
+		if(n!=-1)
+		ZENG.msgbox.show("加载中....", 6,15000);
+		$.post("${res}/report/borrower/data.do",{province:p1,city:c1,area:a1,lib:a2,hallCode:a3,option:a5,searchFrom:pf1,searchTo:pt1 },function(data){
+			data=JSON.parse(data);
+			var arr = data.result;
+			var total = data.total;
+			var  strSum='';
+			if(arr.length == 0)
+	 		{
+				//strSum+="<div class='heji chart' style='text-align: right;'>合计种数<span>0</span>合计数量<span>0</span>合计码洋<span>0.00</span></div>";
+				$(".chart").remove();
+				$("#main").html("暂无数据");
+				//$("#main").before(strSum);
+				return false;
+	 		}else{
+	 			strSum+="<div class='heji chart' style='text-align: right;'>合计种数<span>"+total.sumIsbn+"</span>合计数量<span>"+total.sumBook+"</span>合计码洋<span>"+total.sumPrice.toFixed(2)+"</span></div>";
+	 		}
+			$(".chart").remove();
+			$("#main").before(strSum);
+			var arrPercent =new Array();
+			var arrCategory =new Array();
+			for (var i=0;i<arr.length;i++) {
+				arrPercent.push(arr[i].percent.toFixed(2));
+			}
+			for (var i=0;i<arr.length;i++) {
+				arrCategory.push(arr[i].category.substring(0,1));
+			}
+			var myChart = ec.init(document.getElementById('main'));
+	        // 指定图表的配置项和数据
+	        var option = {
+        		title: {
+					x:'60',
+					y:'20',
+       				text: '百分比'
+    			},
+    			tooltip: { 
+	        		  trigger: 'axis',
+	            	 axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+	                     type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+	                 },
+	                 formatter: function (params) {
+	                     var tar = params[0];
+	                     return '类别'+ ' : ' +tar.name+ '<br/>'+ '占比 : ' + tar.value;
+	                 }
+	                // formatter: "{a} <br/>{b} : {c} ({d}%)" tar.seriesName
+	                //   return '类别'+ ' : ' +tar.name+ '<br/>'+ '占比 : ' + tar.value;
+	        	},
+	            legend: {
+	               	selectedMode:false,
+	                data:['类别']
+	            },
+	            calculable : false,
+	            xAxis: {
+	            	type : 'category',
+	            	splitLine: {show:false},
+	                data:arrCategory
+	            },
+	            yAxis: {  
+	            	  type : 'value'
+	               },
+	            series: [{
+	                name: '类别',
+	                type: 'bar',
+	                data:arrPercent,
+	                itemStyle:{
+	                	normal:{
+	                		color:'#67ace5'
+	                	}
+	                },
+	                markPoint : {
+	                    data : [
+	                        {type : 'max', name: '最大值'},
+	                        {type : 'min', name: '最小值'}
+	                    ]
+	                },
+	            }]
+	        };
+	        // 使用刚指定的配置项和数据显示图表。
+	        myChart.setOption(option);
+	    	$('#listTable,#dateList').hide();
+			$('#imgBlock').show();
+			$(".select5").attr("disabled","disabled").addClass("disabled");
+			ZENG.msgbox.hide();
+		},"json");
+	     })
+  	}
+  	
+  	/*数表*/
+  	function dataList(n){
+  		searchField(n);
+  		if(!checkSelect())return false;
+  		if(n!=-1)
+  		ZENG.msgbox.show("加载中....", 6,15000);
+  		$(".searchBtn").attr("disabled", true);
+		$(".searchBtn").attr("disabled", "disabled");
+		$(".searchBtn").css('background', '#9da4ad');
+		$.post("${res}/report/borrower/data.do",{province:p1,city:c1,area:a1,lib:a2,hallCode:a3,option:a5,dateFrom:df1,dateTo:dt1,searchFrom:pf1,searchTo:pt1,keyWord:keyword },function(data){
+			data=JSON.parse(data);
+			var arr = data.result;
+			var str = "<table cellspacing='0' class='l table' style='width:49.5%'> <thead class='thead'>";
+				str += "<th class='th'>类别</th>"
+				str += "<th class='th w100'>册数</th>"
+				str += "<th class='th w100'>码洋</th>"
+				str += "<th class='th w62 last'>占比</th></thead>"
+			var index =Math.round(arr.length/2);
+			for (var i=0;i<index;i++) {
+				str+="<tr >"
+				str+="<td class='tl'>"+arr[i].category+"</td>";
+				str+="<td class='tr'>"+arr[i].totalBook+"</td>";
+				str+="<td class='tr'>"+parseFloat(arr[i].totalPrice!=null?arr[i].totalPrice:0.00).toFixed(2)+"</td>";
+				str+="<td class='tr last'>"+parseFloat(arr[i].percent).toFixed(2)+"%</td>";
+				str+="</tr>";
+			}
+			str+="</table>";
+			
+			str += "<table cellspacing='0' class='r table' style='width:49.5%'> <thead class='thead'>";
+			str += "<th class='th'>类别</th>"
+			str += "<th class='th w100'>数量</th>"
+			str += "<th class='th w100'>码洋</th>"
+			str += "<th class='th w62 last'>占比</th></thead>"
+		
+			for ( var i=index;i<arr.length;i++) {
+				str+="<tr >"
+ 				str+="<td class='tl' >"+arr[i].category+"</td>";
+				str+="<td class='tr'>"+arr[i].totalBook+"</td>";
+				str+="<td class='tr'>"+parseFloat(arr[i].totalPrice!=null?arr[i].totalPrice:0.00).toFixed(2)+"</td>";
+				str+="<td class='tr last'>"+parseFloat(arr[i].percent).toFixed(2)+"%</td>";
+				str+="</tr>";
+			}
+			var total = data.total;
+			str+="</table>";
+			
+			if(arr.length ==0)
+	 		{
+				str+="<div class='clear'></div><div class='heji block'>合计数量<span>0</span>合计码洋<span>0.00</span></div>";
+	 		}else{
+	 			str+="<div class='clear'></div><div class='heji block'>合计数量<span>"+total.sumBook+"</span>合计码洋<span>"+total.sumPrice.toFixed(2)+"</span></div>";
+	 		}
+			$(".table2").remove();
+			$(".parent2").html(str);
+			ZENG.msgbox.hide();
+			$(".searchBtn").attr("disabled", false); //设置disabled为false
+			$(".searchBtn").removeAttr("disabled");  //移除属性
+			$(".searchBtn").css('background','#2561b0');
+		},"json");
+  	}
+  	function checkSelect(){
+  		if(flag == 'true'){
+  			 if(p1==""&&a1==""&&a2==""&&a3==""&&df1==""&&dt1==""&&pf1==""&&pt1==""&&keyword==""){
+  				pullSelect($(".select1")[0]);
+  				return false;
+  			 }
+  			return true;
+  		 }
+  		 if(flag == 'false'){
+  			 if(p1==""&&a2==""&&a3==""&&df1==""&&dt1==""&&pf1==""&&pt1==""&&keyword==""){
+  				pullSelect($(".select7")[0]);
+  				return false;
+  			 }
+  			 if(c1==""&&a2==""&&a3==""&&df1==""&&dt1==""&&pf1==""&&pt1==""&&keyword==""){
+  				pullSelect($(".select8")[0]);
+  				return false;
+  			}
+  		}
+  		 return true;
+  	}
+	
+	//翻页+查询
+	function pageTo(n,s){
+		var ss = autoHeight();
+		if(n<1){
+			n= $(".pageToNo").val();
+		}
+		searchField(1);
+		
+		if(!checkSelect())return false;
+		if(s!=-1)
+		ZENG.msgbox.show("加载中....", 6, 15000);
+		$(".searchBtn").attr("disabled", true);
+		$(".searchBtn").attr("disabled", "disabled");
+		$(".searchBtn").css('background', '#9da4ad');
+		$.post("${res}/report/borrower/list.do?pageNo="+n+"&pageSize="+ss,{province:p1,city:c1,area:a1,lib:a2,hallCode:a3,option:a5,searchFrom:pf1,searchTo:pt1,keyWord:keyword},function(data){
+			data=JSON.parse(data);
+			var arr = data.list;
+			var strPage;
+			var str = "<table cellspacing='0' class='table'> <thead class='thead'><th class='th w60'>序号</th><th class='th w68'>馆号</th>";
+				str += "<th class='th twname statisticsName'>馆名</th>"
+				str += "<th class='th w82'>日期</th>"
+				str += "<th class='th w98'>单号</th>"
+				str += "<th class='th w70'>册数</th>"
+				str += "<th class='th w70'>码洋</th>"
+				str += "<th class='th w75 last' style='border-right:none;'>操作员</th>"
+				str += "<th class='th tw88 last operation'></th></thead>"
+			for ( var i=0;i<arr.length;i++) {
+				str+="<tr id='rm'>"
+				str+="<td>"+((n-1)*ss+(i+1))+"</td>";
+				str+="<td>"+arr[i].hallCode+"</td>";
+				str+="<td class='tl' title='"+arr[i].name+"'>"+arr[i].name+"</td>";
+				str+="<td>"+arr[i].borrowDate+"</td>";
+				str+="<td>"+arr[i].borrowNumber+"</td>";
+				str+="<td class='tr'>"+arr[i].totalBook+"</td>";
+				str+="<td class='tr'>"+arr[i].totalPrice.toFixed(2)+"</td>";
+				str+="<td style='border-right:none;'>"+arr[i].userName+"</td>";
+				str+="<td class='last operation'></td>";
+				str+="</tr>";
+			}
+			var total = data.total;
+			if(arr.length == 0)
+	 		{
+	 			str += "<tr> <td colspan='9' class='tl last'><div style='text-align:center;font-weight: bold;'>发现0条数据!</div></td></tr>";	
+	 		}else{
+				//str += "<tr> <td colspan='7' class='tl last'><div class='heji'>合计人次<span>"+total.sumCount+"</span>合计册数<span>"+total.sumBook+"</span>合计码洋<span>"+parseFloat(total.sumPrice).toFixed(2)+"</span></div></td></tr>";
+				strPage = "<div class='zongji-left'>合计人次<span class='left-span'>"+total.sumCount+"</span>合计册数<span class='left-span'>"+total.sumBook+"</span>合计码洋<span class='left-span'>"+parseFloat(total.sumPrice).toFixed(2)+"</span>";
+				strPage += "<div class='paging'></div></div>";
+	 		}
+			str+="</table>";
+			$(".table").remove();
+			$(".table-parent").html(str);
+			$(".zongji").html(strPage);
+			$(".paging").html(data.cont);
+			ZENG.msgbox.hide();
+			$(".searchBtn").attr("disabled", false); //设置disabled为false
+			$(".searchBtn").removeAttr("disabled");  //移除属性
+			$(".searchBtn").css('background','#2561b0');
+		},"json");
+	}
+	$(".searchBtn").keyup(function(event){
+		  if(event.keyCode ==13){
+			  var val = $(".select4").val();
+			  setListShow(val)
+		  }
+	});
+	function myEnter(str){
+		  if (event.keyCode == 13){  
+		   		 $("."+str).focus();
+		    }
+	}
+	function loadCookie(){
+		if(flag=='false'){
+			$(".select7").html($('.select7').html()).val($.cookie('select7'));
+			select7.reset();
+			getCitys3($('.select8'),$('.select9'),$.cookie('select7'),$.cookie('select8'));
+		}else{
+			$(".select1").html($('.select1').html()).val($.cookie('select1'));
+			select1.reset();
+		}
+		$(".select2").html($('.select2').html()).val($.cookie('select2'));
+		select2.reset();
+	}
+	setTimeout(window.onload=loadCookie, 100);
+</script>
+<script type="text/javascript" src="${res}/js/getMoreSelect.js"></script>

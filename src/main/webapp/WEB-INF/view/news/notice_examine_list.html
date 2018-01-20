@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+			<#include "../head.html">
+		<script type="text/javascript">
+			function page(n,s){
+				if(n==-1){
+					n = $(".pageNo").val();
+				}
+				$("#pageNo").val(n);
+				$("#pageSize").val(s);
+				$("#searchForm").submit();
+		    	return false;
+		    }
+			function setTop(id){
+				$.post(config.contextPath+"/news/notice/top/"+id+".do",function(data){
+					if (!data.success) {
+						ZENG.msgbox.show("置顶失败,请联系管理员!", 5);
+					}
+					location.reload();
+				});
+			}
+		</script>
+	</head>
+	<body>
+		<div class="search">
+			<form action="${res}/news/notice/list.do" id="searchForm">
+				<input id="testState" name="testState" type="hidden" value="77"/>
+				<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+				<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+				<input name="status" type="hidden" value="1"/>
+				<input name="type" type="hidden" value="4"/>
+				<input type="text" class="text tc l" name="title" maxlength="20" tipMsg="请输入您要搜索的内容"/>
+				<input type="submit" class="btn" value=" 搜索 "/>
+			</form>
+		</div>
+		<div class="table-parent">
+			<table cellspacing="0" class="table" style="min-width:1080px;">
+				<thead class="thead">
+					<th class="th w60">序号</th>
+					<th class="th w88">类别</th>
+					<th class="th t_laiyuan">来源</th>
+					<th class="th twObject messageContent">内容</th>
+					<!-- <th class="th w100">缩略图</th> -->
+					<th class="th w60">状态</th>
+					<th class="th w75">操作员</th>
+					<th class="th w82">修改日期</th>
+					<th class="th last tw88 t_last" style="text-align:left;padding-left:10px;">操作</th>
+				</thead>
+				<#list page.list as new>
+					<tr class="test${new.id}">
+						<td>${(page.pageNo-1)*page.pageSize+(new_index+1)}</td>
+						<td>
+							<#list types as type>
+								<#if type.key==new.type>
+									${type.val}
+								</#if>
+							</#list>
+						 </td>
+						<td>${new.source!}</td>
+						<td class="tl" title="${new.title!}">
+						<#if (new.status!0)==1>
+						<a href="${res}/news/notice/examine/${new.id}.do" style="color: #2561b0;">
+						${new.title!} 
+						</a>
+						</#if>
+						<#if (new.status!0)==2>
+						<a href="${res}/news/notice/examine/${new.id}.do?status=1" style="color: #2561b0;">
+						${new.title!} 
+						</a>
+						</#if>
+						</td>
+						<!-- <td><#if (new.image!'')!=''><img src="http://img.ytsg.cn/images/newsImages/${new.image!''}" style="margin-top:5px;width:60px; height:40px"/></#if></td> -->
+						<td>
+							<#if (new.status!0)==1>
+								待审
+							</#if>
+							<#if (new.status!0)==2>
+								<font class="green">通过</font>
+							</#if>
+							<#if (new.status!0)==3>
+								驳回
+							</#if>
+							<#if (new.status!0)==4>
+								弃审
+								<script type="text/javascript">
+								$(document).ready(function(){
+									$(".test${new.id}").hide();
+								});
+								</script>
+							</#if>
+							<#if (new.status!0)==5>
+								未确定
+							</#if>
+						</td>
+						<td><#if (new.status!0)==2>${(new.modifyUser)!?html}</#if></td>
+						<td><#if (new.status!0)==2>${(new.modifyDate?string("yyyyMMdd"))!''}</#if></td>
+						<td class="last" style="text-align:left;padding-left:10px;">
+							<#if (new.status!0)==1>
+								<a href="${res}/news/notice/examine/${new.id}.do" class="green">审核</a>
+							</#if>
+							<#if (new.status!0)==2>
+								<a href="${res}/news/notice/testOut.do?id=${new.id}&status=4" style="color:red;">弃审</a>
+							</#if>
+							
+						
+						</td>
+					</tr>
+				</#list> 
+			</table>
+			<form method="post" id="testForm"></form>
+		</div>
+		<div class="paging">
+			${page}
+		</div>	
+	</body>
+</html>
+<script>
+	$('img.map').click(function(event){
+		event.stopPropagation();
+		var x=$(this).attr('x');
+		var y=$(this).attr('y');
+		if(x && y){			
+			setMap({
+				point:[x,y],
+			 	title:$(this).parent().parent().find('td').eq(3).text(),
+			 	address:'地址：'+$(this).parent().prev().text()
+			});
+			
+		}
+	});
+
+	$.ajaxSetup({
+		async:true
+	});
+	
+	function audit(result){
+    	var id = result;
+    	result = 4;
+    	$("#testForm").attr("action","${res}/news/notice/testOut.do?id="+id+"&status="+result);
+    	$("#testForm").submit();
+	    } 
+</script>

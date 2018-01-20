@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title></title>
+<meta name="renderer" content="webkit|ie-comp|ie-stand" />
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1" />
+<#include "../head.html">
+<link rel="stylesheet" href="${res}/css/ebook_style.css"/>
+<script type="text/javascript">
+	$(function() {
+		$(".listmsg").hide();
+	})
+	function page(n, s) {
+		$("#pageNo").val(n);
+		$("#pageSize").val(s);
+		$("#searchForm").submit();
+		return false;
+	}
+	function actionDo(divId, hrefs) {
+		$(divId).attr('href', hrefs + '?pageSize=' + ${page.pageSize});
+	}
+	<#assign  num=1>
+</script>
+<style type="text/css">
+        .eb_style{color:#2661af;}
+        .w90{width:90px;}
+        .w70{width:70px;}
+        .w96{width:96px;}
+        .w80{width:80px;}
+        .danchor{color:#2661af;}
+        .ac_anchor{height:100%;width:64px;float:right;display:inline-block;margin-top:30px;margin-right:30px;font-weight:500;font-size:16px;color:#000;
+            text-decoration:underline;}
+        .search_box{width:100%;}
+        .table-parent{width:100%;}
+</style>
+</head>
+<body>
+	<div class="title">
+		<span class="l t">图书馆列表</span> <img
+			src="${res}/images/yun_back_img1.png" class="r"
+			onclick="location.href=location.href" />
+		<div class="clear"></div>
+	</div>
+	<div class="search_box">
+		<div class="search" style="display: inline-block;">
+			<form onsubmit="subimitDo(this, 180, 36, '${res}/cms/order/orderList.do')" id="searchForm">
+				<input id="pageNo" name="pageNo" type="hidden"
+					value="${page.pageNo}" /> <input id="pageSize" name="pageSize"
+					type="hidden" value="${page.pageSize}" /> <input type="text"
+					class="text tc" value="${search!''}" name="search" tipMsg="搜订单" style="height:32px"/><input
+					type="submit" class="btn" value=" 搜索 " />
+			</form>
+		</div>
+		<a href="${res}/cms/order/customerList.do?pageSize=${page.pageSize}" class="ac_anchor">主动配发</a>
+	</div>
+	<div class="table-parent">
+		<table cellspacing="0" class="table" ul="ebook"
+			style="">
+			<thead class="thead">
+					<th class="th w82">日期</th>
+					<th class="th w98">单号</th>
+					<th class="th w68">客户代码</th>
+					<th class="th twname">单位名称</th>
+					<th class="th w75">联系人</th>
+					<th class="th w110">电话</th>
+					<th class="th w105">手机</th>
+					<th class="th w70">品种数</th>
+					<th class="th w90">金额</th>
+					<th class="th w188 last t_last" style="text-align:left;padding-left:10px;">操作员</th>
+			</thead>
+			<#list page.list as orders>
+			<tr tid="${orders.id}">
+				<td title="${(orders.createDate?string("yyyyMMdd"))!''}">${(orders.createDate?string("yyyyMMdd"))!''}</td>
+				<td title="${orders.orderNumber!''}"><a href="${res}/cms/order/orderDetail/${orders.id}.do" class="danchor">${orders.orderNumber!''}</a></td>
+				<td title="${orders.customer.hallCode!''}">${orders.customer.hallCode!''}</td>
+				<td style="text-align:left;padding-left:5px;" title="${orders.customer.name!''}">${orders.customer.name!''}</td>
+				<td title="${orders.contactPerson!''}">${orders.contactPerson!''}</td>
+				<td title="${orders.tel!''}">${orders.tel!''}</td>
+				<td title="${orders.phone!''}">${orders.phone!''}</td>
+				<td style="text-align:right;padding-right:5px" title="${orders.kinds!''}">${orders.kinds!''}</td>
+				<td style="text-align:right;padding-right:5px" title="${orders.totalPrice!''}">${orders.totalPrice!''}</td>
+				<td class="last" style="text-align:left;padding-left:10px;" title="${orders.operatorName!''}">${orders.operatorName!''}</td>
+			</tr>
+			</#list>
+		</table>
+	</div>
+	<div class="r" style="margin-top: -15px;">
+		<div class="paging">${page}</div>
+	</div>
+</body>
+</html>
+<script>
+
+	$('img.map').click(function(event) {
+		event.stopPropagation();
+		var x = $(this).attr('x');
+		var y = $(this).attr('y');
+		if (x && y) {
+			setMap({
+				point : [ x, y ],
+				title : $(this).parent().parent().find('td').eq(1).text(),
+				address : '地址：' + $(this).parent().prev().text()
+			});
+		}
+	});
+	window.onkeydown=function(event){if (event.keyCode == 13){ searchBooks(); } }
+</script>

@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>云图书馆后台管理系统</title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<link rel="shortcut icon" href="${res}/images/favicon.ico"/>
+		<link rel="stylesheet" href="${res}/css/style.css" />
+		<script src="${res}/js/jquery.min.js"></script>
+		<script src="${res}/js/common.js"></script>
+		<style>
+		   html,body{height: 100%; overflow: hidden;}
+		  .libraryNotice{height:16px;width:28px;background:url(${res}/images/big-hong.png) no-repeat 0 center;display:inline-block;font-size:12px;line-height:16px;color:#fff !important;text-align:center;}
+		  .libraryNotice1{height:16px;width:16px;background:url(${res}/images/small-hong.png) no-repeat 0 center;display:inline-block;font-size:12px;line-height:16px;color:#fff !important;text-align:center;}
+		</style>
+	</head>
+	<body style="background: #fff;">
+		<table class="main-table" cellspacing="0">
+			<tr>
+				<td class="thead" colspan="2" valign="top">
+					<a href="#"><img src="${res}/images/logo.png" class="logo l"/></a>
+					<div class="r">
+						${CURRENT_USER.hallCode}
+						&nbsp;
+						<#if (CURRENT_USER.hallCode)=='YTSG'>
+						云图书馆平台
+						<#else>
+						${CURRENT_USER.customer.name}
+						</#if>
+						&nbsp;
+						${CURRENT_USER.userName}
+						<span>|</span>
+						<a href="${res}/cms/user/changePswPage.do" onclick="addIframe(this);return false;">修改密码</a> 
+						<span>|</span> 
+						<a href="${res}/common/logout.do">退出</a>
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="left" valign="top" width="200" style="border-right:#dddddd solid 1px;">
+					<div class="block">
+						<@shiro.hasPermission name="user:*" >
+							<ul class="menu">
+								<li class="head"><span class="ico ico0"></span><label>用户管理</label></li>
+								<li class="son">
+									<@shiro.hasPermission name="user:add" >								
+										<label href="${res}/cms/user/form.do">用户新增</label>
+									</@shiro.hasPermission>
+									<@shiro.hasPermission name="user:list" >
+										<label id="userList" onclick="actionDo(this, 330, 37,'${res}/cms/user/list.do')">用户维护</label>
+									</@shiro.hasPermission>
+								</li>
+							</ul>
+						</@shiro.hasPermission>
+						
+					<@shiro.hasPermission name="customer:*" >
+						<ul class="menu">
+							<li class="head"><span class="ico ico9"></span><label>客户管理</label></li>
+							<li class="son">
+							<@shiro.hasPermission name="customer:add" >								
+								<label href="${res}/cms/customer/add.do">客户新增</label>
+							</@shiro.hasPermission>
+							<@shiro.hasPermission name="customer:list" >
+								<label id="customerList" onclick="actionDo(this, 330, 37,'${res}/cms/customer/list.do')" >客户维护</label>
+							</@shiro.hasPermission>
+								
+							</li>
+						</ul>
+						</@shiro.hasPermission>
+						<@shiro.hasPermission name="library:*" >
+						<ul class="menu">
+							<li class="head manager"><span class="ico ico1"></span>
+							<#if level = "1"><label>图书馆管理</label>
+							<#else>
+							<label>图书馆管理 <span class='notice'></span></label>
+							</#if>
+							</li>
+							<li class="son">
+								<@shiro.hasPermission name="library:add" >
+									<label href="${res}/cms/library/add.do">图书馆新增</label>
+								</@shiro.hasPermission>
+								<@shiro.hasPermission name="library:em" >	
+									<label class="library" onclick="actionDo(this, 330, 37,'${res}/cms/library/examine.do')">图书馆审核
+								       <span class='notice' style=text-dent:1px;margin-left:5px;"></span>
+									</label>
+								</@shiro.hasPermission>
+								<@shiro.hasPermission name="library:list" >
+									<label onclick="actionDo(this, 330, 37,'${res}/cms/library/list.do')">图书馆维护</label>
+								</@shiro.hasPermission>
+								
+							</li>
+						</ul>	
+							</@shiro.hasPermission>	
+						<@shiro.hasPermission name="librarySet:*" >				
+						<ul class="menu">
+							<li class="head"><span class="ico ico8"></span><label>馆际流通管理</label></li>
+							<li class="son">
+								<@shiro.hasPermission name="librarySet:lendout" >		
+									<!--  <label href="${res}/cms/libset/list/lendout.do">借阅限制设置</label>-->
+								</@shiro.hasPermission>
+								<@shiro.hasPermission name="librarySet:deposit" >		
+									<!-- <label href="${res}/cms/libset/list/deposit.do">读者押金设置</label>-->
+								</@shiro.hasPermission>
+								<@shiro.hasPermission name="librarySet:circulate" >		
+									<#if level=='1'><label onclick="actionDo(this, 320, 37,'${res}/system/circulation/list.do')">馆际流通设置</label></#if>
+								</@shiro.hasPermission>	
+								<@shiro.hasPermission name="librarySet:audit" >
+									<#if level=='1'><label onclick="actionDo(this, 320, 37,'${res}/cms/library/reviewList.do')">馆际流通审核</label>	</#if>
+								</@shiro.hasPermission>
+								<@shiro.hasPermission name="librarySet:customer" >	
+									<#if level=='1'><label onclick="actionDo(this, 320, 37,'${res}/system/circulation/cross.do')">跨单位馆际流通设置</label></#if>	
+								</@shiro.hasPermission>	
+								<@shiro.hasPermission name="librarySet:auditCustomer" >		
+									<#if level=='0'><label href="${res}/system/circulationAudit/audit.do">跨客户馆际流通审核</label></#if>
+									<#if level=='1'><label href="${res}/system/circulationAudit/review.do">跨单位馆际流通审核</label></#if>
+								</@shiro.hasPermission>
+							</li>
+						</ul>
+						</@shiro.hasPermission>
+						
+						<!-- <ul class="menu">
+							<li class="head"><span class="ico ico6"></span><label>押金管理</label></li>
+						</ul>
+						 -->
+						
+						<@shiro.hasPermission name="other:*" >		
+						<ul class="menu"  style="display: none">
+							<li class="head"><span class="ico ico2"></span><label>资讯广告管理</label></li>
+							<li class="son">
+								<label href="${res}/common/building.do">广告新增</label>
+								<label href="${res}/common/building.do">广告维护</label>
+							</li>
+							<li class="head"><span class="ico ico2"></span><label>资讯广告管理</label></li>
+							<li class="son">
+								<label href="${res}/common/building.do">广告新增</label>
+								<label href="${res}/common/building.do">广告维护</label>
+							</li>
+						</ul>
+						</@shiro.hasPermission>
+						<@shiro.hasPermission name="ebook:*" >		
+						<ul class="menu">
+							<li class="head"><span class="ico ico11"></span><label>电子书管理</label></li>
+							<li class="son">
+								<label href="${res}/cms/ebook/form.do">电子书入库</label>
+								<label onclick="actionDo(this, 320, 37,'${res}/cms/ebook/list.do')">电子书维护</label>
+								<label onclick="actionDo(this, 320, 37,'${res}/cms/order/orderList.do')">电子书配发</label>
+							</li>
+						</ul>
+						</@shiro.hasPermission>
+						<@shiro.hasPermission name="news:*" >
+							<ul class="menu">
+								<li class="head"><span class="ico ico2"></span><label>资讯管理</label></li>
+								<li class="son">
+								<@shiro.hasPermission name="news:add" >	
+									<label href="${res}/news/news/form.do">资讯新增</label>
+								</@shiro.hasPermission>
+								<@shiro.hasPermission name="news:em" >
+									<label onclick="actionDo(this, 320, 50,'${res}/news/news/list.do?status=1&type=3')">资讯审核</label>
+								</@shiro.hasPermission>
+								<@shiro.hasPermission name="news:list" >
+									<label onclick="actionDo(this, 320, 50,'${res}/news/news/list.do?status=0&type=3')">资讯维护</label>
+								</@shiro.hasPermission>
+								</li>
+							</ul>
+						</@shiro.hasPermission>	
+						<@shiro.hasPermission name="notice:*" >			
+							<ul class="menu">
+								<li class="head"><span class="ico ico13"></span><label>消息管理</label></li>
+								<li class="son">
+								<@shiro.hasPermission name="notice:add" >	
+									<label href="${res}/news/notice/form.do">消息新增</label>
+								</@shiro.hasPermission>
+								<@shiro.hasPermission name="news:em" >	
+									<label onclick="actionDo(this, 320, 36,'${res}/news/notice/list.do?status=1&type=4')">消息审核</label>
+								</@shiro.hasPermission>
+								<@shiro.hasPermission name="notice:list" >	
+									<label onclick="actionDo(this, 320, 36,'${res}/news/notice/list.do?status=0&type=4')">消息维护</label>
+								</@shiro.hasPermission>
+								</li>
+							</ul>
+						</@shiro.hasPermission>	
+						<@shiro.hasPermission name="activity:*" >		
+						<ul class="menu">
+							<li class="head"><span class="ico ico10"></span><label>读友会管理</label></li>
+							<li class="son">
+								<@shiro.hasPermission name="activity:add" >	
+								<label href="${res}/activity/form.do">读友会新增</label>
+								</@shiro.hasPermission>
+								<@shiro.hasPermission name="activity:em" >	
+								<label onclick="actionDo(this, 320, 50,'${res}/activity/list.do?status=1')">读友会审核</label>
+								</@shiro.hasPermission>
+								<@shiro.hasPermission name="activity:list" >
+								<label onclick="actionDo(this, 320, 50,'${res}/activity/list.do?status=0')">读友会维护</label>
+								</@shiro.hasPermission>
+							</li>
+						</ul>
+						</@shiro.hasPermission>	
+						
+						<@shiro.hasPermission name="others:*" >	
+							<ul class="menu">
+								<li class="head"><span class="ico ico3"></span><label href="${res}/common/building.do">数据管理</label></li>
+							</ul>
+						</@shiro.hasPermission>	
+						<@shiro.hasPermission name="report:*" >	
+							<ul class="menu">
+								<li class="head"><span class="ico ico4"></span><label>统计分析</label></li>
+								<li class="son">
+									<label href="${res}/report/vLibraryBook.do">藏书统计</label>
+									<label href="${res}/report/catalogueReport/list.do">入藏统计</label>
+									<label href="${res}/report/borrower.do">借书统计</label>
+									<label href="${res}/report/compensateBook/list.do">赔书统计</label>
+									<label href="${res}/report/lossReport/list.do">盘亏统计</label>
+									<label href="${res}/report/reportedLoss/list.do">剔旧统计</label>
+									<label href="${res}/report/paymentReport/list.do">收款统计</label>
+									<label href="${res}/report/readerReport/list.do">读者统计</label>
+									<label href="${res}/report/lightReport/list.do">开放时间统计</label>								
+									<label href="${res}/report/circulatedReport/list.do">流通统计</label>
+									<label href="${res}/report/scattergram.do">全景分布图</label>
+								</li>
+							</ul>
+						</@shiro.hasPermission>	
+						<@shiro.hasPermission name="ranking:*" >	
+						<ul class="menu">
+							<li class="head"><span class="ico ico12"></span><label>排行榜</label></li>
+							<li class="son">
+								<label href="${res}/ranking/borrow/list.do">借阅排行榜</label>
+								<label href="${res}/ranking/clicklike/list.do">点赞排行榜</label>
+							</li>
+						</ul>
+						</@shiro.hasPermission>
+						
+						<ul class="menu">
+							<li class="head"><span class="ico ico3"></span><label>数据管理</label></li>
+							<li class="son">
+								<label href="" style="color:#999 !important">MARC数据导出</label>
+								<label href="" style="color:#999 !important">电子书数据导出</label>
+								<label href="${res}/data/manage/dataReporting.do">数据上报</label>
+							</li>
+						</ul>
+							
+						<@shiro.hasPermission name="role:*" >
+						<ul class="menu">
+							<li class="head"><span class="ico ico5"></span><label>系统管理</label></li>
+							<li class="son">
+<!-- 								<label href="#">部门新增</label> -->
+<!-- 								<label href="#">部门维护</label> -->
+								<@shiro.hasPermission name="role:add" >		
+									<label href="${res}/cms/role/get.do">角色新增</label>
+								</@shiro.hasPermission>	
+								<@shiro.hasPermission name="role:list" >
+									<label href="${res}/cms/role/list.do">角色维护</label>
+								</@shiro.hasPermission>
+								<!-- 
+								<@shiro.hasPermission name="role:system" >		
+									<label href="${res}/cms/systemDept/deptPage.do">部门管理</label>
+								</@shiro.hasPermission>	
+								 -->
+								<@shiro.hasPermission name="role:system" >		
+									<label href="${res}/cms/role/system.do">关于本系统</label>
+								</@shiro.hasPermission>	
+								<@shiro.hasPermission name="finance:*" >
+<!-- 									<label href="${res}/cms/menu/form.do">菜单新增</label> -->
+<!-- 									<label href="${res}/cms/menu/list.do">菜单维护</label> -->
+									<label href="${res}/common/building.do">首页静态化</label>
+									<label href="${res}/common/building.do">定时任务</label>
+								</@shiro.hasPermission>	
+							</li>
+							
+						</ul>
+						</@shiro.hasPermission>	
+						<@shiro.hasPermission name="finance:*" >
+						<ul class="menu">
+							<li class="head"><span class="ico ico6"></span><label href="${res}/common/building.do">财务管理</label></li>
+						</ul>
+						<ul class="menu">
+							<li class="head"><span class="ico ico7"></span><label href="${res}/common/building.do">安全管理</label></li>
+						</ul>
+							</@shiro.hasPermission>	
+					</div>
+				</td>
+				<td valign="top" id="right" bgcolor="#eeeeee">
+					<div class="option">
+						<div class="p l selected" id="iframe_0" iframeId='iframe0' onclick="changeIframe(0)"><span class="t">欢迎页面</span></div>
+						<div id="bq"></div>
+						<div class="p1 l" id="more">
+							<div class="morelist">
+								<!--<a href="#">欢迎页面</a>-->
+							</div>
+						</div>						
+					</div>
+					<div class="frame">
+						<iframe src="${res}/common/welcome.html" class="iframe" id="iframe0" name="iframe0" frameborder="0"></iframe>
+					</div>
+					<div style="height:20px; text-align: center; overflow: hidden; background: #e7e7e7;">四川四原科技有限公司 &copy;2016&nbsp;&nbsp;版本号V2.0</div>
+				</td>				
+			</tr>
+		</table>
+	</body>
+<script>
+// $(function(){
+//     //程序一加载,判断是否有系统未读消息.
+//    var handler = function(){
+//    requestAjax();
+//     }
+//     //每个1秒执行一次定时任务,判断当前是否有未读消息
+//     setInterval(handler,2000);    
+//    })
+//    function requestAjax(){
+//     $.ajax({
+//     url:"${res}/cms/library/librarysCount.do",
+//     type:"post", 
+//     dataType:"json",
+//     success:function(data){
+//     //是否有未读消息
+//      var messageSize = data.librarysCount;
+//      if(messageSize>0 && messageSize<10){
+//      //有未读消息,则显示如下图标
+//      $(".notice").addClass("libraryNotice1").text(messageSize);
+//      }else if(messageSize>10 || messageSize==10){
+//      $(".notice").addClass("libraryNotice").text(messageSize);
+//      }else{
+//      //没有未读消息,则显示这个图标
+//      $(".notice").removeClass("libraryNotice1").removeClass("libraryNotice").text('');
+//      }
+//     },
+//     });
+//   } 
+
+	//切换菜单
+	/* var menu=$('ul.menu');
+	menu.find('.head').click(function(){
+		var t=$(this);
+		if($(this).parent().hasClass('selected')){
+			$(this).parent().removeClass('selected').find('.son').stop().slideUp(200);
+			return;
+		}
+		menu.removeClass('selected').find('.son').stop().slideUp(200);
+		if($(this).parent().find('.son').length!=0){
+			$(this).parent().addClass('selected').find('.son').stop().slideDown(200);
+		}
+		if(t.hasClass("")){
+			t.find('img').css({})
+		}
+	});
+	
+	$('.menu .son label:last-child').css({border:'none'});
+	menu.eq(0).find('.head').click();  */
+	
+	var menu=$('ul.menu');
+	menu.each(function(){
+		var t=$(this);
+		var index= t.index();
+		var num=index+1;
+		t.attr("index",num);
+	});
+	
+	menu.find('.head').click(function(){
+		var t=$(this);
+	/* 	var num=t.parents(".menu").attr("index"); */
+	    menu.find(".notice").css({display:"inline-block"});
+		if($(this).parent().hasClass('selected')){
+			$(this).parent().removeClass('selected').find('.son').stop().slideUp(200);
+			if(t.hasClass("manager")){
+				$(this).find(".notice").css({display:"inline-block"});
+			}
+			return;
+		}
+		menu.removeClass('selected').find('.son').stop().slideUp(200);
+		if($(this).parent().find('.son').length!=0){
+			$(this).parent().addClass('selected').find('.son').stop().slideDown(200);
+			if(t.hasClass("manager")){
+				$(this).find(".notice").css({display:"none"});
+			} 
+		}
+	});
+
+	$('.menu .son label:last-child').css({border:'none'});
+	menu.eq(0).find('.head').click();
+
+	
+
+  
+	//自适应窗口高度
+	function setWH(){
+		var h=document.body.offsetHeight-80;
+		$('.block').height(h);
+		$('.frame').height(h-48-20);		
+		$('#right').width(document.body.offsetWidth-200);
+		changeMoreList();
+	}
+	setWH();
+	window.onresize=setWH;
+	
+	$('.block label').each(function(i){
+		$(this).attr('index',i+1);
+	});
+	$('.block label').click(function(){
+		addIframe(this);
+	})
+	
+	//点击添加二级菜单选项class
+	$('.son label').on('click',function(){
+		var t=$(this);
+		$('label').removeClass("selected");
+		t.addClass("selected");
+	});
+	
+	//增加选项卡
+	function addIframe(obj){
+		obj=$(obj);
+		var index=obj.attr("index");
+		var className=obj.attr("class");
+		
+		var str='iframe'+obj.attr('index');
+		if(!obj.attr('href'))return;
+		if(document.getElementById(str)){
+			if($("#iframe_"+obj.attr('index')).is(":hidden")){
+				clickMore(obj.attr('index'));
+			}else{
+				changeIframe(obj.attr('index'));
+			}
+			document.getElementById("iframe"+obj.attr('index')).src=obj.attr('href');
+			return;
+		};
+		$('.option .p').removeClass('selected');
+		var html='<iframe src="'+obj.attr('href')+'" class="iframe" id="'+str+'" name="'+str+'" frameborder="0"></iframe>';
+		$('.iframe').hide();
+		$('.frame').append(html);
+		if(className=="library"){
+			$('#bq').prepend('<div class="p l selected" id="iframe_'+obj.attr('index')+'" index="'+obj.attr('index')+'" iframeId="'+str+'" onclick="changeIframe('+obj.attr('index')+')" title="图书馆审核"><span class="t">'+"图书馆审核"+'</span><span class="close" onclick="closeIframe(this,event)"></span></div>');
+		}else{
+			$('#bq').prepend('<div class="p l selected" id="iframe_'+obj.attr('index')+'" index="'+obj.attr('index')+'" iframeId="'+str+'" onclick="changeIframe('+obj.attr('index')+')" title="'+obj.html()+'"><span class="t">'+obj.html()+'</span><span class="close" onclick="closeIframe(this,event)"></span></div>');
+		}
+
+		changeMoreList();
+	}
+	
+	//切换iframe
+	function changeIframe(index){
+		$('.iframe').hide();
+		$('.option .p').removeClass('selected');
+		$('#iframe_'+index).addClass('selected');
+		$('#'+$('#iframe_'+index).attr('iframeId')).show();
+		changeMoreList();
+	}
+	
+	//关闭iframe
+	function closeIframe(self,event){
+		var e=window.event || event;
+		 if (e.stopPropagation) { e.stopPropagation(); } else { e.cancelBubble = true; }
+		var id="#"+$(self).parent().attr('iframeId');
+		var prev=$(self).parent().prev();
+		var next=$(self).parent().next();		
+		if($(self).parent().hasClass('selected')){
+			if(next.html()){
+				var nextiframe='#'+next.attr('iframeId');
+				next.click();
+			}else if(prev.html()){	
+				var previframe='#'+prev.attr('iframeId');
+				prev.click();
+			}else{
+				$('.option .p').eq(0).click();			
+			}
+		}
+		$(self).parent().remove();
+		$(id).remove();
+		changeMoreList();
+	}
+	
+	//将菜单放入更多列表	
+	function changeMoreList(){
+		var p=$('#bq .p');
+		var w=$('.option').width()-30-111;
+		p.show();		
+		var len=parseInt(w/111);
+		if(p.length>len){
+			$('.p1').show();
+			var tmpstr="",tmpobj,index;
+			for(var i=len;i<p.length;i++){
+				tmpobj=p.eq(i);
+				index=parseInt(tmpobj.attr('index'));
+				tmpstr+='<a href="javascript:" onclick="clickMore('+index+')">'+tmpobj.find(".t").text()+'</a>';				
+				tmpobj.hide();
+			}
+			$('.morelist').html(tmpstr);
+		}else{
+			$('.p1').hide();
+			$('.morelist').html('');
+		}
+	}
+	
+	//点击更多列表
+	function clickMore(index){
+		$('#bq .p').removeClass('selected');
+		var obj=$('#iframe_'+index);
+		obj.show().click();		
+		$('#bq').prepend(obj[0]);
+		changeMoreList();
+	}
+	
+	function actionDo(divId, heights, eachheights,hrefs){
+		var windowHeight = getwinHeight();
+		 var pageSize = Math.floor((windowHeight - heights)/eachheights);
+		 if(pageSize <= 4) pageSize = 4;
+		 if(hrefs.indexOf("?")!=-1) $(divId).attr('href', hrefs + '&pageSize=' + pageSize);
+		 else $(divId).attr('href', hrefs + '?pageSize=' + pageSize);
+	}
+    function getwinHeight(){
+        var winHeight=0;
+        if (window.innerHeight)
+            winHeight = window.innerHeight;
+        else if ((document.body) && (document.body.clientHeight))
+            winHeight = document.body.clientHeight;
+        //对body进行检测，获取浏览器窗口高度
+        if (document.documentElement && document.documentElement.clientHeight)
+            winHeight = document.documentElement.clientHeight;
+    	return winHeight;
+    }
+
+</script>
+</html>

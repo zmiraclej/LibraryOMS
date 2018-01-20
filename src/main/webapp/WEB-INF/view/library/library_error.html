@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<script src="${res}/js/autoHeight.js" type="text/javascript" ></script>
+		<script type="text/javascript">
+			
+		</script>
+	</head>
+	<body>
+		
+			<table cellspacing="0" class="table table-lib" ul="library">
+				<thead class="thead">
+					<th class="th w60">序号</th>
+					<th class="th twname">馆名</th>
+					<th class="th twaddress">地址</th>
+					<th class="th w170">协议账户</th>
+					<th class="th w88">户名</th>
+					<th class="th w88">授信额度</th>
+					<th class="th w88">联系人</th>
+					<th class="th w120">电话</th>
+					<th class="th w120">手机</th>
+					<th class="th w120">邮箱</th>
+					<th class="th tw last operation">错误信息</th>
+					
+				</thead>
+					<#assign f_undelete=static("com.flea.common.Common.FLAG_ENABLE") />
+					<#assign f_sotp=static("com.flea.common.Common.FLAG_DISABLE") />
+					<#if errorList??>
+						<#list page.list as errorList>
+							<tr tid="${errorList.id}">
+								<td>${(page.pageNo-1)*10+(errorList_index+1)}</td>
+								<td class="tl" title="${errorList.name!''}">${errorList.name!''}</td>
+								<td class="tl" title="${errorList.address!''}">${errorList.address!''}</td>
+								<td class="tl" title="${errorList.agreementAccount!''}">${errorList.agreementAccount!''}</td>
+								<td>${errorList.acountName!''}</td>
+								<td>${errorList.creditLines?string('0.00')}</td>
+								<td>${errorList.conperson!''}</td>
+								<td>${errorList.tel!''}</td>
+								<td>${errorList.phone!''}</td>
+								<td>${errorList.email!''}</td>
+								<td class="last operation">${errorList.msg!''}</td>
+							</tr>
+						</#list> 
+					</#if>
+			</table>
+		<div class="paging">${page}</div>
+</body>
+</html>

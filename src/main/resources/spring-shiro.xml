@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd   
+    http://www.springframework.org/schema/util 
+    http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+	<description>Shiro 配置</description>
+
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<property name="authorizer">
+		    <bean class="org.apache.shiro.authz.ModularRealmAuthorizer">
+		        <property name="permissionResolver">
+		            <bean class="com.flea.common.shiro.MyPermissionResolver"></bean>
+		        </property>
+		    </bean>
+		</property>
+		<property name="realm" ref="userRealm" />
+		<property name="cacheManager" ref="shirocacheManager"/>
+	</bean>
+	
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
+
+	<!--自定义Realm 继承自AuthorizingRealm  这里存放授权与认证数据-->  
+	<bean id="userRealm" class="com.flea.common.shiro.UserRealm">
+	</bean>
+	
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<property name="securityManager" ref="securityManager" />
+		<property name="loginUrl" value="/common/login.html" />
+		<property name="unauthorizedUrl" value="/common/login.html" />
+		<property name="filterChainDefinitions">
+			<value>
+				/assets/** = anon
+				/css/** = anon
+				/js/** = anon
+				/images/** = anon
+				/validCode = anon
+				/common/login.html = anon
+				/common/checkDeptcode.html = anon
+				/common/loginUser.html = anon
+				/common/download.html = anon
+				/**/** = authc
+			</value>
+		</property>
+	</bean>
+    
+<!-- 	 <bean id="shirocacheManager" class="com.flea.common.shiro.SpringCacheManagerWrapper"> -->
+<!--         <property name="cacheManager" ref="springCacheManager"/> -->
+<!--     </bean> -->
+
+	<bean id="shirocacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+		<property name="cacheManager" ref="cacheManager"/>
+	</bean>
+    
+	    <!-- 会话管理器 -->
+    <bean id="sessionManager" class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager">
+        <property name="globalSessionTimeout" value="1800000"/>
+        <property name="deleteInvalidSessions" value="true"/>
+    </bean>
+    
+	<bean
+		class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
+		depends-on="lifecycleBeanPostProcessor" />
+	<bean
+		class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+		<property name="securityManager" ref="securityManager" />
+
+	</bean>
+
+</beans>

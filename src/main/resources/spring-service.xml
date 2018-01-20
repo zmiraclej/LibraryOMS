@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans 
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd 
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd ">
+   	
+  	<!-- 定义事务管理器（声明式的事务） -->
+    <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+     <!-- 支持  @Transactional 标记 -->  
+	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
+
+
+	 <!--①通过以下配置为所有继承BaseService类的所有子类的所有public方法都添加事务增强-->  
+    <aop:config proxy-target-class="true">  
+        <aop:pointcut id="serviceJdbcMethod"  
+                      expression="within(com.flea.common.service.impl.BaseServiceImpl)"/>  
+        <aop:advisor pointcut-ref="serviceJdbcMethod" advice-ref="jdbcAdvice" order="0"/>  
+    </aop:config>  
+    <tx:advice id="jdbcAdvice" transaction-manager="transactionManager">  
+        <tx:attributes>  
+            <tx:method name="save*" propagation="REQUIRED"/> 
+            <tx:method name="insert*" propagation="REQUIRED"/>  
+        </tx:attributes>  
+    </tx:advice>  
+  	
+<!--      <bean name="warehousesService" class="com.flea.common.service.impl.WarehouseServiceImpl"></bean> -->
+    <!-- 配置事务的传播特性 --> 
+<!--     <tx:advice id="txAdvice" transaction-manager="transactionManager">      -->
+<!--        <tx:attributes> -->
+<!-- 	     <tx:method name="insert*" propagation="REQUIRED" rollback-for="java.lang.Exception"/> -->
+<!-- 	     <tx:method name="save*" propagation="REQUIRED" rollback-for="java.lang.Exception"/> -->
+<!-- 	     <tx:method name="update*" propagation="REQUIRED" rollback-for="java.lang.Exception"/>       -->
+<!-- 	     <tx:method name="del*" propagation="REQUIRED" rollback-for="java.lang.Exception"/> -->
+<!-- 	     <tx:method name="init*" propagation="REQUIRED" rollback-for="java.lang.Exception"/> -->
+<!-- 	     <tx:method name="do*" propagation="REQUIRED" rollback-for="java.lang.Exception"/> -->
+<!-- 	     <tx:method name="*" read-only="true"/> -->
+<!--        </tx:attributes> -->
+<!--     </tx:advice>  -->
+   	<!-- 那些类的哪些方法参与事务 --> 
+<!--     <aop:config expose-proxy="true"> -->
+<!--        <aop:pointcut id="serviceMethod" expression="execution(* com.flea.*.service.*.*(..))"/> -->
+<!--        <aop:advisor pointcut-ref="serviceMethod" advice-ref="txAdvice" /> -->
+<!--     </aop:config> -->
+  
+</beans>
+  

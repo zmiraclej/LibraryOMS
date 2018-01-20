@@ -1,0 +1,32 @@
+<#list libraries as library>
+	<tr  class="libraryTr lib${library.libraryId}" style="line-height:40px;" tid="${library.libraryId}">
+			<td>${library_index+1}</td>
+			<td class="tl" >${(library.province.name!)?html}${(library.city.name!)?html}${(library.area.name!)?html}</td>
+			<td>${(library.libraryLevel!)?html}</td>
+			<td>${(library.libraryNumber!)?html}</td>
+			<#if library.chargeStartDate??>
+			<td>${(library.chargeStartDate)!''}-${(library.chargeEndDate)!''}</td>
+			<!-- <td>${(lcc.outDate?string("yyyyMMdd"))!''}</td> -->
+			<#else>
+				<td></td>
+			</#if>
+			<#if library.contractStartDate??>
+				<td>${(library.contractStartDate)!''}-${(library.contractEndDate)!''}</td>
+			<#else>
+				<td></td>
+			</#if>
+			<#if (library.attachementFile!'')!="">
+				<td><a href="${res}/cms/customer/download.do?fileName=${library.attachementFile}"><img src="${res}/images/download.png"/></a></td>
+			<#else>
+				<td><a href="#"><img src="${res}/images/download_1.png"/></a></td>
+			</#if>
+			<td>
+				<a href="javascript:" onclick="editLibrary(${library.libraryId})"><img src="${res}/images/yun_back_img2.gif"/></a>
+				<#if (library.usedCodeNumber<1)>
+					<a href="javascript:" onclick="delLibrary(this)"><img src="${res}/images/yun_back_img3.gif"/></a>
+				<#else>
+					<a href="javascript:" ><img src="${res}/images/yun_back_img3_1.gif"/></a>
+				</#if>
+			</td>
+		</tr>
+</#list>

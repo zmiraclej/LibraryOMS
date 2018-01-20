@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>菜单管理管理</title>
+<#include "../static/static.html"/>
+<link href="${res}/assets/css/chosen.css" rel="stylesheet">
+<style type="text/css">
+div.area_menu>ul {
+	height: 100%;
+	padding-top: 10px;
+	padding-bottom: 40px;
+}
+div.area_menu>ul>li:first-child {
+	float: left;
+}
+
+div.area_menu>ul>li {
+	width: 195px;
+	overflow-x: auto;
+	list-style: outside none none;
+	height: 100%;
+}
+
+div.area_menu>ul>li:last-of-type {
+	position: absolute;
+	top:10px;
+	right: 0px;
+	bottom: 0px;
+}
+
+div.area_menu>ul>li:last-of-type>div:HOVER {
+	background-color: #8AAFCE;
+	cursor: pointer;
+}
+
+div.area_menu {
+	width: 400px;
+}
+
+.roles-chosen label {
+	padding-left: 20px;
+}
+#roles_chosen{
+	width: 100% !important;
+}
+.btn_postion{padding-left:36%;
+  margin-top: 20px;
+  margin-bottom: 20px;}
+</style>
+<link href="${res}/js/zTree/css/zTreeStyle/zTreeStyle.css" rel="stylesheet"/>
+<script type="text/javascript" src="${res}/js/zTree/js/jquery.ztree.all-3.5.min.js"></script>
+<script type="text/javascript">
+	$(function() {
+		$("#area_sel").click(function(e){
+			e.stopPropagation();
+			$(this).find(".btn").dropdown('toggle');
+			return false;
+		});
+		$(document).click(function(){
+			$("#area_sel").removeClass("open");
+		});
+		initAreaTree();
+        $("#librarys").select2({});
+		//initValidate();
+	});
+	
+	
+	function initAreaTree(){//初始化区域树
+		$.fn.zTree.init($("#area_tree"),{
+			 async:{
+					enable: true,
+					url: "${res}/common/menu/getMenuNodes.do",
+				//	url: "${res}/common/region/getRreaNodes.do",
+					autoParam: ["id=pid"]
+				},callback:{
+					onDblClick:function(event, treeId, treeNode){
+						var pNames = new Array();
+// 						if(treeNode.isRoot||treeNode.isParent){
+// 							return;
+// 						}
+						getAreaTreeNodeParentNames(treeNode, pNames);
+						var butText = "";
+						for(var i=1;i<pNames.length;i++){
+							butText +=pNames[i]+"\\";
+						}
+						var areaName = butText+treeNode.name;
+						$("#area_sel").find("button").text(areaName);
+						$("form input[name='menuAssist']").val(areaName);
+						var $area = $("#area");
+						$area.val(treeNode.id);
+						//f_validate.element($area);
+						$("#area_sel").removeClass("open");
+					}
+				}
+		},{"id":"0", name:"顶级菜单","isParent":"true","isRoot":true});
+	}
+	
+	function getAreaTreeNodeParentNames(treeNode,pNames){
+		var pNode = treeNode.getParentNode();
+		if(pNode){
+			getAreaTreeNodeParentNames(pNode,pNames);
+			pNames.push(pNode.name);
+		}
+	}
+	function initValidate() {//初始化表单验证
+		$.ajaxSetup({
+			async : false
+		});
+		$('#form').lineFeedValidate();
+		$('#form').validate({
+		 //	debug: true, //调试模式取消submit的默认确定功能   
+            focusInvalid: true, //当为false时，验证无效时，没有焦点响应  
+            onkeyup: false,   
+			rules:{
+           		 "href":{
+                    "required":true
+                },
+                permission:{
+                    required:true
+                },
+                "maxStockNum":{
+                	 "required":true,
+                    "max":200,
+                    "digits":true
+                }
+			},
+			messages : {
+				"code" : {
+					"required":"排架号不能为空"
+				},
+				"startClassNumber":{
+					"required":"开始分类号不能为空"
+				},
+				"endClassNumber":{
+					"required":"结束分类号不能为空"
+				},
+				"layerNumber":{
+					"required":"请输入正确的货架数"
+				},"maxStockNum":{
+					"required":"请输入正确的货架存放数"
+				}
+			},
+			"errorPlacement" : function(error, element) {
+				showErrorTipMsgs(element, error.text());
+			}
+			
+		});
+	}
+	
+	function showErrorTipMsgs(element,msg){
+		element.val("");
+		element.inputDefault("setTipMsg",msg);
+	}
+	
+	function backHostory(){
+		window.history.back(-1);
+	}
+</script>
+</head>
+<body>
+	<div class="container-fluid">
+		<div class="row-fluid">
+			<div class="span12">
+				<legend>菜单管理</legend>
+			</div>
+		</div>
+		<div class="row-fluid context">
+			<div class="span12">
+				<form class="form-horizontal" id="form"
+					action="${res}/common/menu/save.do" method="post"
+					autocomplete="off"  onsubmit="false">
+					<fieldset>
+						<div class="form-group">
+							<div>
+								<label class="control-label col-xs-12 col-lg-4 no-padding-right"
+									for="code">上级菜单:</label>
+								<div class="col-xs-12 col-lg-4">
+									<div class="clearfix">
+											<div >
+									<div class="">
+									<input type="hidden" name="parent.id" id="area" value="${(menu.parent.id)!}"/>
+									<input type="hidden" name="menuAssist" value="${(menu.menuAssist)!}"/>
+									<div class="btn-group" id="area_sel">
+										<button class="btn btn-primary btn-white dropdown-toggle area_but col-sm-12" >
+										${(menu.menuAssist)!"请选择上级菜单"}
+										<i class="ace-icon fa fa-angle-down icon-on-right"></i>
+										</button>
+										<div class="dropdown-menu area_menu"><!-- 区域树 -->
+											<div class="ztree" id="area_tree"></div>
+										</div>
+									</div>
+								</div>
+								</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					<div class="form-group">
+							<div>
+								<label class="control-label col-xs-12 col-lg-4 no-padding-right"
+									for="code">名称:</label>
+								<div class="col-xs-12 col-lg-4">
+									<div class="clearfix">
+										<div class="input_panel">
+											<input type="hidden"  tipMsg="" name="id"
+												id="menuid" class="col-xs-12 col-sm-12" 
+												value='${menu.id!}'/>
+											<input type="text"  tipMsg="" name="name"
+												id="icon" class="col-xs-12 col-sm-12" 
+												value='${menu.name!}'/>
+										</div>
+									</div>
+								</div>
+							</div>
+					</div>
+					<div class="form-group">
+							<div>
+								<label class="control-label col-xs-12 col-lg-4 no-padding-right"
+									for="code">链接:</label>
+								<div class="col-xs-12 col-lg-4">
+									<div class="clearfix">
+										<div class="input_panel">
+											<input type="text"  tipMsg="" name="href"
+												id="href" class="col-xs-12 col-sm-12" 
+												value='${menu.href!}'/>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<div>
+								<label class="control-label col-xs-12 col-lg-4 no-padding-right"
+									for="code">图标:</label>
+								<div class="col-xs-12 col-lg-4">
+									<div class="clearfix">
+										<div class="input_panel">
+											<input type="text"  tipMsg="" name="icon"
+												id="icon" class="col-xs-12 col-sm-12" 
+												value='${menu.icon!}'/>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<div>
+								<label class="control-label col-xs-12 col-lg-4 no-padding-right"
+									for="code">排序:</label>
+								<div class="col-xs-12 col-lg-4">
+									<div class="clearfix">
+										<div class="input_panel">
+											<input type="text"  tipMsg="" name="sort"
+												id="sort" class="col-xs-12 col-sm-12" 
+												value='${menu.sort!}'/>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<div>
+								<label class="control-label col-xs-12 col-lg-4 no-padding-right"
+									for="code">可见:</label>
+								<div class="col-xs-12 col-lg-4">
+									<div class="clearfix">
+										<div style="margin-top: 4px;" class="col-xs-2 col-lg-3">
+											<label class="blue"> <input name="isShow" value="1" class="ace" <#if ((dept.manageUser.sex)!'1')=='1'>checked="checked"</#if>
+												class="manageUser.sex" type="radio"> <span class="lbl">
+													显示</span>
+											</label>
+											<label class="blue"> <input name="isShow" value="2" class="ace"  <#if ((dept.manageUser.sex)!'1')=='2'>checked="checked"</#if>
+												class="manageUser.sex" type="radio"> <span class="lbl">
+													隐藏</span>
+											</label>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<div>
+								<label class="control-label col-xs-12 col-lg-4 no-padding-right"
+									for="code">权限标识:</label>
+								<div class="col-xs-12 col-lg-4">
+									<div class="clearfix">
+										<div class="input_panel">
+										<select data-placeholder="请选择"  name="permission" class="js-example-placeholder-single js-states" tabindex="5" id="librarys">
+							            	<option value="*">全部</option>
+							            	<option value="view">查看</option>
+							            	<option value="add">新增</option>
+							            	<option value="edit">编辑</option>
+							            	<option value="del">删除</option>
+							          	</select>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="btn_postion" >
+						
+							<button class="btn btn-prev btn-success" id="submitsssss" type="submit">
+								确定 <i class="glyphicon glyphicon-ok"></i>
+							</button>
+					
+							<button class="btn btn-next"  id="reverts"  type="button" onclick="backHostory()">
+								返回 <i class="glyphicon glyphicon-remove"></i>
+							</button>
+						
+						</div>
+					</fieldset>
+				</form>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

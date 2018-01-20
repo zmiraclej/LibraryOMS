@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Bootstrap 模板</title>
+   		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+		<meta charset="utf-8" />
+  		<#include "../static/static.html"/>
+<script type="text/javascript">
+function add(){
+	 location.href ='/fleasite/common/role/edit.do';
+}
+
+function delObject(id){
+	$("#dialog-confirm").removeClass('hide').dialog({
+		resizable: false,
+		modal: true,
+		title:"角色删除",
+		title_html: true,
+		buttons: [
+			{
+				html: "<i class='ace-icon fa fa-trash-o bigger-110'></i>&nbsp;确定",
+				"class" : "btn btn-danger btn-xs",
+				click: function() {
+					$.ajax({
+						url:'delete.do?id='+id,
+						success:function(){
+							$("#dialog-confirm").dialog( "close" );
+						 location.href ='/fleasite/common/role/list.do';
+						}
+					})
+					
+				}
+			},
+			{
+				html: "<i class='ace-icon fa fa-times bigger-110'></i>&nbsp; 取消",
+				"class" : "btn btn-xs",
+				click: function() {
+					$( this ).dialog( "close" );
+				}
+			}
+		]
+	});
+}
+</script>
+   </head>
+   <body>
+      <div class="container-fluid">
+		<div class="row-fluid">
+			<div class="span12">
+			<div class="widget-box widget-color-blue2">
+					<div class="widget-header gray-theme-bkg">
+						<h6 class="widget-title">
+							角色管理					
+						</h6>
+						<div class="widget-toolbar" >
+							<a href="#" data-action="reload" title="刷新" class="refurbish">
+								<i class="ace-icon fa fa-refresh bigger-140"></i>
+							</a>
+						</div>
+					</div>
+					
+	<div class="widget-body">
+						<div class="table-responsive">
+						
+							<table class="table table-bordered" ul="common/role">
+						<thead>
+							<tr>
+								<th>角色名称</th>
+								<th>角色描述</th>
+								<th width="20%">操作</th>
+							</tr>
+						</thead>
+						<tbody>
+									<#if list?size gt 0> <#list list as role>
+									<tr tid="${role.id}">
+										<td t>${role.name!}</td>
+										<td>${role.desc}</td>
+										<td>
+										<div class="hidden-sm hidden-xs action-buttons">
+											<a class="green" href="${res}/common/role/edit/${role.id}.do" >
+												<i class="ace-icon fa fa-pencil bigger-130" title="编辑"></i>
+											</a>
+												<a class="red" href="#" onclick="del(this)">
+												<i class="ace-icon fa fa-trash-o bigger-130" title="删除"></i>
+												</a> 
+											</div>
+										</td>
+									</tr>
+									</#list> </#if>
+								</tbody>
+					</table>
+			</div>
+			</div>
+			</div>
+		</div>
+	</div>
+	<div id="dialog-confirm" class="hide">
+		<div class="space-6"></div>
+		<p class="bigger-110 bolder center grey">
+			<i class="ace-icon fa fa-hand-o-right blue bigger-120"></i>
+			你确定删除这个角色吗?
+		</p>
+	</div>
+</body>
+</html>

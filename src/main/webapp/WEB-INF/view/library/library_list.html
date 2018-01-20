@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../head.html">
+		<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=EmWvece0GHuKBjnfjSm2DwOO"></script>
+		<script type="text/javascript">
+			function page(n,s){
+				if(n == -1){
+					n = $(".pageNo").val();
+				}
+				$("#pageNo").val(n);
+				$("#pageSize").val(s);
+				$("#searchForm").submit();
+		    	return false;
+	    	}
+		</script>
+		<style type='text/css'>
+		 td a{float:left;}
+		 td a.lastChild{margin-left:30px;}
+		 td a.glastChild{margin-left:10px;}
+		</style>
+	</head>
+	<body>
+		<div class="title">
+			<span class="l t">图书馆列表</span>
+			<img src="${res}/images/yun_back_img1.png" class="r" onclick="location.href=location.href"/>
+			<div class="clear"></div>
+		</div>
+		<div class="search">
+			<form action="${res}/cms/library/list.do" id="searchForm">
+				<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+				<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+				<input type="text" class="text tc" value="${search!}" name="search" maxlength="20" tipMsg="馆号/馆名"/><input type="submit" class="btn" value=" 搜索 "/>
+			</form>
+		</div>
+		<div class="table-parent">
+			<table cellspacing="0" class="table table-lib" ul="library">
+				<thead class="thead">
+				<!--当前用户为0是平台时，无操作状态  -->
+				<#if customer = "0">
+					<th class="th w60">序号</th>
+					<th class="th w68">客户代码</th>
+					<!-- <th class="th twname">客户名称</th> -->
+					<th class="th">客户名称</th>
+					<th class="th w145">地区</th>
+					<th class="th w88">馆别</th>
+					<th class="th w68">馆号</th>
+					<!-- <th class="th twname">馆名</th> -->
+					<th class="th">馆名</th>
+					<th class="th w75">负责人</th>
+					<!-- <th class="th twaddress">地址</th> -->
+					<th class="th">地址</th>
+					<th class="th w60">状态</th>
+					<th class="th w62">导航</th>
+					<th class="th w70">授信额度</th>
+					<th class="th w75">操作员</th>
+					<th class="th w82">修改日期</th>
+					<th class="th last w60" style="text-align:left;padding-left:10px;">操作</th>
+					</#if>
+					<!--当前用户为1是二级用户时，有操作状态  -->
+					<#if customer = "1">
+					<th class="th w60">序号</th>
+					<th class="th w68">客户代码</th>
+					<!-- <th class="th twname">客户名称</th> -->
+					<th class="th">客户名称</th>
+					<th class="th w145">地区</th>
+					<th class="th w88">馆别</th>
+					<th class="th w68">馆号</th>
+					<!-- <th class="th twname">馆名</th> -->
+					<th class="th">馆名</th>
+					<th class="th w75">负责人</th>
+					<!-- <th class="th twaddress">地址</th> -->
+					<th class="th">地址</th>
+					<th class="th w60">状态</th>
+					<th class="th w62">导航</th>
+					<th class="th w70">授信额度</th>
+					<th class="th w75">操作员</th>
+					<th class="th w82">修改日期</th>
+					<th class="th w82">操作</th>
+					<th class="th last" style="text-align:left;padding-left:10px;">操作状态</th>
+					</#if>
+				</thead>
+					<#assign f_undelete=static("com.flea.common.Common.FLAG_ENABLE") />
+					<#assign f_sotp=static("com.flea.common.Common.FLAG_DISABLE") />
+					<!--根据用户的级别判断搜索条件  -->
+					<#if page.list?size = 0 && customer = "0">
+					<tr><td colspan='15' class='tl last'><div style='text-align:center;font-weight: bold;'>发现0条数据!</div></td></tr>;
+					<#elseif page.list?size = 0 && customer = "1">
+					<tr><td colspan='16' class='tl last'><div style='text-align:center;font-weight: bold;'>发现0条数据!</div></td></tr>;
+					</#if>
+					<#list page.list as library>
+						<tr tid="${library.id}">
+							<td>${(page.pageNo -1)*page.pageSize + (library_index + 1)}</td>
+							<td>${library.customerHallCode!''}</td>
+							<td class="tl" title="${library.customerName!''}">
+							<!--平台下客户名称修改为带下划线的可点击链接-->
+							<#if flag = true>
+						    ${library.customerName!?trim}
+						    <#else>
+						    <a href="${res}/cms/library/libraryExamine.do?id=${library.id}&libraryStatus=1" style="color: #2561b0;">${library.customerName!?trim}</a>
+						    </#if>
+						    </td>
+							<td>${library.province.name!''}${library.city.name!''}${library.area.name?trim}</td>
+							<td>${library.libraryLevel!''}</td>
+							<td>${library.hallCode!''}</td>
+							<td class="tl" title="${library.name!''}">${library.name!''}</td>
+							<td>${library.conperson!''}</td>
+							<td class="tl" title="${library.address!''}">${library.address!''}</td>
+							<td>
+							<#if (library.libraryStatus!0) == 1 >
+						                           待审
+						    <script type="text/javascript">
+						    $(document).ready(function(){
+							$("#test${library.id}").css("visibility","hidden");
+						    });
+						    </script> 
+						   </#if>
+					       <#if (library.libraryStatus!0) == 2 >
+						       <font class="green">通过</font>
+					       </#if>
+					       <#if (library.libraryStatus!0) == 3 >
+						       <font class="red">驳回</font>
+						   </#if>
+						   <#if (library.libraryStatus!0) == 8 >
+					                                    停用
+					      </#if>
+					       <#if (library.libraryStatus!0) == 12 >
+						       <font class="red">屏蔽</font>
+						   </#if>
+					       </td>
+							<td><img src="${res}/images/yun_back_img4.gif" class="map"  lngLat="${library.lngLat!}"  /> </td>
+							<td class="tr">${library.creditLines?string('0.00')}</td>
+							<td>${(library.modifyUser)!?html}</td>
+							<td>${(library.modifyDate?string("yyyyMMdd"))!''}</td>
+							<!-- 用户下的维护列表操作权限停用功能  -->	
+							<#if customer == "1">
+							<td style="padding-left:20px;">
+							<!--图书馆用户为新增权限下通过状态为2时并且操作状态为0时，操作权限有编辑和停用功能  -->
+							<#if (library.libraryStatus!0) == 2 && (library.libraryUpdateStatus!0) == 0>
+							<a href="${res}/cms/library/edit/${library.id}.do" id="test${library.id}"><img src="${res}/images/yun_back_img2.gif"/></a>
+							<a href="${res}/cms/library/toStop/${library.id}.do" class="glastChild" id = "close"><img src="${res}/images/icon_guanbi.png"/></a>
+							
+							<!--图书馆用户为新增权限下屏蔽状态为12时并且操作状态为0时，操作权限有编辑和停用功能  -->
+							<#elseif (library.libraryStatus!0) == 12 && (library.libraryUpdateStatus!0) == 0>
+							<a href="${res}/cms/library/edit/${library.id}.do" id="test${library.id}"><img src="${res}/images/yun_back_img2.gif"/></a>
+							<a href="${res}/cms/library/toStop/${library.id}.do" class="glastChild" id = "close"><img src="${res}/images/icon_guanbi.png"/></a>
+							
+							<!--图书馆用户为新增权限下状态通过为2和操作状态修改驳回为5，操作权限有编辑和停用功能  -->
+							<#elseif (library.libraryStatus!0) == 2 && (library.libraryUpdateStatus!0) == 5>
+							<a href="${res}/cms/library/edit/${library.id}.do" id="test${library.id}"><img src="${res}/images/yun_back_img2.gif"/></a>
+							<a href="${res}/cms/library/toStop/${library.id}.do" class="glastChild" id = "close"><img src="${res}/images/icon_guanbi.png"/></a>
+							
+							<!--图书馆用户为新增权限下状态屏蔽为12和操作状态修改驳回为5，操作权限有编辑和停用功能  -->
+							<#elseif (library.libraryStatus!0) == 12 && (library.libraryUpdateStatus!0) == 5>
+							<a href="${res}/cms/library/edit/${library.id}.do" id="test${library.id}"><img src="${res}/images/yun_back_img2.gif"/></a>
+							<a href="${res}/cms/library/toStop/${library.id}.do" class="glastChild" id = "close"><img src="${res}/images/icon_guanbi.png"/></a>
+							
+							<!--图书馆用户为新增权限下状态屏蔽为12和操作状态为11，操作权限有编辑和停用功能  -->
+							<#elseif (library.libraryStatus!0) == 12 && (library.libraryUpdateStatus!0) == 11>
+							<a href="${res}/cms/library/edit/${library.id}.do" id="test${library.id}"><img src="${res}/images/yun_back_img2.gif"/></a>
+							<a href="${res}/cms/library/toStop/${library.id}.do" class="glastChild" id = "close"><img src="${res}/images/icon_guanbi.png"/></a>
+							
+							<!--图书馆用户为新增权限下状态通过为2和操作状态停用驳回为7，操作权限有编辑和停用功能  -->
+							<#elseif (library.libraryStatus!0) == 2 && (library.libraryUpdateStatus!0) == 7>
+							<a href="${res}/cms/library/edit/${library.id}.do" id="test${library.id}"><img src="${res}/images/yun_back_img2.gif"/></a>
+							<a href="${res}/cms/library/toStop/${library.id}.do" class="glastChild" id = "close"><img src="${res}/images/icon_guanbi.png"/></a>
+							
+							<!--图书馆用户为新增权限下状态屏蔽为12和操作状态停用驳回为7，操作权限有编辑和停用功能  -->
+							<#elseif (library.libraryStatus!0) == 12 && (library.libraryUpdateStatus!0) == 7>
+							<a href="${res}/cms/library/edit/${library.id}.do" id="test${library.id}"><img src="${res}/images/yun_back_img2.gif"/></a>
+							<a href="${res}/cms/library/toStop/${library.id}.do" class="glastChild" id = "close"><img src="${res}/images/icon_guanbi.png"/></a>
+							 
+							<!--图书馆用户为新增权限下状态通过为2和操作状态停用为8，操作权限有编辑和停用功能  -->
+							<#elseif (library.libraryStatus!0) == 8 && (library.libraryUpdateStatus!0) == 13>
+							<a href="javascript:void(0)"> <img src="${res}/images/icon_grey.png"/></a> 
+							<a href="${res}/cms/library/start/${library.id}.do" class="glastChild"><img src="${res}/images/icon_guanbi_1.png"/></a>
+							
+							<!--图书馆用户为新增权限下通过状态为2和操作状态启用驳回为10，操作权限有编辑和停用功能  --> 
+							<#elseif (library.libraryStatus!0) == 2 && (library.libraryUpdateStatus!0) == 10>
+							<a href="javascript:void(0)"> <img src="${res}/images/icon_grey.png"/></a> 
+							<a href="${res}/cms/library/start/${library.id}.do" class="glastChild"><img src="${res}/images/icon_guanbi_1.png"/></a>
+							
+							<!--图书馆用户为新增权限下通过状态为8和操作状态启用驳回为10，操作权限有编辑和停用功能  --> 
+							<#elseif (library.libraryStatus!0) == 8 && (library.libraryUpdateStatus!0) == 10>
+							<a href="javascript:void(0)"> <img src="${res}/images/icon_grey.png"/></a> 
+							<a href="${res}/cms/library/start/${library.id}.do" class="glastChild"><img src="${res}/images/icon_guanbi_1.png"/></a>
+							
+							<!--图书馆用户为新增权限下状态屏蔽为12和操作状态启用驳回为10，操作权限有编辑和停用功能  -->
+							<#elseif (library.libraryStatus!0) == 12 && (library.libraryUpdateStatus!0) == 10>
+							<a href="javascript:void(0)"> <img src="${res}/images/icon_grey.png"/></a> 
+							<a href="${res}/cms/library/start/${library.id}.do" class="glastChild"><img src="${res}/images/icon_guanbi_1.png"/></a>
+						     
+						    <!--图书馆用户为新增权限下状态通过为2和操作状态为11，操作权限有编辑和停用功能 -->
+							<#elseif (library.libraryStatus!0) == 2 && (library.libraryUpdateStatus!0) == 11>
+							<a href="${res}/cms/library/edit/${library.id}.do" id="test${library.id}"><img src="${res}/images/yun_back_img2.gif"/></a>
+							<a href="${res}/cms/library/toStop/${library.id}.do" class="glastChild" id = "close"><img src="${res}/images/icon_guanbi.png"/></a>
+							
+							<!--图书馆用户为新增权限下状态驳回为3，操作权限有编辑功能-->
+							<#elseif (library.libraryStatus!0) == 3>
+							<a href="${res}/cms/library/edit/${library.id}.do" id="test${library.id}"><img src="${res}/images/yun_back_img2.gif"/></a>
+							</#if>
+							
+							<!--图书馆用户为新增权限下状态通过为2和操作状态修改待审为4，操作权限无编辑和停用功能 -->
+							<#if (library.libraryStatus!0) == 2 && (library.libraryUpdateStatus!0) == 4>
+						    <a href="javascript:void(0)"> <img src="${res}/images/icon_grey.png"/></a> 
+						    <a href="javascript:void(0)" class="glastChild"><img src="${res}/images/icon_guanbi2.png"/></a> 
+							
+							<!--图书馆用户为新增权限下状态屏蔽为12和操作状态修改待审为4，操作权限无编辑和停用功能 -->
+							<#elseif (library.libraryStatus!0) == 12 && (library.libraryUpdateStatus!0) == 4>
+						    <a href="javascript:void(0)"> <img src="${res}/images/icon_grey.png"/></a> 
+						    <a href="javascript:void(0)" class="glastChild"><img src="${res}/images/icon_guanbi2.png"/></a> 
+							
+							<!--图书馆用户为新增权限下状态通过为2和操作状态停用待审为6，操作权限无编辑和停用功能 -->
+							<#elseif (library.libraryStatus!0) == 2 && (library.libraryUpdateStatus!0) == 6>
+						    <a href="javascript:void(0)"> <img src="${res}/images/icon_grey.png"/></a> 
+						    <a href="javascript:void(0)" class="glastChild"><img src="${res}/images/icon_guanbi2.png"/></a> 
+						    
+							<!--图书馆用户为新增权限下状态屏蔽为12和操作状态停用待审为6，操作权限无编辑和停用功能 -->
+							<#elseif (library.libraryStatus!0) == 12 && (library.libraryUpdateStatus!0) == 6>
+						    <a href="javascript:void(0)"> <img src="${res}/images/icon_grey.png"/></a> 
+						    <a href="javascript:void(0)" class="glastChild"><img src="${res}/images/icon_guanbi2.png"/></a> 
+							
+							<!--图书馆用户为新增权限下状态通过为2和操作状态启用待审为9，操作权限无编辑和停用功能 -->
+							<#elseif (library.libraryStatus!0) == 2 && (library.libraryUpdateStatus!0) == 9>
+						    <a href="javascript:void(0)"> <img src="${res}/images/icon_grey.png"/></a> 
+						    <a href="javascript:void(0)" class="glastChild"><img src="${res}/images/icon_guanbi2.png"/></a> 
+						    
+							<!--图书馆用户为新增权限下状态通过为8和操作状态启用待审为9，操作权限无编辑和停用功能 -->
+							<#elseif (library.libraryStatus!0) == 8 && (library.libraryUpdateStatus!0) == 9>
+						    <a href="javascript:void(0)"> <img src="${res}/images/icon_grey.png"/></a> 
+						    <a href="javascript:void(0)" class="glastChild"><img src="${res}/images/icon_guanbi2.png"/></a> 
+						    
+							<!--图书馆用户为新增权限下状态屏蔽为12和操作状态启用待审为9，操作权限无编辑和停用功能 -->
+							<#elseif (library.libraryStatus!0) == 12 && (library.libraryUpdateStatus!0) == 9>
+						    <a href="javascript:void(0)"> <img src="${res}/images/icon_grey.png"/></a> 
+						    <a href="javascript:void(0)" class="glastChild"><img src="${res}/images/icon_guanbi2.png"/></a> 
+						    </#if>
+						    </#if>
+						    <!-- 	平台下的维护列表的操作权限屏蔽功能  -->
+							</td>
+							<#if customer = "0">
+							<td class="last operation">
+							<#if (library.libraryStatus!0) == 12>
+						    <a href="${res}/cms/library/displayLibrary/${library.id}.do" style="padding-left:10px; " class=""><img src="${res}/images/shield.png"/></a>
+						    <#else>
+							<a href="${res}/cms/library/lookLibrary/${library.id}.do" style="padding-left:10px; " class=""><img src="${res}/images/look.png"/></a>
+							</#if>
+							</td>
+							</#if>
+							<#if customer = "1">
+							<td class="last operation" style="text-align: left; padding-left:10px;">
+							<!--当前为二级用户时，几种操作状态  -->
+						   <#if (library.libraryUpdateStatus!0) == 4>
+						                         修改待审
+						   <#elseif (library.libraryUpdateStatus!0) == 5>
+						       <font class="red">修改驳回</font>
+						   <#elseif (library.libraryStatus!0) == 8 && (library.libraryUpdateStatus!0) == 13>
+						                          无
+						   <#elseif (library.libraryUpdateStatus!0) == 6>
+						                       停用待审                       
+						   </#if>
+						   <#if (library.libraryUpdateStatus!0) == 7>
+						       <font class="red">停用驳回</font>
+					       
+					       <#elseif (library.libraryUpdateStatus!0) == 9>
+					                               启用待审
+					       </#if>
+					       <#if (library.libraryUpdateStatus!0) == 10>
+					       <font class="red">启用驳回</font>
+					       <#elseif (library.libraryUpdateStatus!0) == 11>
+					                                    无
+					       </#if>
+							</td>
+						</#if>
+						</tr>
+					</#list>
+			</table>
+		</div>
+		<div class="paging">${page}</div>
+	</body>
+</html>
+<script>
+$('img.map').click(function(event){
+		event.stopPropagation();
+		var lngLat=$(this).attr('lngLat');
+		var x =lngLat.split(",")[0];
+		var y=lngLat.split(",")[1];
+		if(x && y){			
+			setMap({
+			point:[x,y],
+			title:$(this).parent().parent().find('td').eq(3).text(),
+			address:'地址：'+$(this).parent().prev().text()
+			});
+		}
+	});
+</script>

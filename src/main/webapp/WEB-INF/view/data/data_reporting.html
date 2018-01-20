@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>数据上报</title>
+<meta name="renderer" content="webkit|ie-comp|ie-stand" />
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1" />
+<#include "../head.html">
+<link rel="stylesheet" href="${res}/css/ebook_style.css" />
+<script type="text/javascript">
+</script>
+<style type="text/css">
+	#btnSubmit {
+	    background: #2561b0 none repeat scroll 0 0;
+	    border: medium none;
+	    border-radius: 2px;
+	    color: #fff;
+	    cursor: pointer;
+	    font-size: 15px;
+	    height: 35px;
+	    width: 120px;
+	}
+.editable { background:#bfbebe;border:0;outline:none;}
+.last a {cursor:pointer }
+</style>
+</head>
+<body>
+	<div class="form form3">
+		<div class="l item item2">
+			<span class="t l ">图书馆编码</span> <input class="text l w230"
+				value="" id="libcode" maxlength="64" title="图书馆编码" index="1"
+				type="text">
+			<div class="clear"></div>
+		</div>
+		<div class="l item item2">
+			<span class="t l ">授权码</span> <input class="text l w270"
+				value="" id="unicode" maxlength="64" title="授权码" index="1"
+				type="text">
+			<div class="clear"></div>
+		</div>
+		<div class="l item item2">
+			<span class="t l ">接口基地址</span> <input class="text l w270 "
+				value="" id="serverurl" maxlength="164" title="接口基地址" index="1"
+				type="text">
+			<div class="clear"></div>
+		</div>
+	</div>
+	<table class="table" style="min-width:1080px;" cellspacing="0">
+		<thead class="thead">
+			<tr>
+				<th class="th w60"><input name="" value="" id="all" type="checkbox"></th>
+				<th class="th w60">序号</th>
+				<th class="th last tw188">接口名称</th>
+				<th class="th w82">接口编码</th>
+				<th class="th w120">状态</th>
+				<th class="th w180">校验码</th>
+				<th class="th last tw188" style="text-align:left;padding-left:1%;">操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr tid="1767">
+				<td class="th w45"><input name="userTotal"  value="" id="all" class="checkbox1 "  type="checkbox"></td>
+				<td>1</td>
+				<td class="tl" title="接收公共图书馆用户总数接口">接收公共图书馆用户总数接口</td>
+				<td>C1292</td>
+				<td></td>
+				<td title=""><input></td>
+				<td class="last" style="text-align:left;padding-left:1%;">
+					<a onclick="editCode(this);"><img src="${res}/images/yun_back_img2.gif"/></a>
+				</td>
+			</tr>
+			<tr tid="1046">
+				<td class="th w45"><input name="userDetail" value="" id="all" class="checkbox1 AUVZ" type="checkbox"></td>
+				<td>2</td>
+				<td class="tl" title="接收公共图书馆读者办证数据接口">接收公共图书馆读者办证数据接口</td>
+				<td>C1292</td>
+				<td></td>
+				<td title=""><input></td>
+				<td class="last" style="text-align:left;padding-left:1%;">
+					<a onclick="editCode(this);"><img src="${res}/images/yun_back_img2.gif"/></a>
+				</td>
+			</tr>
+			<tr tid="1051">
+				<td class="th w45"><input name="libVisitorsTotal" value="" id="all" class="checkbox1 AUWA" type="checkbox"></td>
+				<td>3</td>
+				<td class="tl" title="接收年读者到馆量（人次）接口">接收年读者到馆量（人次）接口</td>
+				<td>C1293</td>
+				<td></td>
+				<td title=""><input></td>
+				<td class="last" style="text-align:left;padding-left:1%;">
+					<a onclick="editCode(this);"><img src="${res}/images/yun_back_img2.gif"/></a>
+				</td>
+			</tr>
+			<tr tid="1052">
+				<td class="th w45"><input name="borrowedTotal" value="" id="all" class="checkbox1 AUWB" type="checkbox"></td>
+				<td>4</td>
+				<td class="tl" title="接收公共图书馆年流通数据量（万册次）接口">接收公共图书馆年流通数据量（万册次）接口</td>
+				<td>C1294</td>
+				<td></td>
+				<td title=""><input></td>
+				<td class="last" style="text-align:left;padding-left:1%;">
+					<a onclick="editCode(this);"><img src="${res}/images/yun_back_img2.gif"/></a>
+				</td>
+			</tr>
+			<tr tid="1055">
+				<td class="th w45"><input name="borrowedDetail" value="" id="all" class="checkbox1 AUWB" type="checkbox"></td>
+				<td>5</td>
+				<td class="tl" title="接收公共图书馆年流通册次明细信息接口">接收公共图书馆年流通册次明细信息接口</td>
+				<td>C1294</td>
+				<td></td>
+				<td title=""><input></td>
+				<td class="last" style="text-align:left;padding-left:1%;">
+					<a onclick="editCode(this);"><img src="${res}/images/yun_back_img2.gif"/></a>
+				</td>
+			</tr>
+			<tr tid="1056">
+				<td class="th w45"><input name="activityTotal" value="" id="all" class="checkbox1 AUWB" type="checkbox"></td>
+				<td>6</td>
+				<td class="tl" title="接收活动总数接口">接收活动总数接口</td>
+				<td>C1304</td>
+				<td></td>
+				<td title=""><input></td>
+				<td class="last" style="text-align:left;padding-left:1%;">
+					<a onclick="editCode(this);"><img src="${res}/images/yun_back_img2.gif"/></a>
+				</td>
+			</tr>
+			<tr tid="1057">
+				<td class="th w45"><input name="activityDetail" value="" id="all" class="checkbox1 AUWB" type="checkbox"></td>
+				<td>7</td>
+				<td class="tl" title="接收活动详情接口">接收活动详情接口</td>
+				<td>C1304</td>
+				<td></td>
+				<td title=""><input></td>
+				<td class="last" style="text-align:left;padding-left:1%;">
+					<a onclick="editCode(this);"><img src="${res}/images/yun_back_img2.gif"/></a>
+				</td>
+			</tr>
+			<tr tid="1058">
+				<td class="th w45"><input name="exhibitionTotal" value="" id="all" class="checkbox1 AUWB" type="checkbox"></td>
+				<td>8</td>
+				<td class="tl" title="接收展览总次数">接收展览总次数</td>
+				<td>C1305</td>
+				<td></td>
+				<td title=""><input></td>
+				<td class="last" style="text-align:left;padding-left:1%;">
+					<a onclick="editCode(this);"><img src="${res}/images/yun_back_img2.gif"/></a>
+				</td>
+			</tr>
+			<tr tid="1059">
+				<td class="th w45"><input name="exhibitionDetail" value="" id="all" class="checkbox1 AUWB" type="checkbox"></td>
+				<td>9</td>
+				<td class="tl" title="接收展览详情接口">接收展览详情接口</td>
+				<td>C1305</td>
+				<td></td>
+				<td title=""><input></td>
+				<td class="last" style="text-align:left;padding-left:1%;">
+					<a onclick="editCode(this);"><img src="${res}/images/yun_back_img2.gif"/></a>
+				</td>
+			</tr>
+			<tr tid="1060">
+				<td class="th w45"><input name="annualWebsiteVisits" value="" id="all" class="checkbox1 AUWB" type="checkbox"></td>
+				<td>10</td>
+				<td class="tl" title="接收公共图书馆年网站访问量（次）接口">接收公共图书馆年网站访问量（次）接口</td>
+				<td>C1316</td>
+				<td></td>
+				<td title=""><input></td>
+				<td class="last" style="text-align:left;padding-left:1%;">
+					<a onclick="editCode(this);"><img src="${res}/images/yun_back_img2.gif"/></a>
+				</td>
+			</tr>
+			<tr tid="1061">
+				<td class="th w45"><input name="genaralCollection" value="" id="all" class="checkbox1 AUWB" type="checkbox"></td>
+				<td>11</td>
+				<td class="tl" title="接收文献的馆藏量(册件)">接收文献的馆藏量(册件)</td>
+				<td>C3404</td>
+				<td></td>
+				<td title=""><input></td>
+				<td class="last" style="text-align:left;padding-left:1%;">
+					<a onclick="editCode(this);"><img src="${res}/images/yun_back_img2.gif"/></a>
+				</td>
+			</tr>
+			<tr tid="1062">
+				<td class="th w45"><input name="literatureDetail" value="" id="all" class="checkbox1 AUWB" type="checkbox"></td>
+				<td>12</td>
+				<td class="tl" title="接收普通文献编目明细数据接口">接收普通文献编目明细数据接口</td>
+				<td>C3404</td>
+				<td></td>
+				<td title=""><input></td>
+				<td class="last" style="text-align:left;padding-left:1%;">
+					<a onclick="editCode(this);"><img src="${res}/images/yun_back_img2.gif"/></a>
+				</td>
+			</tr>
+			<tr tid="1063">
+				<td class="th w45"><input name="fetchCollections" value="" id="all" class="checkbox1 AUWB" type="checkbox"></td>
+				<td>13</td>
+				<td class="tl" title="接收公共图书馆馆藏数据接口">接收公共图书馆馆藏数据接口</td>
+				<td>C3404</td>
+				<td></td>
+				<td title=""><input></td>
+				<td class="last" style="text-align:left;padding-left:1%;">
+					<a onclick="editCode(this);"><img src="${res}/images/yun_back_img2.gif"/></a>
+				</td>
+			</tr>
+			<tr tid="1064">
+				<td class="th w45"><input name="addliterature" value="" id="all" class="checkbox1 AUWB" type="checkbox"></td>
+				<td>14</td>
+				<td class="tl" title="接收新增文献入（册件）藏量">接收新增文献入（册件）藏量</td>
+				<td>C3405</td>
+				<td></td>
+				<td title=""><input></td>
+				<td class="last" style="text-align:left;padding-left:1%;">
+					<a onclick="editCode(this);"><img src="${res}/images/yun_back_img2.gif"/></a>
+				</td>
+			</tr>
+			<tr tid="1065">
+				<td class="th w45"><input name="finddeadline" value="" id="all" class="checkbox1 AUWB" type="checkbox"></td>
+				<td>15</td>
+				<td class="tl" title="获取上次上传截止日期">获取上次上传截止日期</td>
+				<td>无</td>
+				<td></td>
+				<td title=""><input></td>
+				<td class="last" style="text-align:left;padding-left:1%;">
+					<a onclick="editCode(this);"><img src="${res}/images/yun_back_img2.gif"/></a>
+				</td>
+			</tr>
+			<tr tid="1066">
+				<td class="th w45"><input name="updatedeadline" value="" id="all" class="checkbox1 AUWB" type="checkbox"></td>
+				<td>16</td>
+				<td class="tl" title="更新本次上传截止日期">更新本次上传截止日期</td>
+				<td>无</td>
+				<td></td>
+				<td title=""><input></td>
+				<td class="last" style="text-align:left;padding-left:1%;">
+					<a onclick="editCode(this);"><img src="${res}/images/yun_back_img2.gif"/></a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<div class="l item" style="z-index: 0;float:right;margin-top:10px;margin-bottom:10px;padding-right:10px;">
+				<input type="button" class="btn r "  value="上传" style="width:160px;margin-right:-5px\9" id="btnSubmit"  index="9"  />
+			</div>
+</body>
+<script>
+	//范围内全选	/取消全选
+	$('#all').click(function(){
+		var classStr='.table .checkbox1';
+		if($(this).is(':checked')){
+		var str = "";
+		$(classStr).each(function(){
+			$(this)[0].checked=true;
+			var vl = $(this).val();
+			str += vl+",";
+		});
+	}else{
+		var str = "";
+		$(classStr).each(function(){
+			$(this)[0].checked=false;
+			var vl = $(this).val();
+			str += vl+",";
+		});
+	}
+});
+	function editCode(obj) {
+		var thisObj = $(obj).parent().prev();
+		var imgObje = $(obj).find("img");
+		$(obj).attr("onclick", "saveCode(this);");
+		thisObj.attr("contenteditable", true);
+		thisObj.attr("class", "editable");
+		imgObje.attr("src", "${res}/images/yun_back_save.gif");
+	}
+	function saveCode(obj) {
+		var thisObj = $(obj).parent().prev();
+		var imgObje = $(obj).find("img");
+		$(obj).attr("onclick", "editCode(this);");
+		thisObj.attr("contenteditable", false);
+		thisObj.attr("class", "");
+		imgObje.attr("src", "${res}/images/yun_back_img2.gif");
+		
+	}
+	//数据上报
+	$("#btnSubmit").click(function(){
+		debugger
+		var params = [];
+		var checkedlist = $("[name]:checked");
+		var libcode = $("#libcode").val();
+		var unicode = $("#unicode").val();
+		var serverurl = $("#serverurl").val();
+		$(checkedlist).each(function(index){
+			var checked = $(this);
+			var methodcode = checked.closest("tr").find("input").eq(1).val();
+			var methodname = checked.attr("name");
+			var authoInfo = {
+					libcode:libcode,
+					methodcode:methodcode,
+					methodname:methodname,
+					serverurl:serverurl,
+					unicode:unicode
+			}
+			params.push(authoInfo);
+		});
+		console.debug(JSON.stringify(params));
+	        $.ajax({ 
+	            type:"POST", 
+	            url:"${res}/data/dataReporting/entrance", 
+	            dataType:"json",      
+	            contentType:"application/json",               
+	            data:JSON.stringify(params), 
+	            success:function(data){ 
+	                                       
+	            } 
+	         }); 
+	})
+
+</script>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>角色${title}</title>
+<#include "../static/static.html"/>
+<link href="${res}/js/zTree/css/zTreeStyle/zTreeStyle.css" rel="stylesheet"/>
+<script type="text/javascript" src="${res}/js/zTree/js/jquery.ztree.all-3.5.min.js"></script>
+<script type="text/javascript" src="${res}/js/jquery.json.js"></script>
+<script type="text/javascript">
+	function initTree(){
+		$.fn.zTree.init($("#tree"),{
+			async : {
+				enable : true,
+				url : "${res}/common/role/getPermissionTree.do?roleId=${(erole.id)!}"
+			},check:{
+				enable: true,
+				autoCheckTrigger: true
+			}
+		});
+		//var treeObj = $.fn.zTree.getZTreeObj("tree");
+		//treeObj.reAsyncChildNodes(null, "refresh");
+	}
+	$(function(){
+		initTree();
+		initFrom();
+		$("#revert").click(function(){
+			window.location.href = "${res}/common/role/list.do";
+			return false;
+		});
+	});
+	function initFrom(){
+		$("#form").validate({
+			submitHandler:function(form){
+				var treeObj =  $.fn.zTree.getZTreeObj("tree");
+				var checkNodes = treeObj.getCheckedNodes(true);
+				var permissionArray = new Array();
+				for(var i=0;i<checkNodes.length;i++){
+					if(checkNodes[i].leaf){
+						permissionArray.push(checkNodes[i].id);
+					}
+				}
+				$("#permissions").val($.toJSON(permissionArray));
+				return true;
+			}
+		});
+	}
+
+</script>
+</head>
+<body>
+	<div class="container-fluid">
+		<div class="row-fluid">
+			<div class="span12">
+				<legend>${title}角色</legend>
+			</div>
+		</div>
+	</div>
+	<div class="row-fluid context">
+		<div class="span12">
+			<form class="form-horizontal" id="form" action="${res}/common/role/${action}.do" method="post"	autocomplete="off">
+				<fieldset>
+					<div class="form-group">
+						<label class="control-label col-xs-6 col-sm-5 no-padding-right" for="rolename">角色名称:</label>
+						<div class="col-xs-2 col-sm-3">
+							<div class="col-xs-12">
+								<div class="input_panel">
+									<input type="text" name="name" index="1" id="rolename" value="${(erole.name)!?html}" class="col-xs-12 col-sm-12"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="space-2"></div>
+					<div class="form-group">
+						<label class="control-label col-xs-6 col-sm-5 no-padding-right" for="roledesc">角色描述:</label>
+						<div class="col-xs-2 col-sm-3">
+							<div class="col-xs-12">
+								<div class="input_panel">
+									<input type="text" name="desc" index="2" id="roledesc" class="col-xs-12 col-sm-12" value="${(erole.desc)!?html}" />
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="space-2"></div>
+					<div class="form-group">
+						<label class="control-label col-xs-6 col-sm-5 no-padding-right" for="permissionsJson"></label>
+						<div class="col-xs-2 col-sm-3">
+							<input type="hidden" name="permissionsJson" id="permissions">
+							<div class="col-xs-12">
+								<div class="input_panel widget-box widget-color-blue2">
+									<div class="widget-header center header-color-blue">
+										<h6 class="widget-title center white">授权管理</h6>
+									</div>
+									<div class="widget-body">
+										<div class="widget-main padding-8">
+											<ul id="tree" class="ztree"></ul>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="space-2"></div>
+						<div class="wizard-actions center">
+							<#if 'edit'==action>
+								<input name="id" type="hidden" value="${erole.id}"/>
+							</#if>
+							<button class="btn btn-prev btn-success" id="submit" >
+								确定 <i class="glyphicon glyphicon-ok"></i>
+							</button>
+							<#if action=='edit'>
+							<button class="btn btn-next" data-last="Finish" id="revert">
+								返回<i class="glyphicon glyphicon-remove"></i>
+							</button>
+							</#if>
+						</div>
+				</fieldset>
+			</form>
+		</div>
+	</div>
+</body>
+</html>

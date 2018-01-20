@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>客户新增</title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../head.html">
+		<script src="${res}/js/jquery/jquery.date_input.pack.js"></script>
+		<script type="text/javascript" src="${res}/js/cms/area.js"></script>
+		<script type="text/javascript" src="${res}/js/getMoreSelect.js"></script>		
+		<script type="text/javascript">
+		    $(function(){
+		    	$('#form').lineFeedValidate();
+		    	$("#customerSave").bind("click", function(){
+		    		$('.sumbit-msg').hide();
+		    		var action = $('.psw').css("visibility");
+		    		if(action == 'visible') {
+		    			sendPwdValid();
+		    		}
+		    		$('.psw').attr("send", "1");
+		    		var cId = $("#masterId").val();
+		    		var isValidate = validateForms();
+		    		
+		    		if(isValidate) {
+		    		    if(cId !='' && !sendPsw) {
+		    			    if(ischange()) return false;
+		    		    }
+		    		
+		    		
+		    			saveCustomer();
+		    		}
+		    		
+		    	});
+		    	$('.sumbit-msg').hide();
+		    })
+		    
+		  //提交表单校验
+		    function validateForms() {
+		    	var isValid = false;
+		    	if($("#names").val().length < 1) {
+		    		showErrorTipMsg($("#names"),$("#names").attr("title") + "不能为空!");
+		    		return isValid;
+		    	}
+
+		    	//处理客户分级
+		    	if($("#provinceCode").val() < 1) {
+		    		pullSelect($("#provinceCode")[0]);
+		    		return isValid;
+		    	}
+		    	if($("#cityCode").val() < 1) {
+		    		pullSelect($("#cityCode")[0]);
+		    		return isValid;
+		    	}
+		    	if($("#areaCode").val() < 1) {
+		    		pullSelect($("#areaCode")[0]);
+		    		return isValid;
+		    	}
+				var $obj = isEmpty("#form");
+            	var title = $($obj).attr("title");
+        		if (title == '监督电话') {
+        			return true;
+        		} else if(title != '省' && title != '市' && title != '区') {
+        			//受插件影响，省市区 在编辑页面会失去值 排除3者
+        			showErrorTipMsg($($obj),$.trim(title)+"不能为空!");
+                	removeDisabled('customerSave');
+                	return false;
+        		}
+		    	return true;
+		    }
+		    
+		    
+		    function saveCustomer() {
+		    	setDisabled('customerSave');
+	    		$("#form").ajaxSubmit({  
+                    type: 'post',
+                  //  beforeSubmit : validateForm(),
+                    success:function(data){  
+                    	 var json = JSON.parse(data);
+                   		$('.customer_href').attr("href","${res}/cms/customerLibrary/form/"+json.customerId+".do");
+						$('.sumbit-msg').html("成功!").show();
+                   		 sendPsw = false;
+                   		//$('.validate').hide();
+                   		$('.customer_href').show();
+                   		removeDisabled('customerSave'); 
+                   		$("#masterId").val(json.customerId);
+                   		$("#customerHallCode").val(json.customerHallCode);
+                    },  
+                    error: function(XmlHttpRequest, textStatus, errorThrown){  
+                    	$('.sumbit-msg').html("失败!").show();
+                    	removeDisabled('customerSave'); 
+                    }
+                });  
+		    }
+			$.ajaxSetup({async:false});
+		</script>
+	</head>
+	<body>
+		<form class="form-horizontal" id="form"  action="${res}/cms/customer/save.do" method="post"  target="iframeBox" enctype="multipart/form-data"   autocomplete="off">
+			<div class="form form2" style="margin-bottom:0;">
+			<div class="l item item2" style="z-index:290;float:left;">
+			  <div style="float:left;">
+				<span class="t l">客户类型</span>
+				<!-- 修改完历史数据后 class增加disabled   select 增加 readonly="readonly" -->
+				<select id="customerLevel" class="customertype w145 ischange disabled" onchange="getCustomerProvince(this.value)" style="width:191px;height:32px;line-height:32px;font-size:16px;text-align:center;" width="191"  init="${(customer.levelId)!''}" name="levelId" index="130" >
+					<#if (customerLevelList)??>
+					    <#list customerLevelList as customerLevel>
+					        <option <#if customer.levelId == customerLevel.id> selected="selected" </#if> value="${customerLevel.id}">${customerLevel.fullName}</option>
+					    </#list>
+					</#if>
+				</select>
+			  </div>
+				<span class="img l t3" style="text-align: right;">全称</span>
+				<input type="hidden" class="text" id="masterId" name="id"  value="${(customer.id)!}" rq="false"/>
+				<input id="names" type="text" class="text l formItem" datatype="empty" style="width:374px" value="${(customer.name)!''}" name="name"  title="单位名称"  tipMsg="" maxlength="30" index="1"/>
+				<div class="clear"></div>
+			</div>
+			<div class="l item">
+				<span class="t l t3">客户代码 </span>
+				<input type="text" id="customerHallCode" class="text l w158 disabled" readonly="readonly" value="${(customer.hallCode)!''}" id="hallCode" name="hallCode" title="客户代码 " tipMsg=""  maxlength="25"  rq="false"/>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 n1" style="z-index:120;z-index:220;">
+				<span class="t l" style="">地区</span>
+				<!-- 修改完历史数据后 class增加disabled   select 增加 readonly="readonly" -->
+				<select id="provinceCode" name="provinceCode" title="省" class="l select7 disabled" width="108" style="width:108px;visibility:hidden;" onchange="getCustomerCity(this.value)">
+					<option value="0">省</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 n2" style="z-index:120; margin: 0 10px; margin: 0 8px 0 7px\9;">
+			<!-- 修改完历史数据后 class增加disabled   select 增加 readonly="readonly" -->
+				<select id="cityCode" name="cityCode"  title="市" class="l select8 disabled" width="107" style="width:107px;visibility:hidden;" onchange="getCustomerArea(this.value)" value="${(query.city)!''}">
+					<option value="0">市</option>
+				</select>					
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 n3" style="z-index:120;">
+			<!-- 修改完历史数据后 class增加disabled   select 增加 readonly="readonly" -->
+				<select id="areaCode" name="areaCode" title="区" class="l select9 disabled"  width="108" style="width:108px;visibility:hidden;" value="${(query.district)!''}">
+					<option value="0">区</option>
+				</select>					
+				<div class="clear"></div>
+			</div>
+			
+			
+			<div class="l item item2">
+				<span class="img l t3" style="text-align:right;">地址 </span>
+				<input type="text" class="text l" style="width:222px;" value="${(customer.address)!''}" name="address"  id="address" title="地址 " tipMsg="" maxlength="70" index="3"/>
+				<div class="clear"></div>
+			</div>
+			<div class="l item">
+				<span class="t l t3">邮编 </span>
+				<input type="text" class="text l w158" datatype="empty"  value="${(customer.postcode)!''}" name="postcode" index="4" title="邮编" tipMsg="" maxlength="10" onkeyup="javascript:this.value=this.value.replace(/\D/g,'');"/>
+				<div class="clear"></div>
+			</div>			
+			<div class="l item lianxi">
+				<span class="t l">联系人 </span>
+				<input type="hidden" class="text" id="customerContactId" name="contacts[0].id"  value="" rq="false"/>
+				<input type="text" class="text l w195" value="${(contact.contactPerson)!''}"  name="contacts[0].contactPerson" title="姓名"  index="5" tipMsg="" maxlength="10"/>
+				<span class="img l img0"></span>
+				<input type="text" class="text l w195" value="${contact.tel!''}" name="contacts[0].tel" title="座机"  tipMsg="" index="6" maxlength="16" onkeyup="javascript:this.value=this.value.replace(/\D/g,'');"/>
+				<span class="img l img1"></span>
+				<input type="text" class="text l w195 firefox_input2" style="width:197px;width:193px\9;" value="${contact.phone!}" name="contacts[0].phone"  id="c_phone"  title="手机" index="7" maxlength="11" tipMsg="" />
+				<span class="img l img2"></span>
+				<input type="text" class="text l mail " style="width:216px" value="${contact.chat!}" title="邮箱" name="contacts[0].chat" tipMsg="" index="8" maxlength="50" />
+				<div class="clear"></div>
+			</div>
+			<div class="l item lianxi">
+				<span class="t l">管理员</span>
+				<input type="hidden" class="text" id="userId" name="users[0].id"  value="${(user.id)!}" rq="false"/>
+				<input type="text" class="text l w195 name" value="${(user.userName)!''}"  name="users[0].userName" title="姓名"  index="9" tipMsg="" maxlength="10" />
+				<span class="img l img0"></span>
+				<input type="text" class="text l w195 firefox_input2" value="${(user.tel)!}" name="users[0].tel" title="座机"  tipMsg="" index="10" maxlength="16" onkeyup="javascript:this.value=this.value.replace(/\D/g,'');"/>
+				<span class="img l img1"></span>
+				<input type="text" class="text l w195 phone ischange"  init="${(user.phone)!}"   style="width:197px;width:193px\9;" value="${(user.phone)!}" name="users[0].phone" title="手机" id="phone" index="11" maxlength="11" tipMsg="" />
+				<span class="img l img2"></span>
+				<input type="text" class="text l mail" style="width:216px" value="${(user.chat)!}" title="邮箱" name="users[0].chat" tipMsg=""  index="12" maxlength="50" autocomplete="off" />
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+			<div class="l item adminer" style="z-index: 110;">
+				<span class="t l">押金模式</span>
+				<select class="deposit w191 ischange" width="191" style="width:191px;float:left" init="${(customer.deposit)!''}" name="deposit" index="15">
+				<#if (customer.deposit)??>
+					<option <#if customer.deposit==0> selected="selected" </#if> value="0">无押金</option>
+					<option <#if customer.deposit==1> selected="selected" </#if>  value="1">有押金</option>
+				</#if>
+				</select>
+				<span class="img l t3" style="text-align:right;">协议</span>
+				<select class="agreement w145 ischange" width="145" style="width:145px;float:left" init="${(customer.agreement)!''}" name="agreement" index="16">
+				<#if (customer.agreement)??>
+				<option <#if customer.agreement==1> selected="selected" </#if> value="1">一级协议</option>
+				<option <#if customer.agreement==2> selected="selected" </#if> value="2">二级协议</option>
+				<option <#if customer.agreement==3> selected="selected" </#if> value="3">三级协议</option>
+				</#if>
+				</select>
+				<span class="img l t3" style="text-align:right;">每馆额度</span>
+				<select class="quota w145 ischange" width="145" style="width:145px;float:left" init="${quota!''}" name="quota" index="17">
+					<option <#if quota=='0-1000'> selected="selected" </#if> value="0-1000">0-0.1万</option>
+					<option <#if quota=='0-5000'> selected="selected" </#if> value="0-5000">0-0.5万</option>
+					<option <#if quota=='0-5000'> selected="selected" </#if> value="0-10000">0-1万</option>
+					<option <#if quota=='0-10000'> selected="selected" </#if> value="0-20000">0-2万</option>
+				</select>
+				<span class="img l t3" style="text-align: right;width:81px;margin-left:-4px\9">授信总额</span>
+				<input type="text" class="text l disabled ischange"  init="50000.00"  style="width:158px;" disabled value="50000.00"  name="creditQuoto" index="18"/>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+			<div class="l item adminer" style="z-index:100;">
+				<span class="t l">读者限制</span>
+				<select class="limit w191 ischange" width="191" style="width:191px;float:left" init="${(customer.readerLimit)!''}" name="readerLimit" index="19">
+				<#if (customer.readerLimit)??>
+				<option <#if customer.readerLimit == 0> selected="selected" </#if> value="0">无限制</option>
+				<option <#if customer.readerLimit == 1> selected="selected" </#if> value="1">限注册</option>
+				</#if>
+				</select>
+				<span class="img l t3" style="text-align: right;">限借数量</span>
+				<select class="borrownumber w145 ischange" width="145" style="width:145px;float:left"  init="${(customer.borrowNum)!''}" name="borrowNum" index="20">
+				<#if (customer.borrowNum)??>
+					<option <#if customer.borrowNum==1> selected="selected" </#if>  value="1">1册</option>
+					<option <#if customer.borrowNum==2> selected="selected" </#if>  value="2">2册</option>
+					<option <#if customer.borrowNum==3> selected="selected" </#if>  value="3">3册</option>
+					<option <#if customer.borrowNum==4> selected="selected" </#if>  value="4">4册</option>
+					<option <#if customer.borrowNum==5> selected="selected" </#if>  value="5">5册</option>
+				</#if>					
+				</select>
+				<span class="img l t3" style="text-align: right;">限借天数</span>
+				<select class="days w145 ischange" width="145" style="width:145px;float:left"  init="${(customer.borrowDays)!''}" name="borrowDays">
+				<#if (customer.borrowDays)??>
+				<option <#if customer.borrowDays==15> selected="selected" </#if>  value="15">15天</option>
+				<option <#if customer.borrowDays==30> selected="selected" </#if> value="30">30天</option>
+				<option <#if customer.borrowDays==60> selected="selected" </#if> value="60">60天</option>
+				</#if>
+				</select>
+				<span class="img l t3" style="text-align:right;width:81px;margin-left:-4px\9">逾期罚金</span>
+				<select class="fine w145 ischange" width="160" style="width:160px"  init="${(customer.rent)!''}" name="rent">
+				<#if (customer.rent)??>
+				<option <#if customer.rent==0.1> selected="selected" </#if> value="0.1">0.10元/天</option>
+				<option <#if customer.rent==0.2> selected="selected" </#if> value="0.2">0.20元/天</option>
+				<option <#if customer.rent==0.5> selected="selected" </#if> value="0.5">0.50元/天</option>
+				</#if>
+				</select>
+				<div class="clear"></div>
+			</div>
+			<div class="l item" style="margin-right:20px;margin-right: 17px\9;float:right;">
+				<span  class="t l"><input type="checkbox" id="check" ></input></span>
+				<span class="t l t3" style="color:red;text-align:center;border:none;">监督电话 </span>
+				<input type="text" id="text" style="background:#CCCCCC" disabled class="text l w158 firefox_input2"  value="${(customer.phone)!''}" name="phone"  title="监督电话" tipMsg="" maxlength="15" />
+				<div class="clear"></div>
+			</div> 
+			<div class="clear"></div>
+			<div class="l item" style="z-index: 99; width:1012px;width:1014px\9;">
+				<span class="t l">&nbsp;</span>
+				<input type="button" class="btn disabled l firefox_btn1"  disabled  value="管理员首次密码发送" id="validatePsw" style="width:180px;" onclick="sendpsw(this)"/>
+				<input type="button" class="btn r" value="确定" style="width:160px;" id="customerSave"/>
+				<span class="r sumbit-msg" style="margin-right:10px;"></span>
+				<input id="customer_password" type="password" autocomplete="off" class="text r w170 validate psw" value="" style="margin-right:10px;visibility:hidden;" tipMsg="" rq="false"  send=""/>
+				<div class="r red validate" id="validate_div" style="margin-right:15px;display:none;">您修改了客户信息，需验证操作员密码</div>
+				<div class="clear"></div>
+			</div>
+			<#if ((customerLevel.level)!0) gt 3 >
+			    <div class="customer_href"><a href="${res}/cms/customerLibrary/form/${(customer.id)!}.do" class="customer_href">图书馆资料<img src="${res}/images/yun_back_jt.png"/></a></div>
+			</#if>
+		</div>
+		</form>
+<script>
+	var select7 = setSelect('.select7');
+	var select8 = setSelect('.select8');
+	var select9 = setSelect('.select9');
+    var cId = ${(customer.id)!0};
+    var sendTime = ${sendTime!'0'};
+	if(cId == 0) {
+	    $('.customer_href').hide();
+	}
+	var select1 = setSelect('.deposit');
+	var select2 = setSelect('.agreement');
+	setSelect('.customertype');
+	setSelect('.quota');
+	setSelect('.limit');
+	setSelect('.borrownumber');//限借数量
+	setSelect('.days');//限借天数
+	setSelect('.fine');//逾期罚金
+	var provinceCode = 0;
+    var cityCode = 0;
+    var areaCode = 0;
+	<#if (customer.provinceCode)?? && customer.provinceCode !="">
+        provinceCode = ${(customer.provinceCode)!'0'};
+    </#if>
+	<#if (customer.cityCode)?? && customer.cityCode !="">
+        cityCode = ${(customer.cityCode)!'0'};
+    </#if>    
+	<#if (customer.areaCode)?? && customer.areaCode !="">
+	    areaCode = ${(customer.areaCode)!'0'};
+	</#if> 
+	
+    //根据客户级别重置省市区
+	//获取初始客户级别
+	var customerType = $('.customertype').val();
+	getCustomerProvinceBegin(customerType);
+	var s0,c0,q0;
+	//初始化区域
+	function getCustomerProvinceBegin(customerType) {
+		getProvince('.select7', customerType);
+		var cityId = $(".select7 option:selected").val();
+		getCity('.select8', cityId, customerType);
+		getArea('.select9', cityCode);
+		/* getProvince('.select7', customerType);
+		setSelect('.select8');
+		setSelect('.select9'); */
+		
+	}
+	//客户选择级别获取初始化区域
+	function getCustomerProvince(id) {
+		getProvince('.select7', id);
+	}
+	//选择省份初始化市、区域
+	function getCustomerCity(id) {
+		var customerType = $("#customerLevel option:selected").val();
+		getCity('.select8',id, customerType);
+		getArea('.select9', null);
+	}
+	//选择市初始化区域
+	function getCustomerArea(id) {
+		getArea('.select9',id);
+	}
+	//省份
+	function getProvince(self, customerType) {
+		var tmpstr = "";
+		tmpstr += "<option value=''>省</option>";
+		  $.ajax({
+		       url:config.contextPath+"/customer/area/getEditProvinceUnused.html?customerType="+customerType+"&provinceCode="+provinceCode,
+		       dataType:"json",
+		       success:function(data){
+		    	   var k = 0;
+				   for(i in data){
+					   if (i == provinceCode) {
+						   tmpstr+=" <option value='"+i+"' selected='selected'>"+data[i]+"</option>";
+					   } else {
+						   tmpstr+=" <option value='"+i+"'>"+data[i]+"</option>";
+					   }
+				   } 
+				   $(self).find('option').remove();
+				   $(self).append(tmpstr);
+				   select7.reset();
+		       }
+		   });
+	} 
+	//城市
+	function getCity(self, id, customerType) {
+		var tmpstr = "";
+		tmpstr += "<option value=''>市</option>";
+		var provinceId = 0;
+		provinceId = id;
+		  $.ajax({
+			   url:config.contextPath+"/customer/area/getEditCityUnused.html?provinceCode="+provinceId+"&customerType="+customerType+"&cityCode="+cityCode,
+		       dataType:"json",
+		       success:function(data) {
+		    	   for(i in data){ 
+		    		   if (i == cityCode) {
+						   tmpstr+=" <option value='"+i+"' selected='selected'>"+data[i]+"</option>";
+					   } else {
+						   tmpstr+=" <option value='"+i+"'>"+data[i]+"</option>";
+					   }
+				   }
+		    	   $(self).find('option').remove();
+				   $(self).next().remove();
+				   $(self).append(tmpstr);
+				   c0 = setSelect(self);	
+			    }
+		   });
+	}
+	//地区
+	function getArea(self, cityCode){
+		  var tmpstr="<option value=''>区</option>";
+		  $.ajax({
+			   url:config.contextPath+"/customer/area/getAreaUnused.html?cityCode="+cityCode,
+		       dataType:"json",
+		       success:function(data){
+		    	   for(i in data){ 
+		    		   if (i == areaCode) {
+						   tmpstr+=" <option value='"+i+"' selected='selected'>"+data[i]+"</option>";
+					   } else {
+						   tmpstr+=" <option value='"+i+"'>"+data[i]+"</option>";
+					   }
+				   }
+				   var areasObj=$(self);
+				   areasObj.next().remove();
+				   $(areasObj).html('').append(tmpstr);
+				   q0=setSelect(areasObj);
+			    }
+		   });
+	}
+	var code = $('#customerHallCode').val();
+	$('#phone').blur(function(){
+		if(!validatePhone($(this).val())&&$(this).val()!=''){
+		  	showErrorTipMsg($(this),"手机格式错误!");
+		}
+	});
+	$('#c_phone').blur(function(){
+		if(!validatePhone($(this).val())&&$(this).val()!=''){
+		  	showErrorTipMsg($(this),"手机格式错误!");
+		}
+	});
+
+	$(".deposit").change(function(){
+		var deposite = $(this).val();
+		var agreement = $('.agreement').val();
+		if(deposite=='0'&&agreement=='1'){
+			$('.agreement').val("2");
+			select2.reset();
+		}
+		if(deposite=='1'&&agreement=='2'){
+			$('.agreement').val("1");
+			select2.reset();
+		}
+	})
+	
+	$(".agreement").change(function(){
+		var agreement = $(this).val();
+		var deposit= $('.deposit').val();
+		if(deposit=='0'&&agreement=='1'){
+			$('.deposit').val("1");
+			select1.reset();
+		}
+		if(deposit=='1'&&agreement=='2'){
+			$('.deposit').val("0");
+			select1.reset();
+		}
+	})
+	
+
+	if(cId!=0&&code!=''){
+		setTimeout($('.firefox_btn1').removeAttr("disabled").removeClass("disabled"),200);
+	}
+	if(sendTime=='1'&&code!=''){
+		$('.firefox_btn1').val("管理员新密码发送");
+	}else {
+		$('.firefox_btn1').val("管理员首次发送密码");
+	}
+	
+	$('#phone').keyup(function(){
+		if(cId==0||code=="")return;
+		if(validatePhone($(this).val())&&$(this).val()!=''&&timepd){
+			$('#validatePsw').removeClass('disabled').removeAttr('disabled');
+		}else{
+			$('#validatePsw').addClass('disabled').attr('disabled','disabled');
+		}
+	});
+	
+	$('.mail').blur(function(){
+		if(!CheckMail($(this).val())&&$(this).val()!=''){
+		  	showErrorTipMsg($(this),"邮箱格式错误!");
+		}
+	});
+
+	//验证邮箱
+	function CheckMail(mail) {
+		var filter  = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+		if (filter.test(mail)){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	var sendPsw = false;
+	//显示验证操作员密码
+	function sendpsw(self){
+		$('.sumbit-msg').hide();
+		$('#validatePsw').addClass('disabled').attr('disabled','disabled');
+		if(sendTime == 1){
+			$('.psw').attr("send","0");
+			$('#validate_div').html("管理员新密码发送，需验证操作员密码").show();
+			//$('.validate').html("管理员新密码发送，需验证操作员密码");
+			$('#customer_password').show();
+			$('#customer_password').css("visibility","visible").eq(0).focus();
+		}
+		sendPassword();
+	}
+	
+	//关闭验证框
+	function closeFloatValidate(){
+		//self.value="发送新密码";
+		$('.validate').hide();
+		$('.validate input').focus();
+		if(timepd){
+			$('#validatePsw').removeClass('disabled').removeAttr('disabled');
+		}
+	}
+	
+	//发送密码倒计时
+	var timepd=true;
+	function Countdown(){
+		timepd=false;
+		$('.float-validate').hide();
+		var t=60,fors,val=$('#validatePsw').val();
+		fors=setInterval(function(){
+			if(t<=0){
+				clearInterval(fors);
+				if(validatePhone($('#phone').val())){
+					$('#validatePsw').removeClass('disabled').removeAttr('disabled');
+				}
+				$('#validatePsw').val('管理员新密码发送')
+				timepd=true;
+				return;
+			}
+			t--;
+			$('#validatePsw').val(val+"("+t+")");
+		},1000);
+	}
+	
+	//是否有修改
+	function ischange(){
+		if(cId==0)return true;
+		var is=false;
+		$('.ischange').each(function(){
+			if($(this).val()!=$(this).attr('init')){
+				is=true;
+				$('#customerSave').addClass('disabled').attr('disabled','disabled');
+				var title =$(this).attr("title");
+				
+				$('#validate_div').show();
+				
+				$('.validate').show();
+				$('.psw').css("visibility","visible").eq(0).focus();
+				sendPsw = true;
+				return false;
+			}else {
+			}
+		});
+		return is;//true:有修改，false:无修改
+	}
+	
+	function changeProvince(e){
+		var $city=$("#province"+guan)
+		var pId = $(e).attr('value');
+		 $.ajax({
+			   url:config.contextPath+"/area/getCity.html/"+pId,
+		       dataType:"json",
+		       success:function(data){
+		    	   citylist=data;
+		    	   setSelectList($city,c0,provicelist);
+		       }
+		  });
+	}
+
+	$('.psw').keyup(function(event){
+		  if(event.keyCode ==13){
+			 document.body.focus();
+			 var pwd =$('.psw').val();
+			 pwd =$.base64Encode(pwd);
+			 var phone = $('.phone').val();
+			 var userId = $('#userId').val();
+			 var name =$('.name').val();
+			 var send =$('.psw').attr("send");
+			  if(send=='1'){ //改变内容只验证密码
+				  $.post("${res}/cms/user/validate/"+pwd+".do",function(data){
+					  if(data.success) {
+						 $('#customerSave').removeClass('disabled').removeAttr('disabled').focus();
+						 $('.psw').css("visibility","hidden").val("");
+						 $('.validate').hide();
+						 showErrorTipMsg($('.psw'),"");
+					  } else {
+						  showErrorTipMsg($('.psw'),"密码错误!");
+					  }
+				  })
+				  return false;
+			  }
+			 sendPsw = false;//
+			 sendPwdValid();
+		  }
+	});
+	
+	//验证密码后发送密码
+	function sendPwdValid(){
+		 document.body.focus();
+		 var pwd =$('.psw').val();
+		 pwd =$.base64Encode(pwd);
+		 var phone = $('.phone').val();
+		 var userId = $('#userId').val();
+		 var name =$('.name').val();
+		  $.post("${res}/cms/user/logininfo/"+pwd+".do",{hallCode:code,phone:phone,userId:userId,name:name},function(data){
+			  if(data.success){
+				 $('.sendpwd').val(true);
+				 $('.psw').css("visibility","hidden").val("");
+				 $('.validate').hide();
+				 Countdown();
+				 showErrorTipMsg($('.psw'),"");
+				 $('#customerSave').removeClass('disabled').removeAttr('disabled');
+			  } else {
+				  showErrorTipMsg($('.psw'),"密码错误!");
+			  }
+		  });
+	}
+	
+	//不需要验证密码
+	function sendPassword(){
+		
+		 var phone = $('.phone').val();
+		 var userId = $('#userId').val();
+		 var name =$('.name').val();
+		 $.post("${res}/cms/user/sendPwd.do",{hallCode:code,phone:phone,userId:userId,name:name},function(data){
+			  if(data.success){
+				 $('.sendpwd').val(true);
+				 $('.validate').hide();
+				 sendPsw = true;
+				 sendTime =1;
+				 Countdown();
+				 showErrorTipMsg($('.psw'),"");
+			  }else {
+				 initTipMsg();
+				 showErrorTipMsg($('.psw'),"密码错误!");
+			  }
+		  })
+	}
+	
+	function checkboxChange(selId, tarId) {
+		var sel = document.getElementById(selId);
+		var tar = document.getElementById(tarId);
+		
+		function checkEvent(sel, tar){
+			if(sel.checked){
+				tar.removeAttribute("disabled");
+				tar.style.background = "#fff";
+			} else {
+				tar.setAttribute("disabled",'true');
+				tar.style.background = "#CCCCCC";
+			}
+		}
+		
+		if(sel && sel.type == "checkbox" && tar && tar.type == "text"){
+			sel.onclick = function(){
+				checkEvent(sel, tar);
+			};
+			checkEvent(sel, tar);
+		}
+
+	}
+	checkboxChange("check", "text");
+</script>
+	</body>
+</html>

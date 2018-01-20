@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache updateCheck="false" name="hibernateCache">
+
+	<diskStore path="java.io.tmpdir/library/ehcache/hibernate" />
+
+	<!-- DefaultCache setting. -->
+	<defaultCache maxEntriesLocalHeap="100" eternal="false" timeToIdleSeconds="300" timeToLiveSeconds="600" 
+		overflowToDisk="true" maxEntriesLocalDisk="100000" />
+	
+<!-- 	<cache name="com.flea.common.pojo.Dict" maxEntriesLocalHeap="100" eternal="false" overflowToDisk="true" maxEntriesLocalDisk="100000" /> -->
+	
+<!-- 	<cache name="com.flea.common.pojo.Area" maxEntriesLocalHeap="100" eternal="false" overflowToDisk="true" maxEntriesLocalDisk="100000" /> -->
+<!-- 	<cache name="com.flea.common.pojo.Area.childList" maxEntriesLocalHeap="100" eternal="false" overflowToDisk="true" maxEntriesLocalDisk="100000" /> -->
+<!-- 	<cache name="com.flea.common.pojo.Area.officeList" maxEntriesLocalHeap="100" eternal="false" overflowToDisk="true" maxEntriesLocalDisk="100000" /> -->
+	
+<!-- 	<cache name="com.flea.common.pojo.Office" maxEntriesLocalHeap="100" eternal="false" overflowToDisk="true" maxEntriesLocalDisk="100000" /> -->
+<!-- 	<cache name="com.flea.common.pojo.Office.childList" maxEntriesLocalHeap="100" eternal="false" overflowToDisk="true" maxEntriesLocalDisk="100000" /> -->
+<!-- 	<cache name="com.flea.common.pojo.Office.userList" maxEntriesLocalHeap="100" eternal="false" overflowToDisk="true" maxEntriesLocalDisk="100000" /> -->
+	
+	<cache name="com.flea.common.pojo.Menu" maxEntriesLocalHeap="100" eternal="false" overflowToDisk="true" maxEntriesLocalDisk="100000" />
+	<cache name="com.flea.common.pojo.Menu.childList" maxEntriesLocalHeap="100" eternal="false" overflowToDisk="true" maxEntriesLocalDisk="100000" />
+	<cache name="com.flea.common.pojo.Menu.roleList" maxEntriesLocalHeap="100" eternal="false" overflowToDisk="true" maxEntriesLocalDisk="100000" />
+	
+	<cache name="com.flea.common.pojo.Role" maxEntriesLocalHeap="100" eternal="false" overflowToDisk="true" maxEntriesLocalDisk="100000" />
+	<cache name="com.flea.common.pojo.Role.menus" maxEntriesLocalHeap="100" eternal="false" overflowToDisk="true" maxEntriesLocalDisk="100000" />
+	<cache name="com.flea.common.pojo.Role.users" maxEntriesLocalHeap="100" eternal="false" overflowToDisk="true" maxEntriesLocalDisk="100000" />
+	
+	<cache name="com.flea.common.pojo.User" maxEntriesLocalHeap="100" eternal="false" overflowToDisk="true" maxEntriesLocalDisk="100000" />
+	<cache name="com.flea.common.pojo.User.roles" maxEntriesLocalHeap="100" eternal="false" overflowToDisk="true" maxEntriesLocalDisk="100000" />
+	
+</ehcache>

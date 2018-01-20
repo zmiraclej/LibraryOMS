@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title></title>
+<meta name="renderer" content="webkit|ie-comp|ie-stand" />
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1" />
+<#include "../head.html">
+<link rel="stylesheet" href="${res}/css/ebook_style.css"/>
+<script type="text/javascript">
+	$(function() {
+		$(".listmsg").hide();
+	})
+	function page(n, s) {
+		$("#pageNo").val(n);
+		$("#pageSize").val(s);
+		$("#searchForm").submit();
+		return false;
+	}
+</script>
+<style type="text/css">
+        #danchor{display: inline-block; width: 80px;text-align:center;line-height:34px;font-size:16px;color:#333;text-decoration:underline;margin-right:15px;}
+        #banchor{display:inline-block; width: 80px;text-align:center;line-height: 34px;margin-right:15px;font-size:16px;color:#333;text-decoration:underline;}
+        .odform form{float:right;}
+ /*火狐兼容*/
+        @-moz-document url-prefix(){
+            .conditions span{width:48px !important;}
+            #ad_text{width:653px !important;}
+            .p_year:nth-child(2n){margin-left:121px !important;;}
+            #search_text{width:174px!important;}
+        }       
+</style>
+</head>
+<body>
+<!-- 订单详情 -->
+<div class="form pos" style="">
+    <div class="l item item2" >
+        <span class="t l">客户代码</span>
+        <input type="text" class="text l w158 " value="${orders.customer.hallCode}" readonly="readonly" style="background:#eeeeee;height:32px"/>
+        <div class="clear"></div>
+    </div>
+    <div class="l item">
+        <span class="t l t3">单位名称</span>
+        <input id="ad_text" type="text" class="text l" style="width:655px;width:651px\9;background:#eeeeee;;height:32px" readonly="readonly" value="${orders.customer.name}" />
+        <div class="clear"></div>
+    </div>
+    <div class="l item lianxi">
+        <span class="t l">联系人 </span>
+        <input type="text" class="text l w195 " readonly="readonly"  style="background:#eeeeee;;height:32px" readonly="readonly" value="${(orders.contactPerson)!''}"/>
+        <span class="img l img0"></span>
+        <input type="text" class="text l w195 " readonly="readonly"  value="${orders.tel!''}" style="background:#eeeeee;;height:32px"/>
+        <span class="img l img1"></span>
+        <input type="text" class="text l w195 firefox_input2" readonly="readonly"  style="width:197px;background:#eeeeee;width:193px\9;;height:32px" value="${orders.phone!''}"/>
+        <span class="img l img2"></span>
+        <input type="text" class="text l" readonly="readonly"  value="${orders.chat!''}" style="width: 216px;background:#eeeeee;;height:32px"/>
+        <div class="clear"></div>
+    </div>
+    <div class="l item lianxi">
+        <span class="t l">单号</span>
+        <input type="hidden" class="text" name="" value="">
+        <input type="text" class="text l w195 name" value="${orders.orderNumber}" name="" title="" readonly="readonly" style="background: #eeeeee;color:#333333;margin-left:0;width:153px;width:152px\9;;height:32px">
+        <label class="input_label"></label>
+
+        <span class="t l" style="border-top:solid 1px #b9b9b9;border-bottom:solid 1px #b9b9b9;margin-right:0;height:32px;width:92px;padding-right:8px;">日期</span>
+        <input type="hidden" class="text" name="" value="">
+        <input type="text" class="text l w195 name" readonly="readonly"  value="${(orders.createDate?string("yyyyMMdd"))!''}" name="" title="" style="color:#333333;background: #eeeeee;margin-left:0;width:123px;width:122px\9;;height:32px">
+        <label class="input_label"></label>
+
+        <span class="t l" style="border-top:1px solid #b9b9b9;border-bottom:1px solid #b9b9b9;margin-right:0;height:32px;width:92px;padding-right:8px;">制单人</span>
+        <input type="text" class="text l w195 name" readonly="readonly"  value="${orders.operatorName!''}" name="" title="" style="color:#333333;background: #eeeeee;margin-left:0;width:153px;width:152px\9;;height:32px">
+        <label class="input_label"></label>
+        <div class="l item item2" style="float:left;">
+            <form action="${res}/cms/order/orderDetail/${orders.id}.do" id="searchForm">
+            <input id="search_text" type="text" name="keywords" class="e_text" tipMsg="单内搜索" value="" width="158" style="margin-left:5px;height:29px;width:174px\9;line-height: 28px; outline: 0px;">
+            <input type="submit" class="se_btn" style="float:left;height:32px;" value=" 搜索 ">
+            <div class="clear"></div>
+            </form>
+        </div>
+    </div>
+    <div class="clear" id="clear"></div>
+</div>
+    <div class="table-parent">
+        <div class="r_count">
+            <table cellspacing="0" class="table" id="table7" style="border-bottom:1px solid #a9a9a9">
+                <thead class="thead" id="thead4">
+                <tr>
+                    <th class="th w30"><input type="checkbox" name="checkname" id="all"/></th>
+                    <th class="th w88">类别</th>
+                    <th class="th w120">ISBN</th>
+                    <th class="th w230">书名</th>
+                    <th class="th w100">出版社</th>
+                    <th class="th w75">著者</th>
+                    <th class="th w54">年份</th>
+                    <th class="th w75">操作员</th>
+                    <th class="th tw" id="last" style="text-align:left;border-right-width:0;padding-left:10px;">上传日期</th>
+
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <div class="table-parent">
+        <div class="table_out">
+    <script>		
+    autodivheight();
+    function autodivheight(){ //函数：获取尺寸
+        //获取浏览器窗口高度
+        var winHeight=0;
+        if (window.innerHeight)
+            winHeight = window.innerHeight;
+        else if ((document.body) && (document.body.clientHeight))
+            winHeight = document.body.clientHeight;
+        //对body进行检测，获取浏览器窗口高度
+        if (document.documentElement && document.documentElement.clientHeight)
+            winHeight = document.documentElement.clientHeight;
+        var minheight = Math.floor((winHeight - 333)/37)*37;
+        if (minheight <= 111) minheight = 111;
+        $(".table_out").height(minheight);
+    }
+    window.onresize=autodivheight; //浏览器窗口发生变化时同时变化DIV高度
+    </script>        
+            <table cellspacing="0" class="table" id="tab1" style="border-top-width:0;">
+            <#if (ordersDetails)??>
+			<#list ordersDetails as ordersDetail>
+			<tr tid="${ordersDetail.id}">
+				<td class="w30" style="border-left:1px solid rgb(169, 169, 169);"> <input type="checkbox" name="orderDetail" value="${ordersDetail.id}" class="checkbox1"/></td>
+				<td class="w88" title="${ordersDetail.categoryName!''}">${ordersDetail.categoryName!''}</td>
+				<td class="w120" style="text-align:center;">${ordersDetail.isbn!''}</td>
+				<td class="w230 tl" title="${ordersDetail.bookName!''}">${ordersDetail.bookName!''}</td>
+				<td class="w100" title="${ordersDetail.publisher?replace('出版社','' )!''}">${ordersDetail.publisher?replace('出版社','' )!''}</td>
+				<td class="w75" title="${ordersDetail.author!''}">${ordersDetail.author!''}</td>
+				<td class="w54"><#if (ordersDetail.publishDate!'')?length gt 3>
+						${ordersDetail.publishDate?substring(0,4)}</#if></td>
+				<td class="w75">${ordersDetail.operatorName!''}</td>
+				<td class="tw" style="padding-left:10px;text-align: left;">${(ordersDetail.createDate?string("yyyyMMdd"))!''}</td>
+			</tr>
+			</#list>
+			</#if>
+            </table>
+        </div>
+        <table class="table" id="table_page" style="margin-top:10px;border:#a9a9a9 1px solid">
+            <tr>
+                <td><span class="paging_left" style="float:left;display:inline-block">合计总数${ordersNum!0}</span><span class="p_count"> &nbsp;(已去重 )</span></td>
+            </tr>
+        </table>
+    </div>
+<div class="l item item2" style="margin:15px 0 0 0;width:100%;">
+
+    <form id="delForm" name="del" action="${res}/cms/order/deleteBatch/${orders.id}.do" method="post" >
+
+    <input type="button" class="e_btn" onclick="deleteBatch()" value="删除" style="margin-left:5px;float:left;">
+    </form>
+    <div class="rel_info">
+        <span class="hint_info" style=""></span>
+    </div>
+    <div class="odform" style="float:right;">
+        <a href="${res}/cms/order/analysis/${orders.id}.do?fromUrl=orderDetail" id="danchor">订单分析</a>
+        <a href="${res}/cms/order/appended/${orders.id}.do" id="banchor">订单补充</a>
+        <form action="${res}/cms/order/submitOrders/${orders.id}.do">
+        <input type="submit" class="e_btn" value="配发" style="float:right;">
+        </form>
+        <div class="clear"></div>
+    </div>
+</div>
+</body>
+</html>
+<script>
+    //范围内全选 取消全选
+    $('#all').click(function() {
+        var classStr='.table .checkbox1';
+        var num = 0;
+        if($(this).is(':checked')) {
+        	
+            $(classStr).each(function(){
+            	$(this)[0].checked=true;
+            	num++;
+            });
+            $('.hint_info').html("选中图书"+ num +"种，确认删除？");
+        }else{
+            $(classStr).each(function(){$(this)[0].checked=false;});
+            $('.hint_info').html("");
+        }
+    });
+    //点击复选框提示信息
+    $('.table .checkbox1').click(function(){
+        if($(this).is(':checked')){
+            $(this).next().css('visibility',"visible");
+            if($('.table .checkbox1').length== $('.table .checkbox1:checked').length) {
+                $('#all')[0].checked=true;
+            }
+            $('.hint_info').html("选中图书"+ $('.table .checkbox1:checked').length +"种，确认删除？");
+        } else {
+            $(this).next().css('visibility',"hidden");
+            $('#all')[0].checked = false;
+            $('.hint_info').html("选中图书"+ $('.table .checkbox1:checked').length +"种，确认删除？");
+            if($('.table .checkbox1:checked').length == 0){
+            	$('.hint_info').html("");
+            }
+            
+        }
+    });
+    
+    function deleteBatch() {
+    	var ids = $.makeArray($("input[name='orderDetail']:checked"));
+    	var url = $('#delForm').attr("action");//"${res}/cms/order/deleteBatch/${orders.id}.do";
+    	if(ids.length <1) return;
+        for(var i in ids) {
+        	//遍历数组
+            if(i == 0) {
+                    url += "?delIds=" + ids[i].value;//第一个id属性前加？拼接
+                } else {
+                    url += "&delIds=" + ids[i].value;//后面的id属性前加&拼接
+                }
+            }
+
+        //url.submit();
+        $("#delForm").attr("action", url);
+    	//document.getElementById("delForm").submit();
+        $('#delForm').submit();
+    }
+    window.onkeydown = function(event){if (event.keyCode == 13){(".se_btn").submit();} }
+</script>

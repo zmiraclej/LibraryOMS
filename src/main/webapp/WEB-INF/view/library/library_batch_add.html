@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../head.html">
+		<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=EmWvece0GHuKBjnfjSm2DwOO"></script>
+		<style type="text/css">
+			.exa_file{position:relative;height:35px;float:left;line-height:35px;
+			}
+			
+			#input_file{position:absolute;left:0;top:0;width:0;height:0;overflow: hidden;opacity:0;filter:alpha(opacity=0);}
+			#file_label{text-decoration: underline;cursor:pointer;width:100px;margin-right: 5px;text-align: right;
+				height:35px;
+				display: inline-block;
+				color:#333;
+				font-size:16px;
+				float:left;
+			}
+			.dload_file{float:left;height:35px;}
+			.dload_anchor{display:inline-block;text-decoration: underline;cursor:pointer;width: 100px;
+				margin-right: 5px;
+				text-align: right;
+				height:35px;
+				line-height:35px;
+				color:#2561b0;
+				font-size:16px;
+			}
+			.info_hide{float:left;width:633px;height:35px;text-align:center;}
+			.info_outline{display:inline-block;}
+			.err_info{display:inline-block;height:35px;line-height:35px;color:red;font-size:16px;}
+			.download_err{display:inline-block;height:35px;line-height:35px;color:red;font-size:16px;}
+			.err_load{display:inline-block;height:35px;text-decoration: underline;line-height:35px;color:#333;font-size:16px;}
+			.new_style{color:#2561b0;white-space:nowrap;text-overflow:ellipsis;width:100px;overflow:hidden;text-decoration:none}
+		</style>
+		
+		<script type="text/javascript">
+			//地区查询馆别
+			function findLevelByArea(){
+				$(".err_info").text("");
+				$(".err_load").text("");
+				var areaCode = $("#area").val();
+				$("#level").empty();
+				var tmpstr="<option value=''></option>";
+				$.get("${res}/cms/customerLibrary/findByArea.html",{"area":areaCode},function(data){
+					if(data instanceof Array){   
+						$.each(data,function(index){
+							tmpstr+=" <option value='"+data[index].level+","+data[index].id+"'>"+data[index].level+"</option>";
+						})
+					}
+					$("#level").append(tmpstr);				
+					select1.reset();
+				})
+			}
+			//根据地区、馆别查询可以分配馆的数量
+			function findLibraryCodeById(){
+				 var levelId =$("#level option:selected").val();
+				 var  customerLibraryId =levelId.split(",")[1];
+				 var tmpstr="";
+				  $("#customerLibraryId").val(customerLibraryId);
+				  $("#libraryCode").empty();
+				  $.get("${res}/cms/customerLibrary/findUnusedLibraryCodeById.html?t="+new Date().getTime(),{"id":customerLibraryId},function(data){
+					var number = data.codeNumber;
+					if(number!=null){
+						$("#codeNumber").text(number);
+						var start = number.split("/")[0];
+						var end = number.split("/")[1];
+						if(start==end){
+							$(".err_info").text("馆号已分配完!");
+							return false;
+						}
+					}
+					//alert(number);
+					//alert(number.split("/")[1] - number.split("/")[0]);
+					var str0 = number.split("/")[1] - number.split("/")[0];
+					var str = "";
+					if (str0 > 0) {
+						str +=  "可新增馆数量:"+str0+" 个";
+						$(".err_info").text(str);
+					} else {
+						$(".err_info").text("");
+						$(".err_load").text("");
+					}
+					$.each(data.codes,function(index){
+						tmpstr+=" <option value='"+data.codes[index]+"' >"+data.codes[index]+"</option>";
+					})
+					if(tmpstr!=""){
+						$("#btnSubmit").removeAttr("disabled");
+						$("#libraryCode").append(tmpstr);				
+						//select2.reset();
+					}else{
+						$("#btnSubmit").attr("disabled","disabled");
+					}
+				})
+			}
+		</script>
+	</head>
+	<body>
+		<div>
+		<form action="${res}/cms/library/batchAdd.do" onsubmit="return upload()" method="post" enctype="multipart/form-data">
+		  <div class="form">
+			<div class="l item item2" style="z-index: 20;">
+				<span class="t l">地区 </span>
+				<select class="w230 select0 l" width="230" name="area.code"  onchange="findLevelByArea()" id="area"  index="1">
+				<option ></option>
+					<#list areas as area>
+						<option value="${area.value}"> ${(area.label!)?html}</option>
+					</#list>
+				</select>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2" style="z-index: 19;">
+				<span class="t l t3">馆别 </span>
+				<select class="l select1" width="232" name="libraryLevel" id="level"  onchange="findLibraryCodeById()">
+					<option></option>
+				</select>
+				<span style="display:inline-block;width:295px;"><a style="float:right;text-decoration: underline;" href="${res}/cms/library/add.do">返回</a></span>
+				<div class="clear"></div>
+			</div>
+			<input type="hidden" id="customerLibraryId"  name="customerLibraryId"/>
+			<input type="hidden" class="hallCode" value=""  name="library[0].hallCode"/>
+			<div class="clear"></div>
+			<div class="exa_file">
+				<label for="input_file" id="file_label" >请选择文件</label>
+				<span class="info_renew"></span>
+				<input type="file" id="input_file" name="inputFile" />
+				<div class="clear"></div>
+			</div>
+			<div class="dload_file">
+				<a href="${res}/cms/library/exportData.do" class="dload_anchor">示例文件.xls</a>
+				<div class="clear"></div>
+			</div>
+			<div class="info_hide">
+				<div class="info_outline">
+					<span class="err_info">
+						
+					</span>
+					<!-- <#if successNum?? && errorNum??>
+				 		<a href="javascript:void(0);" class="err_load">导出错误条目</a>
+				 	</#if> -->
+					
+				</div>
+			</div>
+			<div class="l item" style="z-index: 0;">
+				<input type="submit" class="btn r" value="导入"   style="width:160px" />
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+		   </div>
+		</form>
+		</div>
+		<div class="table-parent" id="tableError">
+			<table cellspacing="0" class="table table-lib" ul="library">
+				<thead class="thead">
+					<th class="th w60">序号</th>
+					<th class="th twname">馆名</th>
+					<th class="th twaddress">地址</th>
+					<th class="th w170">协议账户</th>
+					<th class="th w75">户名</th>
+					<th class="th w70">授信额度</th>
+					<th class="th w75">联系人</th>
+					<th class="th w110">电话</th>
+					<th class="th w105">手机</th>
+					<th class="th w140">邮箱</th>
+					<th class="th tw last operation" style="padding-left:10px">错误信息</th>
+					
+				</thead>
+			</table>
+		</div>
+		
+	</body>
+</html>
+<script>
+	
+	$(function(){
+		if("showError" == "${showError}"){
+			var ss = autoHeight();
+			ZENG.msgbox.hide();
+			$('.err_info').html("<#if error??>${error!''}</#if><#if successNum?? && errorNum??>导入${successNum}条成功，${errorNum}条失败！&nbsp;<a href='${res}/cms/library/exportErrorData.do' class='err_load'>导出错误条目</a></#if>");
+			var url = "${res}/cms/library/listErrorData.do?pageNo="+1+"&pageSize="+ss;
+			/* $.get("${res}/cms/library/listErrorData.do?pageNo="+1+"&pageSize="+ss,function(data){
+				alert(data);
+				document.getElementById('tableError').innerHTML = data;
+			}); */
+			//setTableList(url);
+			$.ajax({
+				url : url,
+				type:"post",
+				dataType : "html",
+				success : function(e) {
+					document.getElementById('tableError').innerHTML = e;
+				}
+			}); 
+			
+		}
+	});
+	function page(n,s){
+		var ss = autoHeight();
+		var url = "${res}/cms/library/listErrorData.do?pageNo="+n+"&pageSize="+ss;
+		$.ajax({
+			url : url,
+			type:"post",
+			dataType : "html",
+			success : function(e) {
+				document.getElementById('tableError').innerHTML = e;
+				}
+		});
+	}
+	
+	//导出错误条目
+	$(".err_load").click(function() {
+		var len = $(".table-parent table tr").length;
+		if (len<2) {
+			return false;
+		} else {
+			location.href = "${res}/cms/library/exportErrorData.do";
+		}
+	});
+	
+	//导入时判断参数
+	function upload(){
+		var a0 = $(".select0").val();
+		var a1 = $(".select1").val();
+		
+		if(a0 == ""){
+			pullSelect($(".select0")[0]);
+ 			return false;
+		 }
+		if(a1 == ""){
+			pullSelect($(".select1")[0]);
+ 			return false;
+		 }
+		var err_info = $(".err_info").text("");
+		var file = $("#input_file");
+		if (file.val() == '') {
+			$(".err_info").text("请选择文件!");
+			return false;
+		}
+		ZENG.msgbox.show("加载中....", 6, 15000);//加载中
+		
+	}
+	
+	var select0=setSelect('.select0');
+	var select1=setSelect('.select1');
+
+	$('img.map').click(function(event){
+		event.stopPropagation();
+		var lngLat=$(this).attr('lngLat');
+		var x =lngLat.split(",")[0];
+		var y=lngLat.split(",")[1];
+		if(x && y){			
+			setMap({
+				point:[x,y],
+			 	title:$(this).parent().parent().find('td').eq(3).text(),
+			 	address:'地址：'+$(this).parent().prev().text()
+			});
+			
+		}
+	});
+/* 	$('#excelObj').change(function(){
+		var path=this.value.split('\\');
+		var filename=path[path.length-1];
+		var type=filename.substr(filename.length-3,filename.length);
+		$('#excelname').val(filename);	
+		if(type=="xls"){
+			//removeDisabledById('uploadBtn');
+			$("#uploadBtn").removeAttr("disabled");
+			$('.tswords').html('');
+		}else{
+		//	setDisabled('uploadBtn');
+			$("#uploadBtn").attr("disabled","disabled");
+			$('.tswords').html('文件格式不正确!');
+		}
+	}) */
+	
+	//导入替换字符
+	var info_new=$(".info_renew");
+	$("#input_file").change(function() {
+		var path = this.value.split('\\');
+		var filename = path[path.length-1];
+		var type=filename.substr(filename.length-3,filename.length);
+		var info = filename;
+		if (path == '') {
+			info = "请选择文件";
+		}
+		if(type=="xls"){
+			$(".btn").removeAttr("disabled");
+			$(".err_info").text("");
+			$(".err_load").text("");
+		}else{
+			$(".err_info").text("文件格式不正确!");
+			$(".btn").attr("disabled","disabled");
+		}
+		info_new.css({visibility:"visible"});
+		$("#file_label").text(info).addClass("new_style")
+	});
+	info_new.click(function(){
+		var info="请选择文件";
+		$("#file_label").text(info).css({"textDecoration":"underline","cursor":"pointer",
+			"width":"100px",
+			"margin-right": 5,
+			"text-align":"right",
+			"height":35,
+			"display": "inline-block",
+			"color":"#333",
+			"fontsize":16,
+			"float":"left",
+		});
+		$(this).css({visibility:"hidden"});
+	});
+	info_new.click(function(){
+		var non="";
+		$("#input_file").val(non);
+		$(".err_info").text("");
+		$(".err_load").text("");
+	});
+	
+/* 	function export(){
+		var len = $(".table-parent table tr").length;
+		alert(len);
+		//if(len<2)return false;
+		
+	} */
+	
+</script>

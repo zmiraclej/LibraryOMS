@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>平台资讯维护</title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../head.html">
+		<script type="text/javascript">
+		function page(n,s){
+			if(n == -1){
+				n = $(".pageNo").val();
+			}
+			$("#pageNo").val(n);
+			$("#pageSize").val(s);
+			$("#searchForm").submit();
+	    	return false;
+	    }
+		
+		</script>
+		<style type="text/css">
+		.gray1:hover{
+		color:#c2c2c2 !important;
+		
+		}
+		
+		</style>
+	</head>
+	<body>
+		<div class="title">
+			<span class="l t">资讯列表</span>
+			<img src="${res}/images/yun_back_img1.png" class="r" onclick="location.href=location.href"/>
+			<div class="clear"></div>
+		</div>
+		<div class="search">
+			<form action="${res}/news/news/list.do" id="searchForm">
+				<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+				<input name="status" type="hidden" value="0"/>
+				<input name="type" type="hidden" value="3"/>
+				<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+				<input type="text" class="text tc l" name="title" maxlength="20" tipMsg="请输入您要搜索的标题"/>
+				<input type="submit" class="btn" value=" 搜索 "/>
+			</form>
+		</div>
+		<div class="table-parent">
+			<table cellspacing="0" class="table" style="min-width:1080px;">
+				<thead class="thead">
+					<th class="th w60">序号</th>
+					<th class="th w88">类别</th>
+					<th class="th t_laiyuan">地区</th>
+					<th class="th t_laiyuan">来源</th>
+					<th class="th twObject">标题</th>
+					<th class="th w100">缩略图</th>
+					<th class="th w60">状态</th>
+					<th class="th w75">操作员</th>
+					<th class="th w82">修改日期</th>
+					<th class="th w75">置顶</th>
+				    <#if flag = true >
+					<th class="th t_bohui">驳回理由</th>
+					<#elseif flag = false>
+					</#if>
+					<th class="th last tw88 t_last" style="text-align:left;padding-left:10px;">操作</th>
+				</thead>
+<!-- 			<#if page.list?size == 0> -->
+<!-- 				<tr> -->
+<!-- 					<td></td> -->
+<!-- 					<td class="tl"></td> -->
+<!-- 					<td></td> -->
+<!-- 					<td></td> -->
+<!-- 					<td></td> -->
+<!-- 					<td></td> -->
+<!-- 					<td></td> -->
+<!-- 					<td class="last"></td> -->
+<!-- 				</tr> -->
+<!-- 			</#if> -->
+			<#list page.list as new>
+				<tr>
+					<td>${(page.pageNo - 1)*page.pageSize + (new_index + 1)}</td>
+					<td>
+					<#list types as type>
+						<#if type.key == new.type>
+							${type.val}
+						</#if>
+					</#list>
+					</td>
+					 <td></td>
+					<td>${new.source!''}</td>
+					<td class="tl" title="${new.title!''}">
+					<#if flag = true >
+						<#if (new.status!0) == 3 || (new.status!0) == 4 || (new.status!0) == 5 >
+						<a href="${res}/news/news/updateView.do?id=${new.id}" style="color: #2561b0;">${new.title!''}</a>
+						</#if>
+						<#if (new.status!0) == 1 || (new.status!0) == 2 >
+						<a href="${res}/news/news/examine/${new.id}.do?status=1" style="color: #2561b0;">${new.title!''}</a>
+						</#if>
+					<#elseif flag = false>
+						<a href="${res}/news/news/examine/${new.id}.do?status=1" style="color: #2561b0;">${new.title!''}</a>
+					</#if>
+					</td>
+					<td><#if (new.image!'') !=''> <img src="https://img.ytsg.cn/images/newsImages/${new.image!''}@200w" style="margin-top:5px;width:60px; height:40px"/></#if></td>
+					<td>
+					<#if (new.status!0) == 1 >
+						待审
+						<script type="text/javascript">
+						$(document).ready(function(){
+							//$("#test${new.id}").hide();
+							$("#test${new.id}").css("visibility","hidden");
+						});
+						</script> 
+						</#if> 
+						<!-- <#if (new.status!0) == 7 && isCustomer == "0"> 
+						        待审
+					<script type="text/javascript">
+						$(document).ready(function() {
+							//$("#test${new.id}").hide();
+							$("#test${new.id}").css("visibility", "hidden");
+						});
+					</script> 
+					<#elseif (new.status!0) == 7 && isCustomer == "1"> 
+					<font class="green">审核中</font> <script type="text/javascript">
+						$(document).ready(function() {
+							$("#test${new.id}").css("visibility", "hidden");
+						});
+					</script>
+					</#if>  -->
+					<#if (new.status!0) == 2 > <font class="green">通过</font>
+					<script type="text/javascript">
+						$(document).ready(function() {
+							$("#test${new.id}").css("visibility", "hidden");
+						});
+					</script> 
+					</#if> 
+					<#if flag = true >
+					<#if (new.status!0) == 3 > 
+					<font class="red">驳回</font>
+					<#elseif (new.status!0) == 4 > 
+					<font class="red">弃审</font> 
+					<#elseif (new.status!0) == 5 > 
+					草稿 
+					</#if>
+					</#if>
+					<#if flag = false >
+					<#if (new.status!0) == 3 > 
+					<font class="red">驳回</font>
+					<script type="text/javascript">
+						$(document).ready(function() {
+							$("#test${new.id}").css("visibility", "hidden");
+						});
+					</script>
+					<#elseif (new.status!0) == 4 > 
+					<script type="text/javascript">
+						$(document).ready(function() {
+							$("#test${new.id}").css("visibility", "hidden");
+						});
+					</script>
+					<font class="red">弃审</font> 
+					 
+					<#elseif (new.status!0) == 5 > 
+					<script type="text/javascript">
+						$(document).ready(function() {
+							$("#test${new.id}").css("visibility", "hidden");
+						});
+					</script>
+					草稿 
+					</#if> 
+					</#if>
+				</td>
+					<td>${(new.modifyUser)!?html}</td>
+					<td>${(new.modifyDate?string("yyyyMMdd"))!''}</td>
+					<#if (new.status!0) == 2> 
+					<#if (new.top!0) == 1>
+						<td><a href="${res}/news/news/top.do?id=${new.id}&state=0" class="red">取消置顶</a></td>
+					<#elseif (new.top!0) == 0>
+						<td><a href="${res}/news/news/top.do?id=${new.id}&state=1" class="gray">置顶</a></td>
+					</#if>
+					<#else>
+					<#if (new.top!0) == 1>
+						<td><a href="${res}/news/news/top.do?id=${new.id}&state=0" class="red">取消置顶</a></td>
+					<#elseif (new.top!0) == 0>
+						<td><a href="#" class="gray gray1">置顶</a></td>
+					</#if>
+					</#if>
+					<#if flag = true >
+					<td class="tl" title="${(new.rejectReason)!?html}">${(new.rejectReason)!?html}</td>
+					<#elseif flag = false>
+					</#if>
+					<td class="last" style="text-align:left;padding-left:10px;">
+					<#if flag = true >
+						<a href="${res}/news/news/updateView.do?id=${new.id}" id="test${new.id}" style="visibility: visible;"><img src="${res}/images/yun_back_img2.gif" id="test${new.id}"/></a>
+						<a href="${res}/news/news/del.do?id=${new.id}" id="test${new.id}T"><img src="${res}/images/yun_back_img3.gif" id="test${new.id}T"/></a>
+					 
+					<#elseif flag = false>
+					    <a href="${res}/news/news/del.do?id=${new.id}" id="test${new.id}T"><img src="${res}/images/yun_back_img3.gif" id="test${new.id}T"/></a>
+					    <#if (new.status!0) == 7 && isCustomer == "1">
+						<a href="${res}/news/news/testOut.do?id=${new.id}&status=4" style="color:red;">弃审</a>
+						<#elseif (new.status!0) == 2 && isCustomer == "1">
+						<a href="${res}/news/news/testOut.do?id=${new.id}&status=4" style="color:red;">弃审</a>
+						<#elseif (new.status!0) == 2 && isCustomer == "0">
+						<a href="${res}/news/news/testOut.do?id=${new.id}&status=4" style="color:red;">弃审</a>
+					</#if>
+					</#if>
+					</td>
+				</tr>
+				</#list> 
+			</table>
+		</div>
+		<div class="paging">
+			${page}
+		</div>
+	</body>
+</html>

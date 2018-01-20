@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>开放时间统计</title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../head.html">
+		<link rel="stylesheet" type="text/css" href="${res}/css/report.css"/>
+		<script src="${res}/js/jquery.cookie.js" type="text/javascript" ></script>
+		<script type="text/javascript">
+		function page(n,s){
+			if(n==-1){
+				n = $(".pageNo").val();
+			}
+			$("#pageNo").val(n);
+			$("#pageSize").val(s);
+			$("#searchForm").submit();
+	    	return false;
+	    }
+		var flag = "${isCustomer?string('true', 'false')}";
+		</script>
+	</head>
+	<body>
+	<!-- ${res}/report/readerReport/list.do -->
+	<form action="${res}/report/lightReport/list.do" id="searchForm" style="display:none">
+				<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+				<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+	</form>
+		<div class="form count">
+					
+			<div class="l item item2 t1" style="z-index: 20;display:none;">
+				<span class="t l" style="width:60px;width:57px\9">地区</span>
+				<select class="l select1" width="220" onchange="changeSelect(this)">
+				<option></option>
+				<#list area as item>
+					<option>${item}</option>
+				</#list>
+				</select>
+				<div class="clear"></div>
+			</div>
+			
+			<div class="l item item2 n1" style="z-index: 20;display:none;">
+				<span class="t l" style="width:60px;width:57px\9">地区</span>
+				<select class="l select7" width="108" onchange="getCitys2($('.select8'),$('.select9'),this.value)">
+					<option value="">省</option>
+				</select>					
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 n2" style="z-index: 20; margin: 0 10px; margin: 0 8px 0 7px\9;display:none;">
+				<select class="l select8" width="107" onchange="getAreas2($('.select9'),this.value)">
+					<option value="">市</option>
+				</select>					
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 n3" style="z-index: 20;display:none;">
+				<select class="l select9" width="108" >
+					<option value="">区</option>
+				</select>					
+				<div class="clear"></div>
+			</div>
+			
+			
+			
+			<div class="l item item2" style="z-index: 20;">
+				<span class="t l" style="width:50px;width:47px\9">馆别 </span>
+				<select class="l select2" width="125">
+				<option value=""></option>
+				<#list lib as item>
+					<option value="${item}">${item}</option>
+				</#list>
+				</select>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2" style="z-index:12;">
+				<span class="t l" style="width:50px;width:47px\9">表现</span>
+				<select class="l select4 disabled" width="120" disabled onchange="setListShow(this.value)">
+					<option value="0">列表</option>
+				</select>
+			</div>
+			<div class="clear"></div>
+			
+			
+			<div class="l item item2" style="z-index: 12;">
+				<span class="t l" style="width:60px;width:57px\9">条件</span>
+				<select class="l select5" width="220" onchange="setSearchCondition(this.value)">		
+					<option value="0">馆号</option>			
+					<option value="2">日期</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 conditions" style="width:478px;position:static;display: none;">
+				<span class="t l" style="width:50px;width:47px\9">从</span>	
+				<input type="text" class="text l date_input dF" value="" style="width:180px;width:180px\9" isbottom="1" readonly="readonly"  onKeyPress="Myenter('dT')"/>
+				<img src="${res}/images/yun_back_img9.png" class="l date"/>
+				<span class="t l t3" style="width:50px;">至</span>
+				<input type="text" class="text l date_input dT" value="" style="width:180px;width:180px\9" isbottom="1" readonly="readonly" onKeyPress="Myenter('tongji')"/>
+				<img src="${res}/images/yun_back_img9.png" class="l date"/>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 conditions" style="width:478px;">
+				<span class="t l" style="width:50px;width:47px\9">从</span>	
+				<input type="text" class="text l pF" value="" style="width:180px;width:180px\9" onKeyPress="Myenter('pT')"/>
+				<span class="t l t3" style="width:50px;">至</span>
+				<input type="text" class="text l pT" value="" style="width:180px;width:180px\9" onKeyPress="Myenter('tongji')"/>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2 conditions" style="width:478px;display: none;">
+				<span class="t l" style="width:50px;width:47px\9;">&nbsp;</span>	
+				<input type="text" class="text l cont" value="" style="width:419px;width:419px\9;" onKeyPress="Myenter('tongji')"/>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2">
+				<input type="button" class="btn btn5 tongji" value="开始统计" id="search" onclick="pageTo(1,3,false)" style="margin-left: 20px;margin-left: 16px\9;"/>
+				<input type="button" class="btn btn5" value="导出清单" onclick="pageTo(1,10,true)"/>
+			</div>
+			<div class="clear"></div>		
+		</div>
+		
+		<div id="listTable">
+			<div class="table-parent">
+				<table cellspacing="0" class="table">
+					<thead class="thead">
+						<th class="th w60">序号</th>
+						<th class="th w68">馆号</th>
+						<th class="th twname statisticsName">馆名</th>
+						<th class="th w88">馆别</th>
+						<th class="th w70">开放时长</th>
+						<th class="th w75">负责人</th>
+						<th class="th w110" style='border-right:none;'>电话</th>
+						<th class="th last operation"></th>
+					</thead>
+					<#if isCustomer?string("yes","no")=="yes">
+						<#list page.list as li>
+							<tr>
+								<td>${(page.pageNo-1)*page.pageSize+(li_index+1)}</td>
+								<td>${li.hallCode!''}</td>
+								<td>${li.name!''}</td>
+								<td>${li.lib!''}</td>
+								<td>if (${li.totalTime%60} == 0) {parseInt(li.totalTime/60)} else {parseInt(li.totalTime/60)+':'+li.totalTime%60}</td>
+								<td class="tr">${li.operName!''}</td>
+								<td style='border-right:none;'>${li.phone!''}</td>
+								<td class='tr last operation'>${li.phone!''}</td>
+							</tr>
+						</#list>
+					</#if>
+					<!-- <tr>
+						<td colspan='6' class='tl last'>
+								<#if isCustomer?string("yes","no")=="yes">
+								<div class='heji'>合计天数<span>${sum?split("-")[0]!0}</span>合计时长<span>${sum?split("-")[1]!0.0}</span></div>
+								<#else>
+								<div class='heji'>合计天数<span>0</span>合计时长<span>0.0</span></div>
+								</#if>
+						</td>
+					</tr> -->
+				</table>
+			</div>
+			<div class='zongji'>
+				<div class='zongji-left'>
+			    	合计天数<span class='left-span'>0</span>
+			    	合计时长<span class='left-span'>0:00</span>
+	   				<div class="paging">
+						${page}
+					</div>
+	   			</div>
+			</div> 
+			<!-- <div class="paging">
+				${page}
+			</div> -->
+		</div>
+		
+		
+	</body>
+</html>
+<script type="text/javascript" src="${res}/js/getMoreSelect.js"></script>
+<script>	
+
+if(flag == 'false'){
+	$('.n1').show();$('.n2').show();$('.n3').show();
+	$(".select2").attr("width","125");
+	$(".select3").attr("width","120");
+	$(".select4").attr("width","120");
+}else{
+	$(".t1").show();
+	$(".select2").attr("width","184");
+	$(".select3").attr("width","184");
+	$(".select4").attr("width","180");
+}
+
+	getProvinces('.select7');
+	//自定义下拉列表
+	var select1 = setSelect('.select1');
+	var select2 = setSelect('.select2');
+	var select3 = setSelect('.select3');
+	var select4 = setSelect('.select4');
+	setSelect('.select5');
+	setSelect('.select6');
+	var select7 = setSelect('.select7');
+	setSelect('.select8');
+	setSelect('.select9');
+	
+	select4.find('.head').css({background:'none'});
+	//切换馆号下拉列表文字显示
+	select3.find('.head').html($('.select3').val());
+	function setselectText(val){		
+		select3.find('.head').html(val);		
+	}
+
+	//切换搜索条件
+	function setSearchCondition(val){
+		$('.conditions').hide();
+		$(".dF").val("");$(".cont").val("");$(".pT").val("");$(".dT").val("");$(".pF").val("");
+		if( val == 0 ){
+			$('.conditions').eq(1).show();
+		}
+		if (val == 2 ){
+			$('.conditions').eq(0).show();	
+		} 
+	}
+	
+	//加载日历控制
+	$(function(){		
+		$('.date_input').date_input();
+		//点击选择日期按钮，调用日期控件
+		$('img.date').click(function(event){
+			event.stopPropagation();
+			$(this).prev().prev().focus();
+		});	
+	});	
+	var url = "${res}";
+	
+	var p1='',c1='',a1='',a2='',a3='',a5='',df1='',dt1='',pf1='',pt1='',keyword='';
+	function checkSelect(){
+		if(flag == 'true'){
+			 if(p1==""&&a1==""&&a2==""&&a3==""&&df1==""&&dt1==""&&pf1==""&&pt1==""&&keyword==""){
+				pullSelect($(".select1")[0]);
+				return false;
+			 }
+			return true;
+		 }
+		 if(flag == 'false'){
+			 if(p1==""&&a2==""&&a3==""&&df1==""&&dt1==""&&pf1==""&&pt1==""&&keyword==""){
+				pullSelect($(".select7")[0]);
+				return false;
+			 }
+			 if(c1==""&&a2==""&&a3==""&&df1==""&&dt1==""&&pf1==""&&pt1==""&&keyword==""){
+				pullSelect($(".select8")[0]);
+				return false;
+			}
+		}
+		 return true;
+	}
+	
+	//翻页+查询
+	function pageTo(n, s, flagT) {
+		//var a1 = $(".select1").find("option:selected").text();
+		var ss = autoHeight();
+		var expiresDate = new Date();
+		expiresDate.setTime(expiresDate.getTime() + (5 * 60 * 1000));
+		if(flag == 'true'){
+			 a1 = $(".select1").val();
+			 $.cookie('select1', a1, {expires:expiresDate});
+		}else{
+			 p1 = $('.n1').find("option:selected").val();
+			 c1 = $('.n2').find("option:selected").val();
+			 a1 = $('.n3').find("option:selected").val();
+			 $.cookie('select7', p1, {expires:expiresDate});
+			 $.cookie('select8', c1, {expires:expiresDate});
+			 $.cookie('select9', a1, {expires:expiresDate});
+		}
+		//判断ie选择的值
+		if (typeof(p1) == "undefined") {
+			p1 = "";
+		}
+		if (typeof(c1) == "undefined") {
+			c1 = "";
+		}
+		if (a1==null) {
+			a1 = "";
+		}
+		//馆别
+		a2 = $(".select2").find("option:selected").text(); 
+		//馆号
+		a3 = $(".select3").find("option:selected").text();
+		//条件--这里默认日期
+		a5 = $(".select5").val();
+		//开始时间
+		df1 = $(".dF").val();
+		//结束时间
+		dt1 = $(".dT").val();
+		pf1 = $(".pF").val();
+		pt1 = $(".pT").val();
+		var ct1 = $(".cont").val();
+		if(!checkSelect())return false;
+		if(flagT == true){
+			//alert(a1+":"+a2+":"a3+":"+a5+":"+df1+":"+dt1);
+			//判断查询的结果是否有结果集
+			$.post("${res}/report/lightReport/queryInfo.do?pageNo="+n+"&pageSize="+s,{province:p1,city:c1,area:a1,lib:a2,hallCode:a3,option:a5,dateFrom:df1,dateTo:dt1,searchFrom:pf1,searchTo:pt1,keyWord:ct1 },function(data){
+				data=JSON.parse(data);
+				var arr = data.list;
+				if(arr.length != 0){
+					//alert(arr.length);alert(a1);
+					//return;
+					location.href ="${res}/report/lightReport/exportList.do?province="+p1+"&city="+c1+"&area="+a1+"&lib="+a2+"&hallCode="+a3+"&option="+a5+"&dateFrom="+df1+"&dateTo="+dt1+"&searchFrom="+pf1+"&searchTo="+pt1+"&keyWord="+ct1;
+				}
+			});
+			
+			
+		} else {
+			ZENG.msgbox.show("加载中....", 6, 15000);//加载中
+			//js jquery置灰查询按钮
+			//document.getElementById("search").setAttribute("disabled",'true');   
+			//document.getElementById("search").style.backgroundColor = "#9da4ad";
+			
+			$("#search").attr("disabled",true);
+			$("#search").attr("disabled","disabled");
+			$('#search').css('background','#9da4ad');
+			
+		$.post("${res}/report/lightReport/queryInfo.do?pageNo="+n+"&pageSize="+ss,{province:p1,city:c1,area:a1,lib:a2,hallCode:a3,option:a5,dateFrom:df1,dateTo:dt1,searchFrom:pf1,searchTo:pt1,keyWord:ct1 },function(data){
+			$(".table-parent").html("");
+			data=JSON.parse(data);
+			var arr = data.list;
+			var str = "<table cellspacing='0' class='table'> <thead class='thead'><th class='th w60'>序号</th>";
+				str += "<th class='th w68'>馆号</th>";
+				str += "<th class='th twname statisticsName'>馆名</th>";
+				str += "<th class='th w88'>馆别</th>";
+				str += "<th class='th w70'>开放时长</th>";
+				str += "<th class='th w75'>负责人</th>";
+				str += "<th class='th w110' style='border-right:none;'>电话</th>";
+				str += "<th class='th last operation'></th></thead>";
+			var num2;
+			var strPage;
+			if(arr.length == 0) {
+				//str += "<tr> <td colspan='6' class='tl last'><div class='heji'>合计天数<span>0</span>合计时长<span>0.0</span></div></td></tr>";	
+				str += "<tr><td colspan='8' class='tl last'><div style='text-align:center;font-weight: bold;'>发现0条数据!</div></td></tr>";
+				strPage = "<div class='zongji-left'>合计天数<span class='left-span'>0</span>合计时长<span class='left-span'>0:00</span>";
+				strPage += "<div class='paging'></div></div>";
+				$(".paging").css('display','none'); 
+			} else {
+				for ( var i=0; i<arr.length; i++) {
+					str += "<tr>"
+					str+="<td>"+((n-1)*ss+(i+1))+"</td>";
+					str += "<td>"+arr[i].hallCode+"</td>";
+					str += "<td class='tl' title='"+arr[i].name+"'>"+arr[i].name+"</td>";
+					str += "<td>"+arr[i].lib+"</td>";
+					if (arr[i].totalTime%60 == 0) {
+						str += "<td>"+parseInt(arr[i].totalTime/60)+"</td>";
+					} else {
+						str += "<td>"+parseInt(arr[i].totalTime/60)+':'+arr[i].totalTime%60+"</td>";
+					}
+					
+					str += "<td class=''>"+arr[i].operName+"</td>";
+					str += "<td style='border-right:none;'>"+arr[i].phone+"</td>";
+					str += "<td class='last operation'></td>";
+					str += "</tr>";
+					if(i == arr.length-1) {
+						var num1 = arr[i].sumNumber.split(",")[0];
+						num2 = arr[i].sumNumber.split(",")[1];
+						//str += "<tr> <td colspan='6' class='tl last'>";
+						//str += "<div class='heji'>合计天数<span>"+data.total.sumCount+"</span>合计时长<span>"+parseInt(num2/60)+":"+num2%60+"</span>";
+						//str += "</div></td></tr>";
+						strPage = "<div class='zongji-left'>合计天数<span class='left-span'>"+data.total.sumCount+"</span>合计时长<span class='left-span'>"+parseInt(num2/60)+":"+num2%60+"</span>";
+						strPage += "<div class='paging'></div></div>";
+					}
+				}
+				$(".paging").css('display','block'); 
+			}
+			
+			str+="</table>";
+			$(".table").remove();
+			
+			$(".table-parent").html(str);
+			$(".zongji").html(strPage);
+			$(".paging").html(data.cont);
+			ZENG.msgbox.hide();
+			//js jquery 恢复置灰按钮
+			$("#search").attr("disabled",false); //设置disabled为false
+			$("#search").removeAttr("disabled");  //移除属性
+			$('#search').css('background','#2561b0');
+			//document.getElementById("search").removeAttribute("disabled");   //置灰按钮
+			//document.getElementById("search").style.backgroundColor = "#2561b0";
+		},"json");}
+	}
+	
+	function Myenter(str){
+	  if (event.keyCode == 13){  
+	   	$("."+str).focus();
+	  }
+	}
+	
+	function loadCookie(){
+		if(flag=='false'){
+			$(".select7").html($('.select7').html()).val($.cookie('select7'));
+			select7.reset();
+			var province = $(".select7").val();
+			if(province!='')
+			getCitys3($('.select8'),$('.select9'),$.cookie('select7'),$.cookie('select8'));
+		}else{
+			$(".select1").html($('.select1').html()).val($.cookie('select1'));
+			select1.reset();
+		}
+		$(".select2").html($('.select2').html()).val($.cookie('select2'));
+		select2.reset();
+	}
+	setTimeout(window.onload=loadCookie, 100);
+	
+</script>

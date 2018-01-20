@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title></title>
+<meta name="renderer" content="webkit|ie-comp|ie-stand" />
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1" />
+<#include "../head.html">
+<script type="text/javascript">
+	$(function() {
+		$(".listmsg").hide();
+	})
+	function page(n, s) {
+		$("#pageNo").val(n);
+		$("#pageSize").val(s);
+		$("#searchForm").submit();
+		return false;
+	}
+</script>
+</head>
+<body>
+	<div class="title">
+		<span class="l t">图书馆列表</span> <img
+			src="${res}/images/yun_back_img1.png" class="r"
+			onclick="location.href=location.href" />
+		<div class="clear"></div>
+	</div>
+	<div class="search">
+		<form action="${res}/cms/ebook/list.do" id="searchForm">
+			<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}" />
+			<input id="pageSize" name="pageSize" type="hidden"
+				value="${page.pageSize}" /> <input type="text" class="text tc"
+				value="${search!''}" name="search" tipMsg="书名/ISBN" /><input
+				type="submit" class="btn" value=" 搜索 " />
+		</form>
+	</div>
+	<div class="table-parent">
+		<table cellspacing="0" class="table" ul="ebook"
+			style="min-width: 850px;">
+			<thead class="thead">
+				<th class="th w88">类别</th>
+				<th class="th w120">ISBN</th>
+				<th class="th w230">书名</th>
+				<th class="th w100">出版社</th>
+				<th class="th w75">著者</th>
+				<th class="th w75">操作员</th>
+				<th class="th w82">修改日期</th>
+				<th class="th tw last t_last" style="text-align: left; padding-left:10px;">操作</th>
+			</thead>
+			<#if page.list?size=0>
+			<tr><td colspan='8' class='tl last'><div style='text-align:center;font-weight: bold;'>发现0条数据!</div></td></tr>;
+			</#if>
+			<#list page.list as ebook>
+			<tr tid="${ebook.id}">
+				<td>${ebook.categoryName!''}</td>
+				<td>${ebook.isbn!''}</td>
+				<td class="tl" title="${ebook.bookName!''}">${ebook.bookName!''}</td>
+				<td class="w100" title="${ebook.publisher?replace('出版社','')!''}">${ebook.publisher?replace('出版社','')!''}</td>
+				<!-- <td class="tl"><#if (ebook.publishDate!'')?length gt 3>${ebook.publishDate?substring(0,4)}</#if></td> -->
+				<td title="${ebook.author!''}">${ebook.author!''}</td>
+				<td>${(ebook.user.userName)!?html}</td>
+			    <td>${(ebook.modifyDate?string("yyyyMMdd"))!''}</td>
+				<td class="last" style="text-align: left;padding-left:10px;">
+				<a href="${res}/cms/ebook/toEditEbook.do?id=${ebook.id}"><img src="${res}/images/yun_back_img2.gif"/></a>
+				<a href="#" onclick="del(this)"><img src="${res}/images/yun_back_img3.gif" /></a> 
+			</td>
+			</tr>
+			</#list>
+		</table>
+	</div>
+	<table class="table table_paging" style="border-width: 0;">
+		<tr>
+			<td
+				style="border-right: none; border-bottom: none; background-color: #ebebeb;">
+				<div class="paging">${page}</div>
+			</td>
+		</tr>
+	</table>
+</body>
+</html>
+<script>
+	$('img.map').click(function(event) {
+		event.stopPropagation();
+		var x = $(this).attr('x');
+		var y = $(this).attr('y');
+		if (x && y) {
+			setMap({
+				point : [ x, y ],
+				title : $(this).parent().parent().find('td').eq(3).text(),
+				address : '地址：' + $(this).parent().prev().text()
+			});
+
+		}
+	});
+</script>

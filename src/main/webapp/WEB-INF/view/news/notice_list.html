@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../head.html">
+		<script type="text/javascript">
+		function page(n,s){
+			if(n==-1){
+				n = $(".pageNo").val();
+			}
+			$("#pageNo").val(n);
+			$("#pageSize").val(s);
+			$("#searchForm").submit();
+	    	return false;
+	    }
+		
+		</script>
+	</head>
+	<body>
+		<div class="title">
+			<span class="l t">资讯列表</span>
+			<img src="${res}/images/yun_back_img1.png" class="r" onclick="location.href=location.href"/>
+			<div class="clear"></div>
+		</div>
+		<div class="search">
+			<form action="${res}/news/notice/list.do" id="searchForm">
+				<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+				<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+				<input name="status" type="hidden" value="0"/>
+				<input name="type" type="hidden" value="4"/>
+				<input type="text" class="text tc l" name="title" maxlength="20" tipMsg="请输入您要搜索的内容"/>
+				<input type="submit" class="btn" value=" 搜索 "/>
+			</form>
+		</div>
+		<div class="table-parent">
+			<table cellspacing="0" class="table" style="min-width:1080px;">
+				<thead class="thead">
+					<th class="th w60">序号</th>
+					<th class="th w88">类别</th>
+					<th class="th t_laiyuan">来源</th>
+					<th class="th twObject messageContent_">内容</th>
+<!-- 					<th class="th w100">缩略图</th> -->
+					<th class="th w60">状态</th>
+					<th class="th w75">操作员</th>
+					<th class="th w82">修改日期</th>
+					<th class="th t_bohui">驳回理由</th>
+					<th class="th last tw88 operation t_last" style="padding-left:10px;">操作</th>
+				</thead>
+<!-- 			<#if page.list?size == 0> -->
+<!-- 				<tr> -->
+<!-- 					<td></td> -->
+<!-- 					<td class="tl"></td> -->
+<!-- 					<td></td> -->
+<!-- 					<td></td> -->
+<!-- 					<td></td> -->
+<!-- 					<td></td> -->
+<!-- 					<td></td> -->
+<!-- 					<td class="last"></td> -->
+<!-- 				</tr> -->
+<!-- 			</#if> -->
+			<#list page.list as new>
+				<tr>
+					<td>${(page.pageNo-1)*page.pageSize+(new_index+1)}</td>
+					<td>
+					消息
+					</td>
+					<td>${new.source!''}</td>
+					<td class="tl" title="${new.title!''}">
+					<#if isCustomer='1'>
+						<#if (new.status!0)==3 || (new.status!0)==4 || (new.status!0)==5>
+						<a href="${res}/news/notice/updateView.do?id=${new.id}" style="color: #2561b0;">${new.title!''}</a>
+						</#if>
+						<#if (new.status!0)==1 || (new.status!0)==2>
+						<a href="${res}/news/notice/examine/${new.id}.do?status=1" style="color: #2561b0;">${new.title!''}</a>
+						</#if>
+					<#else>
+							<a href="${res}/news/notice/examine/${new.id}.do?status=1" style="color: #2561b0;">${new.title!''}</a>
+					</#if>
+					</td>
+					<td>
+					<#if (new.status!0)==1>
+						待审
+						<script type="text/javascript">
+						$(document).ready(function(){
+							//$("#test${new.id}").hide();
+							$("#test${new.id}").css("visibility","hidden");
+						});
+						</script>
+					</#if>
+					<#if (new.status!0)==2>
+						<font class="green">通过</font>
+						<script type="text/javascript">
+						$(document).ready(function(){
+							$("#test${new.id}").css("visibility","hidden");
+						});
+						</script>
+					</#if>
+					<#if (new.status!0)==3>
+						<font class="red">驳回</font>
+					</#if>
+					<#if (new.status!0)==4>
+						<font class="red">弃审</font>
+					</#if>
+					<#if (new.status!0)==5>
+						草稿
+					</#if>
+					</td>
+					<td>${(new.modifyUser)!?html}</td>
+					<td>${(new.modifyDate?string("yyyyMMdd"))!''}</td>
+					<!-- 取消置顶 
+					<#if (new.top!0)==1>
+						<td><a href="${res}/news/notice/top.do?id=${new.id}&state=0" class="red">取消置顶</a></td>
+					</#if>
+					<#if (new.top!0)==0>
+						<td><a href="${res}/news/notice/top.do?id=${new.id}&state=1" class="gray">置顶</a></td>
+					</#if> -->
+					<td class="tl" title="${(new.rejectReason)!?html}">${(new.rejectReason)!?html}</td>
+					<td class="last operation" style="padding-left:10px;">
+						<a href="${res}/news/notice/updateView.do?id=${new.id}" id="test${new.id}" style="visibility: visible;"><img src="${res}/images/yun_back_img2.gif" id="test${new.id}"/></a>
+						<a href="${res}/news/notice/del.do?id=${new.id}" id="test${new.id}T"><img src="${res}/images/yun_back_img3.gif" id="test${new.id}T"/></a>
+					</td>
+				</tr>
+				</#list> 
+			</table>
+		</div>
+		<div class="paging">
+			${page}
+		</div>
+	</body>
+</html>
+<script>
+	$('img.map').click(function(event){
+		event.stopPropagation();
+		var x=$(this).attr('x');
+		var y=$(this).attr('y');
+		if(x && y){			
+			setMap({
+				point:[x,y],
+			 	title:$(this).parent().parent().find('td').eq(3).text(),
+			 	address:'地址：'+$(this).parent().prev().text()
+			});
+			
+		}
+	});
+</script>

@@ -1,0 +1,13 @@
+@CHARSET "UTF-8";
+.has-error .area_but {
+	border-color: #F2A696;
+	color: #F2A696 !important;
+}
+.has-error .area_but:HOVER {
+	border-color: #F2A696;
+	color: #F2A696 !important;
+}
+.input_panel {
+		width:100%;
+		float: left;
+}

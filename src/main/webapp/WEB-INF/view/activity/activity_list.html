@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>平台读友会维护</title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../head.html">
+		<script type="text/javascript">
+		function page(n,s){
+			if(n==-1){
+				n = $(".pageNo").val();
+			}
+			$("#pageNo").val(n);
+			$("#pageSize").val(s);
+			$("#searchForm").submit();
+	    	return false;
+	    }
+		
+		function setTop(id){
+			$.post(config.contextPath+"/activitys/activitys/top/" + id + ".do",function(data){
+				if (!data.success) {
+					ZENG.msgbox.show("置顶失败,请联系管理员!", 5);
+				}
+				location.reload();
+			});
+		}
+		</script>
+		<style type="text/css">
+		.gray1:hover{
+		color:#c2c2c2 !important;
+		
+		}
+		
+		</style>
+	</head>
+	<body>
+		<div class="title">
+			<span class="l t">资讯列表</span>
+			<img src="${res}/images/yun_back_img1.png" class="r" onclick="location.href=location.href"/>
+			<div class="clear"></div>
+		</div>
+		<div class="search">
+			<form action="${res}/activity/list.do" id="searchForm">
+				<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+				<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+				<input type="text" class="text tc l" name="title" maxlength="20" tipMsg="请输入您要搜索活动的标题"/>
+				<input type="submit" class="btn" value=" 搜索 "/>
+			</form>
+		</div>
+		<div class="table-parent">
+			<table cellspacing="0" class="table">
+				<thead class="thead">
+					<th class="th w60">序号</th>
+					<th class="th w88">类别</th>
+					<th class="th t_laiyuan">来源</th>
+					<th class="th twObject partyName">标题</th>
+					<th class="th w100">缩略图</th>
+					<th class="th w265">时间</th>
+					<th class="th w60">状态</th>
+					<th class="th w75">操作员</th>
+					<th class="th w82">修改日期</th>
+					<th class="th w75">置顶</th>
+					<#if reslut = true >
+					<th class="th t_bohui">驳回理由</th>
+					<#elseif reslut = false>
+					</#if>
+					<th class="th last operation t_last" style="padding-left:10px;">操作</th>
+				</thead>
+				
+			<#list page.list as activity>
+				<tr>
+					<td>${(page.pageNo-1)*page.pageSize+(activity_index+1)}</td>
+					<td>${activity.type!''}</td>
+					<td>${activity.source!''}</td>
+					<td class="tl" title="${activity.title!''}">
+					<#if reslut = true >
+						<#if (activity.status!0) == 3 || (activity.status!0) == 4 || (activity.status!0) == 5 >
+						<a href="${res}/activity/updateView.do?id=${activity.id}" style="color: #2561b0;">${activity.title!''}</a>
+						</#if>
+						<#if (activity.status!0) == 1 || (activity.status!0) == 2 >
+						<a href="${res}/activity/examine.do?id=${activity.id}&status=1" style="color: #2561b0;">${activity.title!''}</a>
+						</#if>
+					<#elseif reslut = false >
+						<a href="${res}/activity/examine.do?id=${activity.id}&status=1" style="color: #2561b0;">${activity.title!''}</a>
+					</#if>
+					</td>
+					<td><img src="https://img.ytsg.cn/images/newsImages/${activity.image!''}@200w" style="margin-top:5px;width:60px; height:40px"/></td>
+					<td>${(activity.startDate?string("yyyyMMdd HH:mm"))!''}  -  ${(activity.endDate?string("yyyyMMdd HH:mm"))!''}</td>
+					<td>
+					<#if (activity.status!0) == 1 >
+						待审
+						<script type="text/javascript">
+						$(document).ready(function(){
+							$("#test${activity.id}").css("visibility","hidden");
+						});
+						</script>
+					</#if>
+					<!-- <#if (activity.status!0) == 7 && isCustomer == "0"> 
+						        待审
+					<script type="text/javascript">
+						$(document).ready(function() {
+							$("#test${activity.id}").css("visibility", "hidden");
+						});
+					</script> 
+					<#elseif (activity.status!0) == 7 && isCustomer == "1"> 
+					<font class="green">审核中</font> <script type="text/javascript">
+						$(document).ready(function() {
+							$("#test${activity.id}").css("visibility", "hidden");
+						});
+					</script>
+					</#if>  -->
+					<#if (activity.status!0) == 2 >
+						<font class="green">通过</font>
+						<script type="text/javascript">
+						$(document).ready(function(){
+							$("#test${activity.id}").css("visibility","hidden");
+						});
+						</script>
+					</#if>
+					<#if reslut = true >
+					<#if (activity.status!0) == 3 >
+						<font class="red">驳回</font>
+					<#elseif (activity.status!0) == 4 >
+						<font class="red">弃审</font>
+					<#elseif (activity.status!0) == 5 >
+						草稿
+					</#if>
+					</#if>
+					<#if reslut = false >
+					<#if (activity.status!0) == 3 > 
+					<font class="red">驳回</font>
+					<script type="text/javascript">
+						$(document).ready(function() {
+							$("#test${activity.id}").css("visibility", "hidden");
+						});
+					</script>
+					<#elseif (activity.status!0) == 4 > 
+					<script type="text/javascript">
+						$(document).ready(function() {
+							$("#test${activity.id}").css("visibility", "hidden");
+						});
+					</script>
+					<font class="red">弃审</font> 
+					<#elseif (activity.status!0) == 5 > 
+					<script type="text/javascript">
+						$(document).ready(function() {
+							$("#test${activity.id}").css("visibility", "hidden");
+						});
+					</script>
+					草稿 
+					</#if> 
+					</#if>
+					</td>
+					<td>${(activity.modifyUser)!?html}</td>
+					<td>${(activity.modifyDate?string("yyyyMMdd"))!''}</td>
+					<#if (activity.status!0) == 2 >
+					<#if (activity.top!0) == 1 >
+						<td><a href="${res}/activity/top.do?id=${activity.id}&state=0" class="red">取消置顶</a></td>
+					<#elseif (activity.top!0) == 0 >
+						<td><a href="${res}/activity/top.do?id=${activity.id}&state=1" class="gray">置顶</a></td>
+					</#if>
+					<#else>
+					<#if (activity.top!0) == 1 >
+						<td><a href="${res}/activity/top.do?id=${activity.id}&state=0" class="red">取消置顶</a></td>
+					<#elseif (activity.top!0) == 0 >
+						<td><a href="#" class="gray gray1">置顶</a></td>
+					</#if>
+					</#if>
+					<#if reslut = true >
+					<td class="tl" title="${(activity.rejectReason)!?html}">${(activity.rejectReason)!?html}</td>
+					<#elseif reslut = false >
+					</#if>
+					<td class="last operation" style="padding-left:10px;">
+					<#if reslut = true >
+					<a href="${res}/activity/updateView.do?id=${activity.id}" id="test${activity.id}" style="visibility: visible;"><img src="${res}/images/yun_back_img2.gif" id="test${activity.id}"/></a>
+					<a href="${res}/activity/del.do?id=${activity.id}" id="test${activity.id}T"><img src="${res}/images/yun_back_img3.gif" id="test${activity.id}T"/></a>
+					<#elseif reslut = false >
+					<a href="${res}/activity/del.do?id=${activity.id}" id="test${activity.id}T"><img src="${res}/images/yun_back_img3.gif" id="test${activity.id}T"/></a>
+					<#if (activity.status!0) == 7 && isCustomer == "1">
+					<a href="${res}/activity/audit.do?id=${activity.id}&status=4" style="color:red;">弃审</a>
+					<#elseif (activity.status!0) == 2 && isCustomer == "1">
+					<a href="${res}/activity/audit.do?id=${activity.id}&status=4" style="color:red;">弃审</a>
+					<#elseif (activity.status!0) == 2 && isCustomer == "0">
+				    <a href="${res}/activity/audit.do?id=${activity.id}&status=4" style="color:red;">弃审</a>
+					</#if>
+					</#if>
+					</td>
+				</tr>
+				</#list> 
+			</table>
+		</div>
+		<div class="paging">
+			${page}
+		</div>
+	</body>
+</html>

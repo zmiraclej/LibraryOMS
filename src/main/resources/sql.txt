@@ -1,0 +1,38 @@
+INSERT INTO `system_menu` VALUES ('1', 'common/user_add.html', null, '1', '用户新增', null, 'user:add', '1', null, null);
+INSERT INTO `system_menu` VALUES ('2', 'common/user_list.html', null, '1', '用户维护', null, 'user:list', '2', null, null);
+INSERT INTO `system_menu` VALUES ('3', 'library/library_add.html', null, '1', '图书馆新增', null, 'library:add', '3', null, null);
+INSERT INTO `system_menu` VALUES ('4', 'library/library_list.html', null, '1', '图书馆维护', null, 'library:list', '4', null, null);
+INSERT INTO `system_menu` VALUES ('9', 'library/gjlt_examine.html', null, '1', '馆际流通审核', null, 'library:aduit', '4', null, null);
+INSERT INTO `system_menu` VALUES ('5', 'customer/customer_add.html', null, '1', '客户新增', null, 'customer:add', '5', null, null);
+INSERT INTO `system_menu` VALUES ('6', 'customer/customer_list.html', null, '1', '客户维护', null, 'customer:list', '6', null, null);
+INSERT INTO `system_menu` VALUES ('7', 'common/role_add.html', null, '1', '角色新增', null, 'role:add', '23', null, null);
+INSERT INTO `system_menu` VALUES ('8', 'common/role_list.html', null, '1', '角色维护', null, 'role:list', '24', null, null);
+INSERT INTO `system_menu` VALUES ('11', 'library/lendout.html', null, '1', '借阅限制设置', null, 'librarySet:lendout', '25', null, null);
+INSERT INTO `system_menu` VALUES ('12', 'library/deposit.html', null, '1', '读者押金设置', null, 'librarySet:deposit', '26', null, null);
+INSERT INTO `system_menu` VALUES ('13', 'library/circulate/guanjiliutong_set', null, '1', '馆际流通设置', null, 'librarySet:circulate', '27', null, null);
+INSERT INTO `system_menu` VALUES ('14', 'library/circulate/guanjiliutong_set2', null, '1', '跨客户馆际流通设置', null, 'librarySet:customer', '28', null, null);
+INSERT INTO `system_menu` VALUES ('31', 'library/circulate/guanjiliutong_audit', null, '1', '跨客户馆际流通设置', null, 'librarySet:audit', '29', null, null);
+
+
+INSERT INTO `system_menu` VALUES ('15', 'news/news_add.html', null, '1', '资讯新增', null, 'news:add', '30', null, null);
+INSERT INTO `system_menu` VALUES ('16', 'news/news_list.html', null, '1', '资讯维护', null, 'news:list', '31', null, null);
+INSERT INTO `system_menu` VALUES ('17', 'news/news_examine_list.html', null, '1', '资讯审核', null, 'news:em', '32', null, null);
+
+INSERT INTO `system_menu` VALUES ('33', 'news/notice_add.html', null, '1', '消息新增', null, 'notice:add', '30', null, null);
+INSERT INTO `system_menu` VALUES ('34', 'news/notice_list.html', null, '1', '消息维护', null, 'notice:list', '31', null, null);
+INSERT INTO `system_menu` VALUES ('35', 'news/notice_examine_list.html', null, '1', '消息审核', null, 'notice:em', '32', null, null);
+
+
+INSERT INTO `system_menu` VALUES ('21', 'ebook/book_add.html', null, '1', '电子书新增', null, 'ebook:add', '33', null, null);
+INSERT INTO `system_menu` VALUES ('22', 'ebook/book_list.html', null, '1', '电子书维护', null, 'ebook:list', '34', null, null);
+
+INSERT INTO `system_menu` VALUES ('30', 'report/*', null, '1', '统计分析', null, 'report:*', '40', null, null);
+INSERT INTO `system_menu` VALUES ('32', 'ranking/*', null, '1', '排行榜', null, 'ranking:*', '40', null, null);
+INSERT INTO `system_menu` VALUES ('31', 'library/circulate.html', null, '1', '跨客户馆际流通设置', null, 'librarySet:audit', '29', null, null);
+
+INSERT INTO `system_menu` VALUES ('36', 'ebook/book_add.html', null, '1', '电子书新增', null, 'ebook:add', '33', null, null);
+
+insert into system values(1,null,null,null,null,'TZPT',null,null,1,'23','e10adc3949ba59abbe56e057f20f883e',null,'tzpt1707',null,null,1,null,'tzpt1707',null,null);
+
+/*馆际流通两点 1、同范围的才能还书和流出   2、所属馆的可以任意流回 */
+

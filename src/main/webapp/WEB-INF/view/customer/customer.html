@@ -1,0 +1,155 @@
+			<div class="form form2" style="margin-bottom:0;"  id="cus">
+			<div class="l h1">基本资料</div>
+			<div class="l item item2">
+				<span class="t l">单位名称 </span>
+				<input type="hidden" class="text" id="masterId" name="id"  value="${customer.id}" rq="false"/>
+				<input type="text" class="text l" style="width:583px" value="${customer.name!}" name="name"  title="单位名称"  tipMsg="" maxlength="30" index="1"/>
+				<div class="clear"></div>
+			</div>
+			<div class="l item">
+				<span class="t l t3">组织代码 </span>
+				<input type="text" class="text l w191" value="${customer.customerCode!}" name="customerCode" title="组织代码 " tipMsg=""  maxlength="25" index="2"/>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2">
+				<span class="t l">地址 </span>
+				<input type="text" class="text l" style="width: 583px;" value="${customer.address!}" name="address"  id="address" title="地址 " tipMsg="" maxlength="70" index="3"/>
+				<div class="clear"></div>
+			</div>
+			<div class="l item">
+				<span class="t l t3">邮编 </span>
+				<input type="text" class="text l w191" value="${customer.postcode!}" name="postcode" index="4" title="邮编" tipMsg="" maxlength="10" onkeyup="javascript:this.value=this.value.replace(/\D/g,'');"/>
+				<div class="clear"></div>
+			</div>			
+			
+			<#if (customer.contacts?size>0)>
+				<#list customer.contacts as contact>
+					<div class="l item lianxi" style="width:105%;">
+						<#if contact_index+1==1>
+							<span class="t l">联系人 </span>
+						<#else>
+								<span class="t l">&nbsp;</span>
+						</#if>
+						<input type="hidden" class="text l w191" value="${contact.id!}"  name="contacts[${contact_index}].id"   tipMsg=""  title="客户"  rq="false"/>
+						<input type="hidden" class="text l w191" value="${contact.customer.id!}"  name="contacts[${contact_index}].customer.id"   tipMsg=""  title="客户"  rq="false"/>
+						<input type="text" class="text l w191" value="${contact.contactPerson!}"  name="contacts[${contact_index}].contactPerson" title="姓名"  tipMsg="" maxlength="10"/>
+						<span class="img l img0"></span>
+						<input type="text" class="text l w191" value="${contact.phone!}" name="contacts[${contact_index}].phone" title="电话"  tipMsg="" maxlength="11" onkeyup="javascript:this.value=this.value.replace(/\D/g,'');"/>
+						<span class="img l img1"></span>
+						<input type="text" class="text l w191" style="width:187px\9;" value="${contact.tel!}" name="contacts[${contact_index}].tel" title="座机" maxlength="20" tipMsg="" rq="false"/>
+						<span class="img l img2"></span>
+						<input type="text" class="text l w191" value="${contact.chat!}" title="QQ" name="contacts[${contact_index}].chat" tipMsg="" rq="false" maxlength="10" onkeyup="javascript:this.value=this.value.replace(/\D/g,'');"/>
+						<!--只有1 个的时候  -->
+						<#if (contact_index==0)&&(customer.contacts?size==1)>
+							<img src="${res}/images/yun_back_img7.gif" class="l add" onclick="if(this.alt!=1)addContact(this)"/>
+						</#if>
+						<#if (contact_index==1)&&(customer.contacts?size==2)>
+							<img src="${res}/images/yun_back_img7.gif" class="l add" onclick="if(this.alt!=1)addContact(this)"/>
+						</#if>
+						<#if contact_index+1!=1>
+							<img src="${res}/images/yun_back_img7_s.gif" class="l add add3" onclick="if(this.alt!=1){recordContact--;$(this).parent().remove();$('.lianxi:last img.add').show();}"/>
+						</#if>
+						<div class="clear"></div>
+					</div>
+				</#list>
+			<#else>
+				<div class="l item lianxi">
+					<span class="t l">联系人 </span>
+					<input type="text" class="text l w191" value=""  name="contacts[0].contactPerson" title="姓名"  index="7" tipMsg="" maxlength="10"/>
+					<span class="img l img0"></span>
+					<input type="text" class="text l w191" value="" name="contacts[0].phone" title="电话"  tipMsg="" index="8" maxlength="11" onkeyup="javascript:this.value=this.value.replace(/\D/g,'');"/>
+					<span class="img l img1"></span>
+					<input type="text" class="text l w191" style="width:187px\9;" value="" name="contacts[0].tel" title="座机" index="9" maxlength="20" tipMsg="" rq="false"/>
+					<span class="img l img2"></span>
+					<input type="text" class="text l w191" value="" title="QQ" name="contacts[0].chat" tipMsg="" rq="false" index="10" maxlength="10" onkeyup="javascript:this.value=this.value.replace(/\D/g,'');"/>
+					<img src="${res}/images/yun_back_img7.gif" class="l add" onclick="if(this.alt!=1)addContact(this)"/>
+					<div class="clear"></div>
+				</div>
+			</#if>
+		 <#if (customer.users?size>0)>
+			<#list customer.users as user>
+				<div class="l item adminer" style="width:105%;z-index:${1000-user_index};">
+					<#if (user_index>0)>
+						<span class="t l">&nbsp;</span>
+					<#else>
+						<span class="t l">管理员</span>
+					</#if>
+					<input type="hidden" class="text l w191" value="${user.id}" name="users[${user_index}].id" title="主键"  tipMsg="" />
+					<input type="hidden" class="text l w191" value="${user.hallCode!}"  name="users[${user_index}].hallCode"   tipMsg=""  title="馆号"  rq="false"/>
+					<input type="hidden" class="text l w191" value="${user.customer.id!}"  name="users[${user_index}].customer.id"   tipMsg=""  title="客户"  rq="false"/>
+					<input type="text" class="text l w191" value="${user.userName!}" name="users[${user_index}].userName" title="管理员名称"  tipMsg="" />
+					<span class="t l t3">备注信息 </span>
+					<input type="text" class="text l" style="width:300px" value="${user.remark!}" name="users[${user_index}].remark" title="管理员备注"  tipMsg=""/>
+					<span class="t l t3">角色 </span>
+					<div class="text l rolelistdiv rolelistdiv2" id="role${user_index}">
+						<div></div>
+						<input type="hidden" value="" class="hidden" name="users[${user_index}].roleIds"  id="role${user_index}"/>
+						<ul class="checkboxlist">
+							<#list roles as role>
+							<li><input type="radio" value="${role.id}"  name="radioRole${user_index}"
+									<#list user.roles as urole>
+										<#if urole.id==role.id> checked="checked" </#if>
+									</#list>
+									/>
+								  <span>${(role.name!)?html}</span></li>
+						</#list>
+						</ul>
+					</div>
+<!-- 				<select class="l role" width="193" name="users[${user_index}].roleIds" id="role${user_index}"> -->
+<!-- 					<option value=""></option> -->
+<!-- 					<#list roles as role> -->
+<!-- 						<option value="${role.id}" -->
+<!-- 							<#if action='edit'> -->
+<!-- 								<#list user.roles as urole> -->
+<!-- 									<#if urole.id==role.id> selected="selected" </#if> -->
+<!-- 								</#list> -->
+<!-- 							</#if>> ${(role.name!)?html}</option> -->
+<!-- 					</#list> -->
+<!-- 				</select> -->
+					<#if (user_index==0)&&(customer.users?size==1)>
+						<img src="${res}/images/yun_back_img7.gif" class="l add" onclick="if(this.alt!=1)addAdmin(this)"/>
+					</#if>
+					<#if (user_index==1)&&(customer.users?size==2)>
+						<img src="${res}/images/yun_back_img7.gif" class="l add" onclick="if(this.alt!=1)addAdmin(this)"/>
+					</#if>
+					<#if user_index+1!=1>
+						<img src="${res}/images/yun_back_img7_s.gif" class="l add add3" onclick="if(this.alt!=1){recordAdmin--;$(this).parent().remove();$('.adminer:last img.add').show();}"/>
+					</#if>
+					<div class="clear"></div>
+					<script type="text/javascript">
+						setrolelist('#role${user_index}');
+					</script>
+				</div>	
+				</#list>
+			<#else>
+			<div class="l item adminer" style="z-index: 1000;width:105%;">
+				<span class="t l">管理员 </span>
+				<input type="text" class="text l w191" value="" name="users[0].userName" title="管理员名称"  tipMsg="" index="11"/>
+				<input type="hidden" class="text l" style="width:583px" name="users[0].hallCode"  value=""  title="代码"  maxlength="30" />
+				<span class="t l t3">备注信息 </span>
+				<input type="text" class="text l" style="width:300px" value="" name="users[0].remark" title="管理员备注"  index="12" tipMsg=""/>
+				<span class="t l t3">角色 </span>
+					<div class="text l rolelistdiv rolelistdiv2" id="role0">
+						<div></div>
+						<input type="hidden" value="" class="hidden" name="users[0].roleIds" />
+						<ul class="checkboxlist">
+							<#list roles as role>
+							<li><input type="radio" value="${role.id}"  name="radioRole"
+								 /> <span>${(role.name!)?html}</span></li>
+						</#list>
+						</ul>
+					</div>
+						<img src="${res}/images/yun_back_img7.gif" class="l add" onclick="if(this.alt!=1)addAdmin(this)"/>
+						<img src="${res}/images/yun_back_img7_s.gif" class="l add add3" onclick="if(this.alt!=1){recordAdmin--;$(this).parent().remove();$('.adminer:last img.add').show();}"/>
+					<div class="clear"></div>
+					<script type="text/javascript">
+						setrolelist('#role0');
+					</script>
+			</div>	
+			</#if>
+			<div class="item r" style="margin-bottom:0"><span class="tswords"  id="customerSpan"></span>
+			<input type="button" class="btn btn4" value="确定" style="margin-right: 10px;"  id="customerSave"  onclick="stopMP(event);saveCustomer()" />
+			<input type="button" class="btn btn4" value="修改 " style="margin-right: 10px;display:none;"  id="customerEdit"  onclick="editCustomer()" />
+			</div>
+			<div class="clear"></div>
+	</div>

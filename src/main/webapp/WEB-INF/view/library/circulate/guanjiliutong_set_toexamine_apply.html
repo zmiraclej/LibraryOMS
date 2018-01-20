@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../../head.html">
+	</head>
+	<body>		
+		<div class="gjltlist">
+			<div class="search">
+				<form action="${res}/system/circulationAudit/review.do" id="searchForm" class="searchForm">
+					<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+					<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+					<input type="text" class="text l gray"  name="search" maxlength="20" tipMsg="申请人/联系人"  value="${search!''}"/>
+					<input type="submit" class="btn" value="搜索"/>
+					<!-- 增加了客户审核列表屏蔽<a href="${res}/system/circulation/cross.do" class="sethref r">返回</a> -->
+				</form>
+			</div>
+			<table cellspacing="0" class="table" style="min-width:960px;">
+				<thead class="thead">
+					<th class="th w82">日期</th>
+					<th class="th w60">流通</th>
+					<th class="th twObject">申请人</th>
+					<th class="th w75">操作员</th>
+					<th class="th w280">联系人</th>
+					<th class="th w60">状态</th>
+					<th class="th tw88 last operation t_last" style="padding-left:10px">操作</th>
+				</thead>
+				
+				<#list page.list as review>
+					<tr>
+						<td>${review.createDate?string('yyyyMMdd')}</td>
+						<td>
+							<#if review.action=='1'>
+								加入
+							<#else>
+								退出
+							</#if>
+						</td>
+						<td class="tl" title="${review.oneself!''}">${review.oneself!''}</td>
+						<td>${review.userName!''}</td>
+						<td>${review.targetContact!''}</td>
+						<td>
+							<#if review.status=='0'>
+								未审核
+							<#elseif review.status=='1'>
+								已同意
+							<#elseif review.status=='2'>
+								已拒绝
+							<#elseif review.status=='3'>
+								已同意
+							</#if>
+						</td>
+						<td class="last operation" style="padding-left:10px">
+						<#if review.status=='0'>
+							<a href="${res}/system/circulationAudit/detail.do?auditId=${review.id}&review=1" class="green">审阅</a>
+						<#elseif review.status=='1'>
+							<a href="${res}/system/circulationAudit/detail.do?auditId=${review.id}&review=0" style="color:#000">查看</a>
+						<#elseif review.status=='2'>
+								<a href="${res}/system/circulationAudit/detail.do?auditId=${review.id}&review=0" style="color:#000">查看</a>
+						<#elseif review.status=='3'>
+								<a href="${res}/system/circulationAudit/detail.do?auditId=${review.id}&review=0" style="color:#000">查看</a>
+						</#if>
+						</td>
+					</tr>
+				</#list> 	
+			</table>
+		</div>
+		<div class="paging">${page}</div>
+	</body>
+</html>
+<script>
+	setSelect('.jieshu');
+	setSelect('.jieshu2');
+	$('#scroll').css({maxHeight:document.documentElement.clientHeight-122});
+	window.onresize=function(){
+		$('#scroll').css({maxHeight:document.documentElement.clientHeight-122});
+	}
+	
+	//范围内全选	/取消全选
+	$('#all').click(function(){
+		var classStr='.table .checkbox1';
+		if($(this).is(':checked')){
+			$(classStr).each(function(){$(this)[0].checked=true;});
+		}else{
+			$(classStr).each(function(){$(this)[0].checked=false;});			
+		}
+	});
+	
+	function page(n,s){
+		if(n==-1){
+			n = $(".pageNo").val();
+		}
+		$("#pageNo").val(n);
+		$("#pageSize").val(s);
+		$(".searchForm").submit();
+		return false;
+	}
+	
+	//点击复选框
+	$('.table .checkbox1').click(function(){
+		if($(this).is(':checked')){
+			$(this).next().css('visibility',"visible");
+			if($('.table .checkbox1').length== $('.table .checkbox1:checked').length){
+				$('#all')[0].checked=true;
+			}
+		}else{
+			$(this).next().css('visibility',"hidden");
+			$('#all')[0].checked=false;
+		}
+	});
+	
+	
+	
+</script>

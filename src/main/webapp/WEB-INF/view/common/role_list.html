@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<style>
+			.table .thead .th.last.operation{text-align:left;padding-left:1%;}
+.table .last.operation{text-align:left;padding-left:1%;}
+		</style>
+				<#include "../head.html">	
+		<script type="text/javascript">
+			function page(n,s){
+				$("#pageNo").val(n);
+				$("#pageSize").val(s);
+				$("#searchForm").submit();
+		    	return false;
+		    }
+			
+			function removeRole(t){
+				var $this = $(t);
+				var $tr = $this.parents("tr");
+				var level = $tr.find("td").eq(0).html();
+				var ul = $tr.parents("table").attr("ul");
+				var name = $tr.children("td[t]").text();
+				var id = $tr.attr("tid");
+						ZENG.msgbox.show("删除中...", 6);
+						$.post(config.contextPath+"/cms/"+ul+"/del/"+id+".do",function(data){
+							ZENG.msgbox.hide();
+							if (!data.success) {
+								if(data.sum>0){
+									$(".listmsg").text("该角色下有"+level+"用户"+data.sum+"人,不能删除!")
+								}else{
+									$(".listmsg").text("删除失败,请联系管理员!")
+								}
+							}else{
+								document.location.reload();
+							}
+						});
+			}
+		</script>
+	</head>
+	<body>
+		<div class="title">
+			<span class="l t">角色列表</span>
+			<img src="${res}/images/yun_back_img1.png" class="r" onclick="location.href=location.href"/>
+			<div class="clear"></div>
+		</div>
+		<div class="search">
+			<form action="${res}/cms/role/list.do" id="searchForm">
+			<input type="text" class="text tc" value="${search!}" name="search"  tipMsg="级别/名称/描述"  maxlength="20" /><input type="submit" class="btn" value=" 搜索 "  />
+			<font class="r listmsg"></font>
+			</form>
+		</div>
+		<div class="table-parent">
+			<table cellspacing="0" class="table"  ul="role" style="min-width:960px;">
+				<thead class="thead">
+					<th class="th w70">角色级别</th>
+					<th class="th" width="115">角色名称</th>
+					<th class="th" width="270">角色描述</th>
+					<th class="th last operation">操作</th>
+				</thead>
+					<#if list?size gt 0> <#list list as role>
+					<tr tid="${role.id}">
+						<td><#if (role.level!'0')='0'>一级 </#if><#if (role.level!'0')='1'>二级 </#if></td>
+						<td>${role.name!''}</td>
+						<td>${role.description!''}</td>
+						<td class="last operation">
+							<#if (user.hallCode!'0')='YTSG'>
+								<a  href="${res}/cms/role/edit/${role.id}.do"><img src="${res}/images/yun_back_img2.gif"/></a>
+								<a href="#" onclick="removeRole(this)" <#if ((role.id!0)==1)||((role.id!0)==3)> style="visibility:hidden;" </#if>><img src="${res}/images/yun_back_img3.gif"/></a>
+							<#else>
+								<a  href="${res}/cms/role/edit/${role.id}.do" <#if (role.id!0)==3> style="visibility:hidden;" </#if>><img src="${res}/images/yun_back_img2.gif"/></a>
+								<a href="#" onclick="removeRole(this)" <#if ((role.id!0)==1)||((role.id!0)==3)> style="visibility:hidden;" </#if>><img src="${res}/images/yun_back_img3.gif"/></a>
+							</#if>
+						</td>
+					</tr>
+				</#list> </#if>
+			</table>
+		</div>
+	</body>
+</html>
+<script>
+	$('img.map').click(function(event){
+		event.stopPropagation();
+		var x=$(this).attr('x');
+		var y=$(this).attr('y');
+		if(x && y){			
+			setMap({
+				point:[x,y],
+			 	title:$(this).parent().parent().find('td').eq(3).text(),
+			 	address:'地址：'+$(this).parent().prev().text()
+			});
+			
+		}
+	});
+</script>

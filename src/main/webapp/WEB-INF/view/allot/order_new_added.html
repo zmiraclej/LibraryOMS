@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title></title>
+<meta name="renderer" content="webkit|ie-comp|ie-stand" />
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1" />
+<style type="text/css">
+
+        .hint_info{display:block;font-size:16px;color:#333;}
+        #eanchor{display: inline-block;width:80px;text-align:center;line-height:34px;font-size:16px;color:#333;text-decoration:underline;margin-right:15px;}
+        #canchor{display: inline-block;width:80px;text-align:center;line-height: 34px;margin-right:15px;font-size:16px;color:#333;text-decoration:underline;}
+        .height32{}
+</style>
+<#include "../head.html">
+<link href="${res}/css/Ebook_style.css" rel="stylesheet"/>
+<script type="text/javascript">
+	$(function() {
+		$(".listmsg").hide();
+	})
+	function page(n, s) {
+		$("#pageNo").val(n);
+		$("#pageSize").val(s);
+		$("#searchForm").submit();
+		return false;
+	}
+</script>
+
+</head>
+<body>
+<!-- 订单新增 -->
+<div class="form pos" style="">
+    <div class="l item item2" >
+        <span class="t l">客户代码</span>
+        <input type="text" class="text l w158" value="AAAA" style="background:#eeeeee;"/>
+        <div class="clear"></div>
+    </div>
+    <div class="l item">
+        <span class="t l t3">单位名称</span>
+        <input type="text" class="text l" style="width:655px;background:#eeeeee;" value="四川省绵阳市涪城区文广局" />
+        <div class="clear"></div>
+    </div>
+    <div class="l item lianxi">
+        <span class="t l">联系人 </span>
+        <input type="text" class="text l w195 " style="background:#eeeeee;" value="李四"/>
+        <span class="img l img0"></span>
+        <input type="text" class="text l w195 " value="0281457457" style="background:#eeeeee;"/>
+        <span class="img l img1"></span>
+        <input type="text" class="text l w195 firefox_input2" style="width:197px;background:#eeeeee;width:193px\9;" value="13578784578"/>
+        <span class="img l img2"></span>
+        <input type="text" class="text l" value="4578788898@qq.com" style="width: 216px;background:#eeeeee;"/>
+        <!--<img src="images/yun_back_img7.gif" class="l add" onclick="if(this.alt!=1)addContact(this)"/>-->
+        <div class="clear"></div>
+    </div>
+    <form action="${res}/cms/order/newAdded/${customer.id}.do">
+</div>
+    <div class="table-parent">
+            <table cellspacing="0" class="table" id="table7" style="border-top:#a9a9a9 1px solid;">
+                <thead class="thead" id="thead4">
+                <tr>
+                    <th class="th w45" style="position:relative;">
+                        <span  class="content_hide">
+                           <input type="checkbox" name="checkname"/>
+                        </span>
+                        <span  class="transform">
+                            <input type="checkbox" name="checkname" id="all"/>
+                        </span>
+                    </th>
+                    <th class="th w62" style="position:relative;">
+                        <span class="content_hide">
+                            成功励志
+                        </span>
+                        <span class="transform">
+                            类别
+                        </span>
+                    </th>
+                    <th class="th w120"  style="text-align: left;position:relative;">
+                        <span class="content_hide">
+                           9787800845093
+                        </span>
+                        <span class="transform" style="text-align:center">
+                            IBSN
+                        </span>
+                    </th>
+                    <th class="th bo_name" style="position:relative;">
+                         <span class="content_hide">
+                           世界50位著名成功学家成功金言眼
+                        </span>
+                        <span class="transform" style="text-align:center;">
+                            书名
+                        </span>
+                    </th>
+                    <th class="th w100" style="position:relative;">
+                        <span class="content_hide">
+                           金城
+                        </span>
+                        <span class="transform" style="text-align:center;">
+                           出版社
+                        </span>
+                    </th>
+                    <th class="th w120" style="position:relative;">
+                        <span class="content_hide">
+                           马正飞
+                        </span>
+                        <span class="transform" style="text-align: center;">
+                          著者
+                        </span>
+                    </th>
+                    <th class="th w88" style="position:relative;">
+                        <span class="content_hide">
+                           2001
+                        </span>
+                        <span class="transform" style="text-align: center;">
+                          年份
+                        </span>
+                    </th>
+                    <th class="th w88" style="position:relative;">
+                        <span class="content_hide">
+                          张三三三
+                        </span>
+                        <span class="transform" style="text-align: center;">
+                          操作员
+                        </span>
+                    </th>
+                    <th class="th w60" id="last" style="position: relative;">
+                        <span class="content_hide">
+                          20170104
+                        </span>
+                        <span class="transform" style="padding-left:10px;text-align:left;">
+                          上传日期
+                        </span>
+                    </th>
+                    <th id="bd" style="border-bottom:1px solid #cfcfcf;border-right:1px solid rgb(169, 169, 169);"></th>
+                </tr>
+                </thead>
+            </table>
+    </div>
+    <div class="table-parent">
+        <div class="table_out" style="width:100%">
+            
+        </div>
+        <table class="table" id="table_page" style="margin-top:20px;border:#a9a9a9 1px solid">
+            <tr>
+                <td><span class="paging_left" style="float:left;display:inline-block">合计总数100</span><span class="p_count"> &nbsp;(已去重 )</span></td>
+            </tr>
+        </table>
+    </div>
+
+<div class="l item item2" style="margin-top:20px;width:100%;">
+    <input type="button" class="e_btn" value="加入订单">
+    <div class="rel_info">
+    <span class="hint_info"></span>
+    </div>
+    <!-- 
+    <div class="odform" style="float:right;">
+        <a href="${res}/cms/order/analysis/1.do" id="danchor">订单分析</a>
+        <a href="${res}/cms/order/orderDetail/1.do" id="banchor">返回订单</a>
+        <div class="clear"></div>
+    </div>
+     -->
+</div>
+</body>
+</html>
+<script>
+	$('img.map').click(function(event) {
+		event.stopPropagation();
+		var x = $(this).attr('x');
+		var y = $(this).attr('y');
+		if (x && y) {
+			setMap({
+				point : [ x, y ],
+				title : $(this).parent().parent().find('td').eq(1).text(),
+				address : '地址：' + $(this).parent().prev().text()
+			});
+		}
+	});
+	 //点击添加搜素条件
+    var btn=$(".add_btn");
+    var i=0;
+    var form=$(".form");
+    var search_box=$("#se_box");
+    btn.on("click",function() {
+        head_adapt();
+        adjust();
+        i++;
+        var detach=$("#se_box").detach();
+        var num=999-10*i;                     //使每个所复制之后的div框含有不同的z-index值。
+        var a = $("#itemc").clone(true);
+        var odd = a.attr("style", "margin-left:105px;");
+        odd.css({zIndex:100-i}).find(".head").text("出版年");
+        if (i % 2 != 0) {
+        $(".form").append(odd);
+        }else{
+            var even= a.attr("style","margin-left:137px;");
+            even.css({zIndex:100-i}).find(".head").text("出版年");
+            $(".form").append(even);
+           // $(".table tr:last-child").remove(); 点击偶数次数之时，删除列表的最后一项。
+        }
+        form.append(detach);
+        form.append(clear);
+    });
+    
+    var temp=$(".selectObj");
+    var tempd=temp.children(".son");
+    temp.on("mouseenter",function(){
+        $(this).children(".son").css({display:"block"});
+    });
+    temp.on("mouseleave",function(){
+        $(this).children(".son").css("display","none");
+    });
+   var son=$(".son").find("li");
+    son.on("click",function(){
+        var tempval=$(this).attr("value");
+        $(this).parents(".son").prev().text(tempval);
+    });
+    //范围内全选	/取消全选
+    $('#all').click(function(){
+        var classStr='.table .checkbox1';
+        var num = 0 ;
+        if($(this).is(':checked')){
+            $(classStr).each(function(){
+            	num++;
+            	$(this)[0].checked=true;
+            	$('.hint_info').html("选中图书"+ num +"种，确认删除？");
+            });
+        }else{
+            $(classStr).each(function(){$(this)[0].checked=false;});
+            $('.hint_info').html("");
+        }
+    });
+
+    //点击复选框
+    $('.table .checkbox1').click(function(){
+        if($(this).is(':checked')){
+            $(this).next().css('visibility',"visible");
+            if($('.table .checkbox1').length== $('.table .checkbox1:checked').length) {
+                $('#all')[0].checked=true;
+            }
+            $('.hint_info').html("选中图书"+ $('.table .checkbox1:checked').length +"种，确认加入订单？");
+        }else{
+            $(this).next().css('visibility',"hidden");
+            $('#all')[0].checked = false;
+            $('.hint_info').html("选中图书"+ $('.table .checkbox1:checked').length +"种，确认加入订单？");
+        }
+    });
+
+    function head_adapt() {
+        var h = [];    //将获取的每一个th的宽度值作为数组的项储存在数组之中。
+        var head = $(".table thead th");
+        var thead = $(".table1 th");
+        var length = head.length;
+
+        $(".table").not("#table_page").css({border: "none"});
+        $("#table_page tr td").css({borderBottom:"none"});
+        head.css({background: "#fff"});
+        $(".paging").css({borderLeft:"#a9a9a9 1px solid"});
+        window.onresize=function(){
+            head_adapt();
+        };
+        $(".table tr th:first-child").css({borderLeft:"solid 1px #a9a9a9"});
+
+    }
+    head_adapt();
+    window.onload=function(){
+        adjust();
+    };
+    $(window).resize(function(){
+        head_adapt();
+        adjust();
+    });
+
+    function adjust(){
+    $(".paging").css({borderLeft:"#a9a9a9 1px solid"})
+    $("#table7").css({borderTop:"#a9a9a9 1px solid"})
+    $("#table7 tr").css({borderLeft:"#a9a9a9 1px solid",
+    "borderRight":"#a9a9a9 1px solid"});
+    $("#table7 th").css({background:"#eeeeee"})
+    $("#last").css({borderRight:"none"});
+    }    
+</script>

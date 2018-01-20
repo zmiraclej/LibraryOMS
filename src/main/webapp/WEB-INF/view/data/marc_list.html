@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title></title>
+<meta name="renderer" content="webkit|ie-comp|ie-stand" />
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1" />
+<#include "../head.html">
+<link rel="stylesheet" href="${res}/css/ebook_style.css"/>
+<script type="text/javascript">
+	$(function() {
+		$(".listmsg").hide();
+	})
+	function page(n, s) {
+		$("#pageNo").val(n);
+		$("#pageSize").val(s);
+		$("#searchForm").submit();
+		return false;
+	}
+
+</script>
+<style type="text/css">
+        .eb_style{color:#2661af;}
+        .w90{width:90px;}
+        .w70{width:70px;}
+        .w96{width:96px;}
+        .w80{width:80px;}
+        .danchor{color:#2661af;}.order_anchor{color:#2661af;}
+        .ac_anchor{height:100%;width:64px;float:right;display:inline-block;margin-top:30px;margin-right:30px;font-weight:500;font-size:16px;color:#000;
+            text-decoration:underline;}
+        .search_box{width:100%;}
+        .table-parent{width:100%;}
+</style>
+</head>
+<body>
+	<div class="title">
+		<span class="l t">图书馆列表</span> <img
+			src="${res}/images/yun_back_img1.png" class="r"
+			onclick="location.href=location.href" />
+		<div class="clear"></div>
+	</div>
+	<div class="search_box">
+		<div class="search" style="display: inline-block;">
+			<form onsubmit="subimitDo(this, 180, 36, '${res}/cms/order/customerList.do')"  id="searchForm" method="get">
+				<input id="pageNo" name="pageNo" type="hidden"
+					value="${(page.pageNo)!}" /> <input id="pageSize" name="pageSize"
+					type="hidden" value="${(page.pageSize)!}" /> <input type="text"
+					class="text tc" value="${search!''}" name="search" tipMsg="搜客户" style="height:32px" /><input
+					type="submit" class="btn" value=" 搜索 " />
+			</form>
+		</div>
+		<a onclick="actionDo(this, 180, 36,'${res}/cms/order/orderList.do')" style="cursor: pointer;" class="ac_anchor" >查看订单</a>
+	</div>
+	<div class="table-parent">
+		<table cellspacing="0" class="table" ul="ebook"
+			style="">
+			<thead class="thead">
+        <tr>
+        <th class="th w68">客户代码</th>
+        <th class="th twname">单位名称</th>
+        <th class="th twaddress">地址</th>
+        <th class="th w70">已配数量</th>
+        <th class="th w75">联系人</th>
+        <th class="th w110">电话</th>
+        <th class="th w105">手机</th>
+        <th class="th w188  last operation" style="padding-left:70px;">邮箱</th>
+        </tr>
+			</thead>
+			<#if (page.list)??>
+			<#list page.list as customer>
+			<tr tid="${customer.id}">
+				<td title="${customer.hallCode!''}">${customer.hallCode!''}</td>
+				<td style="text-align:left;color:#2661af;text-indent:5px;" title="${customer.name!''}"><a href="${res}/cms/order/added/${customer.id}.do" class="order_anchor" id="${customer.id}">${customer.name!''}</a></td>
+				<td style="text-align:left;text-indent:5px" title="${customer.address!''}">${customer.address!''}</td>
+				<td title="${customer.allotNum!''}">${customer.allotNum!''}</td>
+				<td title="${(customer.contacts[0].contactPerson)!''}">${(customer.contacts[0].contactPerson)!''}</td>
+				<td title="${(customer.contacts[0].tel)!''}">${(customer.contacts[0].tel)!''}</td>
+				<td title="${(customer.contacts[0].phone)!''}">${(customer.contacts[0].phone)!''}</td>
+				<td class="last operation" style="padding-left:10px;" title="${(customer.contacts[0].chat)!''}">${(customer.contacts[0].chat)!''}</td>
+			</tr>
+			</#list>
+			</#if>
+		</table>
+	</div>
+	<div class="r" style="margin-top: -15px;">
+		<div class="paging">${(page)!}</div>
+	</div>
+</body>
+</html>
+<script>
+
+
+	$('img.map').click(function(event) {
+		event.stopPropagation();
+		var x = $(this).attr('x');
+		var y = $(this).attr('y');
+		if (x && y) {
+			setMap({
+				point : [ x, y ],
+				title : $(this).parent().parent().find('td').eq(1).text(),
+				address : '地址：' + $(this).parent().prev().text()
+			});
+		}
+	});
+</script>

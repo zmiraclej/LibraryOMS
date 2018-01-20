@@ -1,0 +1,40 @@
+@media (min-width: 1720px) {
+	.twname{width:295px;} 
+	.twaddress{width:445px;}
+	
+	.statisticsName{width:480px;}/*统计分析（一级菜单），馆名列宽度定制*/
+}
+
+@media (min-width: 1480px) and (max-width: 1720px) { 
+	.twname{width:295px;} 
+	.twaddress{width:445px;}
+	
+	.statisticsName{width:590px;}/*统计分析（一级菜单），馆名列宽度定制*/
+}
+	
+@media (min-width: 1200px) and (max-width: 1480px) { 
+	.twname{width:245px;} 
+	.twaddress{width:345px;}
+	
+	.statisticsName{width:480px;}/*统计分析（一级菜单），馆名列宽度定制*/
+}
+
+@media (min-width: 980px) and (max-width: 1199px) { 
+	.twname{width:190px;} 
+	.twaddress{width:260px;}
+	
+	.statisticsName{width:390px;}/*统计分析（一级菜单），馆名列宽度定制*/
+}
+
+@media (min-width: 768px) and (max-width: 979px) { 
+	.twname{width:140px;} 
+	.twaddress{width:175px;} 
+	
+	.statisticsName{width:305px;}/*统计分析（一级菜单），馆名列宽度定制*/
+}
+@media (max-width: 767px) { 
+	.twname{width:90px;} 
+	.twaddress{width:90px;} 
+	
+	.statisticsName{width:305px;}/*统计分析（一级菜单），馆名列宽度定制*/
+}

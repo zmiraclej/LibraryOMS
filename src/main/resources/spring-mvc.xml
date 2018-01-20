@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans 
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans-3.2.xsd  
+    http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-3.2.xsd
+    http://www.springframework.org/schema/mvc  http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd 
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd 
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd"
+    >
+<!-- 	<aop:aspectj-autoproxy proxy-target-class="true" /> -->
+<!-- 	<context:component-scan base-package="com.flea.common.action,com.flea.modules.*.action" /> -->
+	<context:component-scan base-package="com.flea" >      
+    	<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Service" />    
+	</context:component-scan>  
+	
+	
+	
+	<!-- 启动Spring MVC的注解功能，完成请求和注解POJO的映射 -->
+	<mvc:annotation-driven content-negotiation-manager="contentNegotiationManager" >
+			<mvc:message-converters>  
+	            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">  
+<!-- 	                <property name="objectMapper" ref="dateFormatConvertMapper"></property>   -->
+	            </bean>  
+	        </mvc:message-converters>
+		</mvc:annotation-driven>   
+<!--  <bean id="dateFormatConvertMapper"  class="com.flea.common.util.DateFormatConvertMapper"></bean> -->
+	
+	
+  <bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">   
+    <property name="favorPathExtension" value="false" />  
+    <property name="favorParameter" value="false" />   
+    <property name="ignoreAcceptHeader" value="false" />   
+    <property name="mediaTypes" >   
+      <value>  
+        atom=application/atom+xml  
+        html=text/html  
+        json=application/json  
+        *=*/*  
+      </value>   
+    </property>  
+  </bean>
+	
+<!-- 	<mvc:interceptors> -->
+<!-- 		<mvc:interceptor> -->
+<!-- 			<mvc:mapping path="/*/*/*.do"/> -->
+<!-- 			<bean class="com.flea.common.interceptor.LogInterceptor"></bean> -->
+<!-- 		</mvc:interceptor> -->
+<!-- 	</mvc:interceptors> -->
+	
+	<!-- 处理静态资源 -->
+	<mvc:default-servlet-handler/>
+	<!-- 对JSP模型视图名称的解析,在请求时模型视图名称添加前后缀 -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/view/" />
+		<property name="suffix" value=".html" />
+	</bean>
+	
+	<bean id="freemarkerConfigurer"
+		class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+		<property name="templateLoaderPath" value="/WEB-INF/view/" />
+		<property name="defaultEncoding" value="UTF-8" />
+		<property name="freemarkerSettings">
+			<props>
+				<prop key="template_update_delay">10</prop>
+				<prop key="locale">zh_CN</prop>
+				<prop key="datetime_format">yyyy-MM-dd HH:mm:ss</prop>
+				<prop key="date_format">yyyy-MM-dd</prop>
+				<prop key="number_format">#.##</prop>
+				<prop key="defaultEncoding">UTF-8</prop>
+				<prop key="whitespace_stripping">true</prop>
+			</props>
+		</property>
+		<property name="freemarkerVariables">
+			<map>
+				<entry key="static">
+					<bean class="com.flea.common.tag.AchieveStaticFieldMethod" />
+				</entry>
+			<!-- 
+				<entry key="pagination">
+					<bean class="com.flea.core.tag.PaginationTag" />
+				</entry>
+				<entry key="map">
+					<bean class="com.flea.core.tag.MapTag"></bean>
+				</entry>
+				<entry key="roleList">
+					<bean class="com.flea.cms.action.directive.RoleListDirective" />
+				</entry>
+				<entry key="cms_perm">
+					<bean class="com.flea.cms.web.PermistionDirective" />
+				</entry>
+				<entry key="web_s" value=".html" />
+				 -->
+				<entry key="res" value="/library"></entry>
+			</map>
+		</property>
+		
+	</bean>
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+		<property name="viewClass"
+			value="org.springframework.web.servlet.view.freemarker.FreeMarkerView" />
+		<property name="cache" value="false" />
+		<property name="suffix" value=".html" />
+		<property name="contentType" value="text/html; charset=utf-8" />
+		<property name="requestContextAttribute" value="base" />
+		<property name="order" value="0" />
+		<property name="attributesMap">
+			<map>
+				<!-- 定义Freemarker方法的名称 -->
+				<!--  
+				<entry key="static">
+					<bean class="com.flea.core.tag.AchieveStaticFieldMethod" />
+				</entry>
+				-->
+				<!-- 敏感字过虑 -->
+				<!--  
+				<entry key="sw">
+					<bean class="com.flea.core.tag.SensitiveWordMethod" />
+				</entry>
+				<entry key="ch">
+					<bean class="com.flea.core.tag.ContentHide"></bean>
+				</entry>
+				-->
+				<entry key="shiro">
+				    <bean class="com.jagregory.shiro.freemarker.ShiroTags"/>
+				</entry>
+			</map>
+		</property>
+	</bean>
+    
+	<!-- 配置文件上传 -->
+	<!-- <bean id="multipartResolver" class="com.flea.modules.ebook.progresslistener.CommonsMultipartResolverExt">
+		默认编码  
+		  <property name="defaultEncoding" value="utf-8" />  
+        <property name="maxUploadSize" value="10000000000" />  
+		限制上传文件的大小，单位Byte
+		<property name="maxUploadSize">
+			<value>125829120</value>
+ 			<value>209715200</value>
+		</property>
+		<property name="resolveLazily" value="true"></property>
+	</bean>   -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- 默认编码  -->  
+		 <property name="defaultEncoding" value="utf-8" />  
+        <property name="maxUploadSize" value="10000000000" />  
+        <!-- 限制上传文件的大小，单位Byte -->
+		<!-- <property name="maxUploadSize">
+			<value>125829120</value>
+ 			<value>209715200</value>
+		</property> -->
+		<!-- <property name="resolveLazily" value="true"></property> -->
+	</bean>   
+	<!-- 全局异常处理 -->
+	<bean id="exceptionResolver"
+		class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+				<prop key="java.io.IOException">/common/login.html</prop>
+				<prop key="org.apache.shiro.authz.UnauthorizedException">/cms/login.do</prop>
+				<prop key="java.lang.IllegalStateException">/common/login.html</prop>
+<!-- 				<prop key="org.apache.commons.fileupload.FileUploadBase$SizeLimitExceededException">/error/maxUploadExceeded.html</prop>   -->
+<!-- 				<prop key="org.springframework.web.multipart.MaxUploadSizeExceededException">/error/maxUploadExceeded.html</prop>   -->
+			</props>
+		</property>
+	</bean>
+</beans>

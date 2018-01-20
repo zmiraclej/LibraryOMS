@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<link rel="stylesheet" href="css/style.css" />
+		<script src="js/jquery.min.js"></script>
+		<script src="js/common.js"></script>
+		<script src="js/jquery.date_input.pack.js"></script>
+		<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=EmWvece0GHuKBjnfjSm2DwOO"></script>
+	</head>
+	<body>
+		<div class="form form2">
+			<div class="l item">
+				<span class="t l"><span>*</span>部门：</span>
+				<input type="text" class="text l w230" value=""/>
+				<div class="clear"></div>
+			</div>
+			<div class="l item" style="margin-left:96px;">
+				<span class="t l"><span>*</span>职务：</span>
+				<input type="text" class="text l w230" value=""/>
+				<div class="clear"></div>
+			</div>
+			<div class="l item">
+				<span class="t l"><span>*</span>姓名：</span>
+				<input type="text" class="text l w230" value=""/>
+				<div class="clear"></div>
+			</div>
+			<div class="l item" style="margin-left: 96px; z-index: 12;">
+				<span class="t l"><span>*</span>性别：</span>
+				<select class="w230 l sex" width="232" name="role">
+					<option>男</option>
+					<option>女</option>
+				</select>
+				<div class="clear"></div>
+			</div>			
+			<div class="l item" >
+				<span class="t l"><span>*</span>工号：</span>
+				<input type="text" class="text l w230" value=""/>
+				<div class="clear"></div>
+			</div>	
+			
+			<div class="l item"style="margin-left: 96px;z-index: 11">
+				<span class="t l"><span>*</span>角色：</span>
+				<select class="w230 l role" width="232" name="role"><option>选择角色</option></select>
+				<div class="clear"></div>
+			</div>
+			<div class="l item">
+				<span class="t l"><span>*</span>联系方式：</span>
+				<span class="img l img0" style="border-left:solid 1px #b9b9b9;"></span>
+				<input type="text" class="text l w191" value=""/>
+				<span class="img l img1"></span>
+				<input type="text" class="text l w191" value=""/>
+				<span class="img l img2"></span>
+				<input type="text" class="text l w191" value=""/>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+			<div class="l item" style="z-index: 10;">
+				<span class="t l">&nbsp;</span>
+				<input type="button" class="btn" value="确定"/>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+		</div>
+	</body>
+</html>
+<script>	
+	setSelect('.role');
+	setSelect('.sex');
+</script>

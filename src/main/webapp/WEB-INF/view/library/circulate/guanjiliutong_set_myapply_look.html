@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>客户-跨馆际流通设置-我的申请-查看/客户-跨馆际流通设置-查看</title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../../head.html">
+	</head>
+	<body>
+		<div class="gjltlist">
+			<div class="apply-info" >
+				<input type="hidden" class="operator" value="${operator!}">
+				<span class="unitname">申请单位：${audit.oneself?substring(5)}</span>	
+				<#if proposer=='0'>
+					<span>联系人：${audit.targetContact?replace('-',' ')!''} </span>	
+				</#if>		
+				<span>操作员：${audit.userContact?replace('-',' ')!''}</span>
+				<span>馆数：${audit.circulations?size}</span>
+			</div>
+			<table cellspacing="0" class="table" style="min-width:960px;">
+				<thead class="thead">
+					<th class="th w250">
+						<#if audit.action=='1'>
+							加入馆
+						<#else>
+							退出馆
+						</#if></th>
+					<th class="th w68">馆号</th>
+					<th class="th w88">馆别</th>
+					<th class="th w145">地区</th>
+					<th class="th w75">负责人</th>
+					<th class="th operation">
+						<#if audit.action=='1'>
+							加入范围
+						<#else>
+							退出范围
+						</#if>
+					</th>
+				</thead>
+				<#list self as s>
+					<tr>
+						<td class="tl">${s.name!''}</td>
+						<td>${s.hallCode!''}</td>
+						<td>${s.libraryLevel!''}</td>
+						<td>${s.areaAddress!''}</td>
+						<td>${s.conperson!''}</td>
+						<td class="operation">${s.scopeString!''}</td>
+					</tr>
+				</#list>
+								
+			</table>
+			<div class="apply-info">				
+				<span class="unitname">对象单位：${audit.target?substring(5)}</span>
+				<span>代码：${audit.target?substring(0,4)} </span>
+				<#if proposer=='1'||level=='0'>
+					<span>联系人：${audit.targetContact?replace('-',' ')!''} </span>
+				</#if>
+				<span>操作员：${audit.userName!''}</span>
+				<span>馆数：${target?size}</span>
+			</div>
+			<table cellspacing="0" class="table" style="min-width:960px;">
+				<thead class="thead">
+					<th class="th w250">对象馆</th>
+					<th class="th w68">馆号</th>
+					<th class="th w88">馆别</th>
+					<th class="th w145">地区</th>
+					<th class="th w75">负责人</th>
+					<th class="th operation">对象范围</th>
+				</thead>
+				
+				<#list target as s>
+					<tr>
+						<td class="tl">${s.name!''}</td>
+						<td>${s.hallCode!''}</td>
+						<td>${s.libraryLevel!''}</td>
+						<td>${s.areaAddress!''}</td>
+						<td>${s.conperson!''}</td>
+						<td class="operation">${s.scopeString!''}</td>
+					</tr>
+				</#list>
+			</table>
+			<div class="form">
+				<div class="item">
+					<#if review==0>
+						<input type="button" class="btn" value="返回" onclick="history.back(-1)" style="margin-left: 0;"/>
+					<#else>
+						<input type="button" class="btn2" value="同意" style="margin-left: 0; top: 1px;"  onclick="applyAudit(${audit.id},${status!'0'})"/>
+						<input type="button" class="btn2 btn3" value="拒绝" style="top: 1px;" onclick="applyAudit(${audit.id},2)"/>
+					</#if>
+					<span class="tswords" ></span>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
+<script type="text/javascript">
+	function applyAudit(auditId,status){
+		$.post("${res}/system/circulationAudit/update.do",{auditId:auditId,status:status},function(data){
+			if(data){
+				var url ='';
+				var operator = $('.operator').val();
+				if(status==1||status==2){
+					url ='${res}/system/circulationAudit/review.do';
+				}else {
+					url ='${res}/system/circulationAudit/audit.do';
+				}
+				location.href=url;
+			}else {
+				$(".tswords").html("保存失败!");
+			}
+		})
+	}
+</script>

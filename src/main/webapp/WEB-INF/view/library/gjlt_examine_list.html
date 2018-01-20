@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>馆际流通审核</title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../head.html">
+		<link rel="stylesheet" href="${res}/css/style.css" />
+		<script src="${res}/js/jquery.min.js"></script>
+		<script src="${res}/js/common.js"></script>
+		<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=EmWvece0GHuKBjnfjSm2DwOO"></script>
+		<script type="text/javascript">
+		function page(n,s){
+			if(n==-1){
+				n = $(".pageNo").val();
+			}
+			$("#pageNo").val(n);
+			$("#pageSize").val(s);
+			$("#searchForm").submit();
+	    	return false;
+	    }
+		</script>
+	</head>
+	<body>
+		<div class="title">
+			<span class="l t">待审核流通单列表</span>
+			<img src="${res}/images/yun_back_img1.png" class="r" onclick="location.href=location.href"/>
+			<div class="clear"></div>
+		</div>		
+		<div class="search">
+			<form action="${res}/cms/library/reviewList.do" id="searchForm">
+			<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+			<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+			<!-- <input type="text" class="text tc"  placeholder="这里输入单号" name="searchText"/> -->
+			<input type="text" class="text l gray"  name="searchText" maxlength="20" tipMsg="这里输入单号" value="${search!''}"/>
+			<input type="submit" class="btn" value=" 搜索 "/>
+			</form>
+		</div>
+		
+			<table cellspacing="0" class="table" style="min-width:960px;">
+				<thead class="thead">
+					<th class="th w82">日期 </th>
+					<th class="th w98">单号</th>
+					<th class="th twname">流出馆</th>
+					<th class="th w75">操作员</th>
+					<th class="th twname">流入馆</th>					
+					<!-- <th class="th w62">数量</th>
+					<th class="th w88">码洋</th> -->
+					<th class="th last tw t_last" style="text-align:left;padding-left:10px;">操作</th>
+				</thead>
+				<#list page.list as lcc>
+				<tr>
+					<td>${(lcc.outDate?string("yyyyMMdd"))!''}</td>
+					<td>${lcc.outCode!''}</td>
+					<td class="tl" title="${lcc.outHallCode!''}">${lcc.outHallCode!''}</td>
+					<td>${lcc.auditPerson!''}</td>
+					<td class="tl" title="${lcc.inHallCode!''}">${lcc.inHallCode!''}</td>					
+					<!-- <td class="tr">102</td>
+					<td class="tr">1100245.00</td> -->
+					<td class="last" style="text-align:left;padding-left:10px;">
+						<a href="${res}/cms/library/review.do?id=${lcc.id}" class="a">审阅</a>
+					</td>
+				</tr>
+				</#list> 
+			</table>
+		
+		<div class="paging">${page}</div>
+		
+		
+	</body>
+</html>
+<script>
+	$('img.map').click(function(event){
+		event.stopPropagation();
+		var x=$(this).attr('x');
+		var y=$(this).attr('y');
+		if(x && y){			
+			setMap({
+				point:[x,y],
+			 	title:$(this).parent().parent().find('td').eq(3).text(),
+			 	address:'地址：'+$(this).parent().prev().text()
+			});
+			
+		}
+	});
+</script>

@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../head.html">
+		<script src="${res}/js/jquery/jquery.date_input.pack.js"></script>
+		<script type="text/javascript" src="${res}/js/cms/area.js"></script>
+		<script type="text/javascript">
+		    $(function(){
+		    	$('#form').lineFeedValidate();
+		     	$('#libraryForm').lineFeedValidate();
+		     	var customerId =$("#customerId").val();
+				 $.get("${res}/cms/customerLibrary/findByCustomerId/"+customerId+".do?t="+new Date().getTime(),function(data){
+					 $("#libraryTab").append(data);
+         		 });
+		    })
+		    
+		    function refresh(){
+		    	 location.reload();
+		    }
+		    function saveLibrary(){
+				$(".sumbit-msg").text("");
+		    	setDisabled('librarySave');
+	    		$("#libraryForm").ajaxSubmit({
+                    type: 'post',  
+                    beforeSubmit:function(){
+                    	var customerId = $("#customerId").val();
+                    	if(customerId==""){
+                    		$(".sumbit-msg").text("请先确定基本资料!");
+                    		removeDisabled('librarySave'); 
+                    		return false;
+                    	}
+                    	var $obj=isEmpty('#libraryForm');
+                    	if($obj!=true){
+                    		pullSelect($obj);
+                    		var title =$($obj).attr("title");
+	                    	showErrorTipMsg($($obj),$.trim(title)+"不能为空!");
+	                    	removeDisabled('librarySave'); 
+	                    	return false;
+                    	}
+                    	return true;
+                    },
+                    success:function(data){  
+                    	 $('.sumbit-msg').text("成功!");
+                   		 $(".libraryTr").remove();
+                   		 var json = JSON.parse(data);
+                   		 var customerId =json.customerId;
+                   		  $.ajax({
+                   			   url:"${res}/cms/customerLibrary/findByCustomerId/"+customerId+".do?t="+new Date().getTime(),
+                   			   dataType: "html",
+                   			   async:false,
+                   			   success:function(tabList){ 
+                   				 $("#libraryTab").append(tabList);
+                   			   }
+                   		  })
+       					  $('#libraryForm')[0].reset();
+                   		 $('.hallCode').val(json.hallCode);
+       					  s0.reset();
+       					  c0.reset();
+       					  q0.reset();
+       					  gb.reset();
+       					  $("#customerId").val(customerId);
+       					  $("#libraryId").val("");
+       					  $("#libraryEdit").hide();
+                   		  $("#librarySave").show();
+       					  delfile($(".filename"));
+       					removeDisabled('librarySave'); 
+       				
+       					$("input[name='libraryNumber']").removeAttr("readonly").removeClass("disabled");
+                    },  
+                    error: function(XmlHttpRequest, textStatus, errorThrown){  
+                    	$("#libraryId").val("");
+                    	$('.sumbit-msg').text("失败!");
+                    	removeDisabled('customerSave'); 
+                    }  
+                }); 
+		    }
+		    
+		    function editLibrary(id){
+		    	//处理完历史数据就屏蔽 select 修改
+		    	$("select[name='libraryLevel']").attr("readonly","true").addClass("disabled"); //编辑时馆别不能修改
+		    	$.getJSON("${res}/cms/customerLibrary/get",{"id":id},function(data){
+		    		$("#province0").val(data.provice);
+			  		s0.reset();
+			  		
+			  		var tmpstr="<option value=''>市</option>";
+		  	 	 	for(i in data.citylist){ 
+				  		if(i)tmpstr+=" <option value='"+i+"'>"+data.citylist[i]+"</option>";
+			    	}
+			  		$("#city0").html('').append(tmpstr).val(data.city);
+		  			c0.reset();
+	  			
+		  			tmpstr="<option value=''>区</option>";
+		  	 	 	for(i in data.arealist){ 
+					  	if(i)tmpstr+=" <option value='"+i+"'>"+data.arealist[i]+"</option>";
+				    }
+			  		$("#area0").html('').append(tmpstr).val(data.area);
+		  			q0.reset();
+		    		$("#libraryLevel").val(data.libraryLevel);
+		    		gb.reset();
+		    		
+		    		$("#libraryId").val(id);
+		    		var attachement = data.attachementFile;
+		    		if(attachement !="" && null != attachement){
+		    			showfilename(data.attachementFile);
+		    		}
+	       			$("input[name='libraryNumber']").val(data.libraryNumber);
+	       			$("input[name='libraryNumber']").attr("readonly","readonly").addClass("disabled");
+	       			//$("select[name='libraryLevel']").attr("readonly","true").addClass("disabled"); //编辑时馆别不能修改
+	       			$("input[name='assignCode']").val(data.assinCode);
+	       			$("input[name='chargeStandard']").val(data.chargeStandard);
+	       			$("input[name='chargeMoney']").val(data.chargeMoney);
+	       		 	$("input[name='chargeStartDate']").val(data.chargeStartDate);
+	       			$("input[name='chargeEndDate']").val(data.chargeEndDate);
+	       			$("input[name='contractStartDate']").val(data.contractStartDate);
+	       			$("input[name='contractEndDate']").val(data.contractEndDate);
+	       			$("input[name='attachementFile']").val(data.attachementFile);
+		    	})
+		    }
+		    
+		    function delLibrary(t,id){
+				var $this = $(t);
+				var $tr = $this.parents("tr");
+				var ul = $tr.parents("table").attr("ul");
+				var name = $tr.children("td[t]").text();
+				var code = $tr.find("td").eq(4);
+				var id = $tr.attr("tid");
+				ZENG.msgbox.show("删除中...", 6);
+				$.post(config.contextPath+"/cms/"+ul+"/del/"+id+".do",function(data){
+					ZENG.msgbox.hide();
+					if (!data.success) {
+						if(data.msg){
+						}else{
+							ZENG.msgbox.show("删除失败,请联系管理员!", 5);
+						}
+					}else{
+						$(".libraryTr").remove();
+						var customerId =$("#customerId").val();
+						 $.get("${res}/cms/customerLibrary/findByCustomerId/"+customerId+".do",function(data){
+                     			 $("#libraryTab").append(data);
+                     		 });
+					}
+				});
+			}
+		    
+			function assignLibraryCode(obj,number) {
+				//assignLibraryCode
+				if($(this).val != "" && validatePhone($("#phone").val())){
+					$('#validatePsw').removeClass('disabled').removeAttr('disabled');
+				}else{
+					$('#validatePsw').addClass('disabled').attr('disabled','disabled');
+				}
+				if(number=="")return false;
+				var endCode ="";
+				var i= $(".codenumber").index($(obj));
+				$(".codenumber").each(function(index){
+					 if(index>=i){
+						endCode=getAjaxData($(this),$(this).val(),endCode);
+						var codes = $("#span0").text();
+	    	    		var hallCode = codes.split("-")[0];
+	    	    		$(".adminer input[name$='hallCode']").each(function(){
+	    	    			$(this)[0].value=hallCode;
+	    	    		})
+					 }
+				 })
+			}
+			$.ajaxSetup({async:false}); 
+			function getAjaxData(obj,number,prevCode){
+					var modify = false;
+					var code = $("#assignCode").val();
+					var s_Code ="";
+					var startCode="";
+					var endCode="";
+					if(code!=""){
+						s_Code = code.split("-")[0];
+						modify= true;
+					}
+					$.getJSON("${res}/cms/customer/assgin.do",{"startCode":s_Code,"prevCode":prevCode,"number":number,"modify":modify,random:Math.random()},function(data){
+						startCode = data.startCode;
+						endCode = data.endCode;
+						$("#assignCode").val(startCode+"-"+endCode);
+					})
+					return endCode;
+			}
+		</script>
+	<style>
+	.formItem{width:655px;width:650px\9;}
+	@-moz-document url-prefix(){
+	.formItem{width:650px !important;}
+	}
+	</style>
+	</head>
+	<body>
+		<form class="form-horizontal" id="libraryForm"  action="${res}/cms/customerLibrary/save.do" method="post"  enctype="multipart/form-data"   autocomplete="off">
+		<!--馆号分配-->
+		<div class="form form2 formLibary" style="border:none;">
+		<input type="hidden" class="text" id="customerId" name="customer.id"  value="${customerId}" />
+		<input type="hidden" class="text" id="libraryId" name="libraryId"  value="" rq="false"/>
+		<div class="l item item2" style="margin-bottom: 0;">
+				<span class="t l">单位名称 </span>
+				<input type="hidden" class="text" id="masterId" name="id"  value="" rq="false"/>
+				<input type="text" class="text l formItem disabled" disabled datatype="empty" style="" value="${customer.name!''}"   title="单位名称"  tipMsg="" maxlength="30" index="1"/>
+				<div class="clear"></div>
+			</div>
+			<div class="l item" style="margin-bottom: 0;">
+				<span class="t l t3">客户代码 </span>
+				<input type="text" class="text l w158 disabled hallCode" disabled value="${customer.hallCode!''}"  title="组织代码 " tipMsg=""  maxlength="25" index="2" rq="false"/>
+				<div class="clear"></div>
+			</div>
+			<!--分配馆号 start-->
+			<div class="l guanhao">
+				<div class="block l " style="z-index:100;border:none;width:100%;margin-bottom:0">
+					<div class="l item itemselect" style="z-index: 100;">
+						<span class="t l">地区 </span> 
+ 						<select class="l select_s0" width="208" name="province.code"  title="provice"  id="province0" onchange="getCitys(this,this.value)" ><option value="">省</option>	</select> 
+						<select class="l select_c0" width="208" name="city.code" id="city0" onchange="getAreas(this,this.value)" ><option value="">市</option></select>
+						<select class="l select_q0" width="208" name="area.code" id="area0" ><option value="">区</option></select>
+ 						<div class="clear"></div>
+ 					</div>					
+
+					<div class="clear"></div>
+					<div class="l item item2">
+						<span class="t l" style="">馆别 </span>
+						<select class="select_gb l" width="159" name="libraryLevel"  id="libraryLevel" style="width:156px\9;">
+						<option value="">请选择馆别</option>
+						<#list visibleLibraryList as visibleLibrary>
+						<option value="${visibleLibrary}">${visibleLibrary}</option>
+						</#list>
+						</select>
+						<div class="clear"></div>
+					</div>					
+						<div class="l item item2">
+							<span class="t l t3">馆数</span>
+							<input type="text"  class="text l w157 codenumber" title="馆数"  tipMsg=""  index="26" name="libraryNumber" onchange="assignLibraryCode(this,this.value)" pn="0"  maxlength="5"/>
+							<div class="clear"></div>
+						</div>
+
+						<div class="l item item2">
+							<span class="t l t3">收费标准 </span>
+							<input type="text" class="text l w157" value="" name="chargeStandard" maxlength="7" index="28" title="收费标准"  tipMsg=""  id="chargeStandard" onkeyup="if(isNaN(value))execCommand('undo')"   onchange="formatToFixed('chargeStandard',9999999)"/>
+							<div class="clear"></div>
+						</div>
+					<div class="l item item2">
+						<span class="t l t3">收款金额 </span>
+						<input type="text" class="text l w157 firefox_input1" value="" maxlength="5"  name="chargeMoney" title="收款金额" id="chargeMoney"   onkeyup="if(isNaN(value))execCommand('undo')"   onchange="formatToFixed('chargeMoney',99999)"  tipMsg="" index="29"/>
+						<div class="clear"></div>
+					</div>
+					<div class="clear"></div>
+					<div class="l item" style="margin-right: 0; position: static;">
+						<span class="t l">交费期间 </span>
+						<input type="text" class="text l w157 date_input" isbottom=1  name="chargeStartDate" title="交费开始日期"  rq="false" index="30"/>
+						<img src="${res}/images/yun_back_img9.png" class="l date"/>
+						<span class="t l t3">至</span>
+						<input type="text" class="text l w157 date_input"  name="chargeEndDate" isbottom=1 title="交费结束日期"   rq="false" index="31"/>
+						<img src="${res}/images/yun_back_img9.png" class="l date"/>						
+
+						<span class="t l t3">合同期限 </span>
+						<input type="text" class="text l w157 date_input" value="" isbottom=1 name="contractStartDate" title="合同开始日期"   rq="false" index="32"/>
+						<img src="${res}/images/yun_back_img9.png" class="l date"/>
+						<span class="t l t3">至</span>
+						<input type="text" class="text l w157 date_input firefox_input1" isbottom=1 value="" name="contractEndDate" title="合同结束日期"   rq="false" index="33"/>
+						<img src="${res}/images/yun_back_img9.png" class="l date "/>
+					</div>
+						
+					<div class="l item" style="z-index: 11; position: static;">	
+						<span class="t l">&nbsp;</span>
+						<img src="${res}/images/yun_back_img8.gif" class="l upimg" onclick="$(this).next().click()"/>
+						<input type="file" style="display: none;" onchange="upfilename(this)" name="attachementFiles"/>
+						<span class="l filename" style="display: none;">
+							<label class='filenameLabel' ></label>
+							<img src="${res}/images/yun_back_del.gif" class="filedel" onclick="delfile(this.parentNode)"/>
+						</span>
+						<input type="hidden"  id="attachement" name="attachementFile"/>
+						<div class="clear"></div>
+					</div>
+					<div class="r item" style="margin-right:20px;">
+						<span class="sumbit-msg" style="margin-right:10px;"></span>
+							<input type="button" class="r btn btn4" value="确定"  id="librarySave" onclick='saveLibrary()' style="width:160px;margin-right:1px\9" index="35"/>
+							<!-- onclick="addLibrary('${res}/cms/customer/save.do','${res}')" -->
+							<!-- <input type="button" class="btn btn4" value="确定2" style="margin-right: 10px;"  id="libraryEdit" onclick="saveLibrary()"  style="width:160px;"/> -->
+					</div>
+					<div class="clear"></div>				
+				</div>
+			</div>
+			<!--分配馆号 end-->
+			<div id="scroll2" style="overflow-x:hidden;width:100%;font-size:14px; overflow-y: auto;">
+			<table class="table3" cellspacing="0"  id="libraryTab" ul="customerLibrary">
+					<thead>
+						<th width="60">序号 </th>
+						<th width="145">地区</th>
+						<th width="88">馆别</th>
+						<th width="70">馆数</th>
+						<th width="150">交费期间</th>
+						<th width="150">合同期限</th>
+						<th width="64">附件</th>
+						<th width="80">操作</th>
+					</thead>
+				</table>
+			</div>
+			<div class="clear"></div>
+		</div>
+		</form>
+		<div class="customer_href">
+			<a href="${res}/cms/customer/edit.do?id=${customerId}"><img src="${res}/images/yun_back_jt2.png"/>客户资料</a>
+			<a href="${res}/cms/customer/add.do">新增下一客户</a>
+		</div>
+	</body>
+</html>
+<script>
+window.onresize = function(){
+	reSize();
+};
+	//setSelect('.role');
+	var c0=setSelect('.select_c0');
+	var q0=setSelect('.select_q0');
+	var gb=setSelect('.select_gb');
+	
+	//加载日历控制
+	$(function(){
+		$('.date_input').date_input();
+		//点击选择日期按钮，调用日期控件
+		$('img.date').click(function(event){
+			event.stopPropagation();
+			$(this).prev().prev().focus();
+		});	
+	});
+	function reSize() {
+		var scrollHeight = document.documentElement.clientHeight - 400;
+		if(scrollHeight <= 176) scrollHeight = 176;
+		else scrollHeight = Math.ceil(scrollHeight/44)*44;
+		$('#scroll2').height(scrollHeight);
+	}
+	reSize();
+	
+	$('#phone').keyup(function(){
+		if(validatePhone($(this).val())){
+			if(timepd &&!$("input[name='libraryNumber']").val()==""){
+				$('#validatePsw').removeClass('disabled').removeAttr('disabled');
+			}
+		}else{
+			$('#validatePsw').addClass('disabled').attr('disabled','disabled');
+		}
+	});
+	
+	var sendPsw = false;
+	//显示验证操作员密码
+	function sendpsw(self){
+		//self.value="发送管理员新密码";
+		sendPsw = true;
+		$('.float-validate').show();
+		$('.float-validate input').focus();
+		$('#validatePsw').addClass('disabled').attr('disabled','disabled');
+	}
+	
+	//关闭验证框
+	function closeFloatValidate(){
+		//self.value="发送新密码";
+		$('.float-validate').hide();
+		$('.float-validate input').focus();
+		if(timepd){
+			$('#validatePsw').removeClass('disabled').removeAttr('disabled');
+		}
+	}
+	
+	//发送密码倒计时
+	var timepd=true;
+	function Countdown(){
+		timepd=false;
+		$('.float-validate').hide();
+		var t=60,fors,val=$('#validatePsw').val();
+		fors=setInterval(function(){
+			if(t<=0){
+				clearInterval(fors);
+				if(validatePhone($('#phone').val())){
+					$('#validatePsw').removeClass('disabled').removeAttr('disabled');
+				}
+				$('#validatePsw').val('发送管理员新密码')
+				timepd=true;
+				
+				return;
+			}
+			t--;
+			$('#validatePsw').val(val+"("+t+")");
+		},1000);
+	}
+	
+	function changeProvince(e){
+		var $city=$("#province"+guan)
+		var pId = $(e).attr('value');
+		 $.ajax({
+			   url:config.contextPath+"/area/getCity.html/"+pId,
+		       dataType:"json",
+		       success:function(data){
+		    	   citylist=data;
+		    	   setSelectList($city,c0,provicelist);
+		       }
+		  });
+	}
+	
+	//显示上传文件名
+	function upfilename(obj){		
+		var str=obj.value.split("\\");
+		var tmpstr=str[str.length-1];	
+		$("#attachement").val(tmpstr);
+		$(obj).next().show().find('label').html(tmpstr);		
+	}
+	
+	//显示上传文件名
+	function showfilename(fileName){
+		$(".filenameLabel").text(fileName).parent().show();
+	}
+	
+	
+	//删除上传文件
+	function delfile(obj){
+		$("#attachement").val("");
+		var html='<input type="file" value="" style="display:none;" onchange="upfilename(this)" name="attachementFiles"/>';
+		$(obj).prev().remove();
+		$(obj).hide().before(html);
+	}
+	
+	$('.psw').keyup(function(event){
+		  if(event.keyCode ==13){
+			  var code = $('#assignCode').val();
+			  code = code.substring(0,4);
+			  var name = $('.name').val();
+			  var pwd = $('.psw').val();
+			  $.post("${res}/cms/user/logininfo/"+pwd+".do",{hallCode:code,name:name,phone:$('#phone').val()},function(data){
+				  if(data.success){
+					  $('.sendpwd').val(true);
+					 Countdown();
+				  }else {
+					 showErrorTipMsg($('.psw'),"密码错误!");
+				  }
+			  })
+			  //formSubmit();
+		  }
+	});
+	
+	$(".codenumber").keypress(function(event){
+		if(event.keyCode ==13){
+			$("#chargeStandard").focus();
+		}
+	});
+</script>

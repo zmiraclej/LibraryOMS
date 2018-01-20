@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../head.html">
+		<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=EmWvece0GHuKBjnfjSm2DwOO"></script>
+		<script type="text/javascript">
+	    $(function(){
+	    	$('.select0').attr("disabled","disabled");
+	    	$('#form').lineFeedValidate();
+	    	$("#btnSubmit").bind("click",function(){
+	    		$(".sumbit-msg").text("");
+	    		setDisabled('btnSubmit');
+	    		$("#form").ajaxSubmit({  
+                    type: 'post',  
+                    beforeSubmit:function(){
+                    	var $obj=isEmpty();
+                    	if($obj!=true){
+                    		var title =$($obj).attr("title");
+	                    	showErrorTipMsg($($obj),$.trim(title)+"不能为空!");
+	                    	removeDisabled('btnSubmit');
+	                    	return false;
+                    	}
+                    	return true;
+                    },
+                    success: function(data){  
+                    	var action = $('.psw').css("visibility");
+        	    		if(action=='visible'){
+        	    			sendPwd();
+        	    		}
+						$(".sumbit-msg").text("成功!");
+                    },  
+                    error: function(XmlHttpRequest, textStatus, errorThrown){  
+                    	setDisabled('btnSubmit');
+                    	 $(".sumbit-msg").text("保存失败!");
+                    }  
+                });  
+	    	})
+	    /* 	setTimeout(function(){
+	    	$("#libAddress").val();
+	    	},500) */
+	    	 setTimeout(function(){
+                 ac.setInputValue($("#libAddress").val());
+             },500)
+	    	
+	    });
+	    
+    	function isEmpty(){		
+			var list=$('input.text,select');
+			var tmpobj,is=true;
+			for(var i=0;i<list.length;i++){
+				tmpobj=list.eq(i);
+				var rq =tmpobj.attr("rq");
+				if(rq!=undefined)continue;
+				if(tmpobj.val()==""){				
+					is=tmpobj[0];
+					break;
+				}
+			}
+			return is;
+		}
+    	
+		function findLevelByArea(){
+			var  areaCode = $("#area").val();
+			  var tmpstr="";
+			  $("#level").empty();
+			$.get("${res}/cms/customerLibrary/findByArea.html",{"area":areaCode},function(data){
+				if(data instanceof Array){   
+					$.each(data,function(index){
+						tmpstr+=" <option value='"+data[index].level+","+data[index].id+"'>"+data[index].level+"</option>";
+					})
+				}
+				$("#level").append(tmpstr);				
+				select1.reset();
+			})
+			
+		}
+		
+		function findLibraryCodeById(){
+			var customerLibraryId =$("#level option:selected").attr("label");
+			  var tmpstr="";
+			  $("#customerLibraryId").val(customerLibraryId);
+			  $("#libraryCode").empty();
+			$.get("${res}/cms/customerLibrary/findCodesById.html",{"id":customerLibraryId},function(data){
+				var number = data.codeNumber;
+				$.each(data.codes,function(index){
+					tmpstr+=" <option value='"+data.codes[index]+"' >"+data.codes[index]+"</option>";
+				})
+				$("#codeNumber").text(number);
+				if(tmpstr!=""){
+					$("#libraryCode").append(tmpstr);				
+					select2.reset();
+				}else{
+					$("#btnSubmit").attr("disabled","disabled");
+				}
+			})
+			
+		}
+		
+		</script>
+		
+		
+	</head>
+	<body>
+	<form class="form-horizontal" id="form" modelAttribute="customer" action="${res}/cms/library/edit.do" method="post"  enctype="multipart/form-data" autocomplete="off">
+		<div class="form">
+			<div class="l item item2" style="z-index: 20;">
+				<span class="t l">地区 </span>
+				<select class="w230 select0 l disabled" width="230" name="area.code"  onchange="findLevelByArea()" id="area"    >
+				<#if (areas!?size>0)> 
+					<#list areas as area>
+						<option value="${area.value}" <#if area.label==library.areaAddress!> selected="selected" </#if>> ${(area.label!)?html}</option>
+					</#list>
+					<#else>
+						<option >${library.areaAddress!}</option>
+					</#if>
+				</select>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2" style="z-index: 19;">
+				<span class="t l t3">馆别 </span>
+				<select class="l select1 disabled" width="232" name="libraryLevel" id="level"  disabled="disabled" >
+					<option></option>
+					<#list levels as level>
+						<option value="${level}" <#if level==library.libraryLevel!> selected="selected"> </#if> ${(level!)?html}</option>
+					</#list>
+				</select>
+				<div class="clear"></div>
+			</div>
+			<div class="l" style="padding-left:15px;line-height:32px; color:#999"></div>
+			<div class="clear"></div>
+			<div class="l item item2"  style="z-index: 18;">
+				<span class="t l">馆号 </span>
+				<select class="w230 l select2 disabled" width="230" id="libraryCode"  name="hallCode"  >
+					<option value="${library.hallCode!}" >${library.hallCode!}</option>
+				</select>	
+					<input type="hidden" id="customerLibraryId"  name="customerLibraryId"  value="${library.customerLibraryId!}"/>		
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2">
+				<span class="t l t3">馆名 </span>
+				<input type="text" class="text l w230 libName" value="${library.name!}" name="name" maxLength="64" title="馆名" index="1"/>		
+				<input type="hidden" class="text l w230" value="${library.id!}" name="id" />		
+				<div class="clear"></div>
+			</div>
+            <div class="l" style="padding-left:15px;line-height:32px;color:#999"><span id="codeNumber"></span></div>
+			<div class="clear"></div>
+			<div class="l item">
+				<span class="t l">地址 </span>
+				<input type="text" class="text l" style="width:550px" value="" maxLength="64" name="address" id="address" title="地址" index="2"/>
+				<input type="hidden" id="libAddress"  value="${library.address!}"/>
+				<input type="hidden" id="lngLat" name="lngLat"  value="${library.lngLat!}"/>
+				<img src="${res}/images/yun_back_img6.gif" class="l addnav" onclick="setPosMap()"/>
+				<div class="clear"></div>
+			</div>
+			<div class="l item fuzhe" style="z-index: 55;">
+				<span class="t l">协议账号</span>
+				<input type="text" class="text l w230" style="width:228px" value="${library.agreementAccount!}" name="agreementAccount" maxlength="20" index="3" id="agreementAccount" title="协议账号"  tipMsg=""/>				
+				<span class="img l t3" style="text-align: right;">户名</span>
+				<input type="text" class="text l w230" value="${library.acountName!}" name="acountName" maxlength="20" index="4" title="户名" tipMsg=""/>
+				<span class="img l t3" style="text-align: right;">授信额度</span>
+				<#if library.creditLines==5000>
+					<select class="w191 l select3" width="187" name="creditLines" value="${library.creditLines!}" >
+						<option>${library.creditLines?string('0.00')}</option>
+					</select>
+				<#else>
+				<select class="w191 l select3" width="187" name="creditLines" value="${library.creditLines!}" >
+						<option>${library.creditLines?string('0.00')}</option>
+						<option>5000.00</option>
+					</select>
+				</#if>
+				
+				<div class="clear"></div> 
+			</div>
+			
+			<#assign _index=6>
+			<#if (library.contacts?size>0)>
+					<div class="l item lianxi">
+						<span class="t l">联系人 </span>
+						<input type="hidden" class="text l" value="${library.contacts[0].id!}"  name="contacts[0].id" title="主键"  tipMsg="" maxlength="10" rq="false"/>
+						<input type="text" class="text l w160 contactPerson"  value="${library.contacts[0].contactPerson!}"  name="contacts[0].contactPerson" title="联系人"  tipMsg="" maxlength="10"  index="6"/>
+						<span class="img l img0"></span>
+						<input type="text" class="text l w160 tel" value="${library.contacts[0].tel!}" name="contacts[0].tel" title="座机"   index="7" tipMsg=""  maxlength="11" onkeyup="javascript:this.value=this.value.replace(/\D/g,'');"/>
+						<span class="img l img1"></span>
+						<input type="text" class="text l w160 phone" value="${library.contacts[0].phone!}" name="contacts[0].phone"  index="8"  title="手机" maxlength="11" tipMsg="" id="phone"/>
+						<span class="img l img2"></span>
+						<input type="text" class="text l mail" style="width:245px;width:243px\9;" value="${library.contacts[0].chat!}" name="contacts[0].chat" index="9" title="邮箱" tipMsg=""/>
+						<div class="clear"></div>
+					</div>
+			<#else>
+			<div class="l item lianxi">
+				<span class="t l">联系人 </span>
+				<input type="hidden" class="text l" value=""  name="contacts[0].id" title="主键"  tipMsg="" maxlength="10" rq="false"/>
+				<input type="text" class="text l w160 contactPerson"  value=""  name="contacts[0].contactPerson" title="联系人"  tipMsg="" maxlength="10"  index="6"/>
+				<span class="img l img0"></span>
+				<input type="text" class="text l w160 tel" value="" name="contacts[0].tel" title="座机"   index="7" tipMsg=""  maxlength="11" onkeyup="javascript:this.value=this.value.replace(/\D/g,'');"/>
+				<span class="img l img1"></span>
+				<input type="text" class="text l w160 phone" value="" name="contacts[0].phone"  index="8"  title="手机" maxlength="20" tipMsg="" id="phone"/>
+				<span class="img l img2"></span>
+				<input type="text" class="text l mail" style="width:245px;width:243px\9;" value="" name="contacts[0].chat" index="9" title="邮箱" tipMsg=""/>
+				<div class="clear"></div>
+			</div>
+			</#if>
+			
+			<div class="l item" style="z-index: 0; width: 934px;">
+				<#if library.isEffective=='3'>
+					<span class="t l">&nbsp;临时馆</span>
+					<input type="checkbox" value="1" name="isEffective" onclick="setIsEffective()" checked="checked"/>
+				</#if> 
+				<#if library.libraryStatus == 2 || library.libraryStatus == 12>
+					<span class="t l">&nbsp;</span>
+					<input type="button" class="btn l"  value="admin新密码发送" id="validatePsw" style="width:180px;" onclick="sendpsw(this)"/>
+				</#if> 
+				<#if library.libraryStatus == 1>
+				<span class="t l">&nbsp;</span>
+				<input type="button" class="btn l"  value="admin新密码发送" id="validatePsw" style="width:180px; display:none " onclick="sendpsw(this)"/>
+				</#if>
+				<input type="button" class="btn r" value="确定"  id="btnSubmit"  index="20" style="width:160px; margin-right:-5px\9"/>
+				<span class="r sumbit-msg" style="margin-right:10px;"></span>
+				<input type="password" class="text r w170 validate psw" value="" style="margin-right: 10px;visibility:hidden;" tipMsg=""  rq="false"  />
+				<div class="l red validate" style="margin-left: 15px;display:none;">admin新密码发送，需验证操作员密码</div>
+					<input type="hidden" name="sendpwd"  value="false" class="sendpwd"/>	
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+		</div>
+		</form>
+	</body>
+</html>
+<script>
+
+function setIsEffective() {
+	var $isEffective = $("input[name='isEffective']");
+	var $libName = $('.libName');
+	var $address = $("#address");
+	var $agreementAccount = $("#agreementAccount");
+	var $accountName = $("input[name='acountName']");;
+	var $contactPerson = $(".contactPerson");
+	var $tel = $(".tel");
+	var $phone = $(".phone");
+	var $mail = $(".mail");
+	var $lngLat = $("#lngLat");
+	if($isEffective.is(':checked')) {
+		var $area = $("#area");
+		var $level = $("#level");
+		var $hallCode = $("#libraryCode");
+		if($area.val() == '') {
+			$lib.attr("checked",false);
+			pullSelect($area[0]);return false;
+		}
+		if($level.val() == '') {
+			$level.attr("checked",false);
+			pullSelect($level[0]);return false;
+		}
+		if($hallCode.val() == '') {
+			$hallCode.attr("checked",false);
+			pullSelect($hallCode[0]);return false;
+		}
+		$libName.val("临时馆");
+		$address.val("四川省成都市武侯区益州大道中段");
+		$lngLat.val("104.062691,30.55532");
+		$agreementAccount.val("临时馆");
+		$accountName.val("临时馆");
+		$contactPerson.val("徐跃帮");
+		$tel.val("02885988286");
+		$phone.val("18080992767");
+		$mail.val("xyb811122@qq.com");
+		$isEffective.val("2");
+	} else {
+		$libName.val("");
+		$address.val("");
+		$agreementAccount.val("");
+		$accountName.val("");
+		$contactPerson.val("");
+		$tel.val("");
+		$phone.val("");
+		$mail.val("");
+		$lngLat.val("");
+		$isEffective.val("1");
+	}
+}
+
+$('#phone').keyup(function(){
+	if(!timepd)return;
+	if(validatePhone($(this).val())&&$("#libraryCode option:selected").text()!=''){
+		$('#validatePsw').removeClass('disabled').removeAttr('disabled');
+	}else{
+		$('#validatePsw').addClass('disabled').attr('disabled','disabled');
+	}
+});
+
+$('#phone').blur(function(){
+	if(!validatePhone($(this).val())&&$(this).val()!=''){
+	  	showErrorTipMsg($(this),"手机格式错误!");
+	}
+});
+
+$('.mail').blur(function(){
+	if(!CheckMail($(this).val())&&$(this).val()!=''){
+	  	showErrorTipMsg($(this),"邮箱格式错误!");
+	}
+});
+
+
+//验证邮箱
+function CheckMail(mail) {
+	var filter  = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+	if (filter.test(mail)){
+		return true;
+	}else{
+		return false;
+	}
+}
+
+
+//显示验证操作员密码
+function sendpsw(self){
+	//self.value="发送新密码";
+	$('.validate').css("visibility","visible").eq(0).focus();
+	$('.validate').show();
+	$('#validatePsw').addClass('disabled').attr('disabled','disabled');
+	$('#btnSubmit').addClass('disabled').attr('disabled','disabled');
+}
+
+//关闭验证框
+function closeFloatValidate(){
+	//self.value="发送新密码";
+	$('.validate').hide();
+	$('#validatePsw').removeClass('disabled').removeAttr('disabled');
+}
+
+//发送密码倒计时
+var timepd=true;
+function Countdown(){
+	timepd=false;
+	$('.float-validate').hide();
+	var t=60,fors,val=$('#validatePsw').val();
+	fors=setInterval(function(){
+		if(t<=0){
+			clearInterval(fors);
+			$('#validatePsw').removeClass('disabled').removeAttr('disabled').val('admin新密码发送');
+			timepd=true;
+			return;
+		}
+		t--;
+		$('#validatePsw').val(val+"("+t+")");
+	},1000);
+}
+
+
+	//点击图标查看导航
+	$('img.map').click(function(event){
+		event.stopPropagation();
+		var x=$(this).attr('x');
+		var y=$(this).attr('y');
+		if(x && y){			
+			setMap({
+				point:[x,y],
+			 	title:$(this).parent().parent().find('td').eq(3).text(),
+			 	address:'地址 '+$(this).parent().prev().text()
+			});
+			
+		}
+	});
+	//显示隐藏图书馆列表
+	$('.look').click(function(){
+		var isshow=parseInt($(this).attr('isshow'));
+		if(isshow==1){
+			$('.table-parent').slideUp(200);
+			$(this).attr('isshow',0).html('显示已有图书馆');
+		}else{
+			$('.table-parent').slideDown(200);
+			$(this).attr('isshow',1).html('隐藏已有图书馆');
+		}
+	});
+	//添加负责人
+	var recordContact=0;
+	function addContact(self){		
+		var strhtml='<div class="l item lianxi" style="width:105%;"><span class="t l">&nbsp;</span>';
+		strhtml+='<input type="text" class="text l w191" value="" name="library.contacts['+recordContact+'].contactPerson" title="姓名"  tipMsg=""/>';
+		strhtml+='<span class="img l img0"></span>';
+		strhtml+='<input type="text" class="text l w191" value="" name="library.contacts['+recordContact+'].phone" title="电话"  tipMsg=""/>';
+		strhtml+='<span class="img l img1"></span>';
+		strhtml+='<input type="text" class="text l w191" style="width:187px\9;" value="" name="library.contacts['+recordContact+'].tel" title="座机"  tipMsg=""/>';
+		strhtml+='<span class="img l img2"></span>';
+		strhtml+='<input type="text" class="text l w191" value="" name="library.contacts['+recordContact+'].chat" title="QQ" tipMsg=""/>';
+		if(recordContact<1){
+			strhtml+='<img src="${res}/images/yun_back_img7.gif" class="l add" onclick="addContact(this)"/>';
+		}else{
+			strhtml+='<img src="${res}/images/yun_back_img7.gif" class="l add" style="display:none;" onclick="addContact(this)"/>';
+		}
+		strhtml+='<img src="${res}/images/yun_back_img7_s.gif" class="l add" onclick="recordContact--;$(this).parent().remove();$(\'.lianxi:last img.add\').show();"/>';
+		strhtml+='<div class="clear"></div></div>';
+		$(self).parent().after(strhtml);
+		$(self).hide();
+		recordContact++;
+	}
+	
+	//自定义下拉列表
+	var select0=setSelect('.select0');
+	var select1=setSelect('.select1');
+	var select2=setSelect('.select2');
+	setSelect('.select3');
+	setSelect('.fuzheselect');
+	
+	/*添加导航*/
+	var map;//地图对象
+	var tmpmarker;//标注点
+	var address,isfirstshow=false;
+	var ac = new BMap.Autocomplete({"input" : "address"});
+	ac.addEventListener("onconfirm", function(e) {//鼠标点击下拉列表后的事件		
+	     setGeocoder($('#address').val());
+	});
+	setTimeout(function(){$('.tangram-suggestion-main').css("z-index",10000)},500);
+	
+	function closeMap(is){
+		$('.mapdiv,.bg').hide();
+		if(tmpmarker){
+			if(is && tmpmarker.point.lng && tmpmarker.point.lat){
+				var lngLat =tmpmarker.point.lng+","+tmpmarker.point.lat;				
+				document.getElementById('lngLat').value=lngLat;				
+				if(!$("#address").val()){
+					var p = tmpmarker.getPosition();  
+					getGeocoder(p);				
+				}
+			}
+		}
+	}
+	
+	
+	function addMap(){	
+		var html='<div class="mapdiv"><div class="maperror" style="width:140px;color:#ff5400; text-align:center;height:28px;line-height:28px;position:absolute;display:none;left:0;top:30px; background:#fff;padding:0 20px;z-index:10000;">未搜索到结果!</div>';
+		html+='<div class="maptitle"></div><div id="allmap"></div></div><div class="bg"></div>';
+		$('body').append(html);
+		
+		$('.mapdiv').show().find('.close').hide();
+		$('.bg').show();
+		var tmpaddress=$('#address').val();//地址
+		var tmphtml='请点击/拖动标注设置图书馆位置';
+		tmphtml+='<a href="javascript:" onclick="closeMap(true)" style="right:75px;">确定</a>';
+		tmphtml+='<a href="javascript:" onclick="closeMap(false)">取消</a>';
+		$('.maptitle').show().html(tmphtml);		
+				
+		map = new BMap.Map("allmap");	
+		map.enableScrollWheelZoom(true);//开启鼠标滚轮缩放	
+		map.disableInertialDragging();
+		map.disableKeyboard();
+		
+		
+		//定位到当前城市
+		var myCity = new BMap.LocalCity();
+		myCity.get(function(result){
+			map.centerAndZoom(result.name,18);
+		});		
+		
+		
+		//城市列表
+		var size = new BMap.Size(20,40);
+		map.addControl(new BMap.CityListControl({
+		    anchor: BMAP_ANCHOR_BOTTOM_LEFT,
+		    offset: size
+		    /*onChangeAfter:function(){
+		    	tmpmarker="";
+		    	map.clearOverlays();		    	
+		    	map.addEventListener("click",function(e){
+					if(!tmpmarker){
+						tmpmarker = new BMap.Marker(new BMap.Point(e.point.lng,e.point.lat));  // 创建标注				
+						map.addOverlay(tmpmarker);
+						tmpmarker.enableDragging();
+					}
+				});
+		    }
+		*/
+		}));
+		
+		//没有标柱时，单击获取点击的经纬度		
+		map.addEventListener("click",function(e){
+			map.removeOverlay(tmpmarker);
+			tmpmarker = new BMap.Marker(new BMap.Point(e.point.lng,e.point.lat));  // 创建标注
+			map.addOverlay(tmpmarker);
+			
+		});
+		$('.mapdiv,.bg').hide();
+	}
+	addMap();
+	
+	var geoc = new BMap.Geocoder(); 
+	function getGeocoder(pt){
+		geoc.getLocation(pt, function(rs){
+			var addComp = rs.addressComponents;			
+			address =addComp.province+addComp.city+addComp.district+ addComp.street+ addComp.streetNumber;
+			$("#address").val(address);
+		});        
+	}
+	
+	//根据地址标注
+	function setGeocoder(address){
+		isfirstshow=true;
+		var myGeo = new BMap.Geocoder();
+		myGeo.getPoint(address,function(point){
+			if(point){				
+				tmpmarker = new BMap.Marker(point);
+				map.centerAndZoom(point,18);
+				map.clearOverlays();
+				map.addOverlay(tmpmarker);
+				tmpmarker.enableDragging();
+			}else{				
+				tmpmarker="";
+				var myCity = new BMap.LocalCity();
+				$('.maperror').html('未搜索到结果!').css({left:($('.mapdiv').width()-180)/2}).show();
+				setTimeout(function(){$('.maperror').fadeOut(500)},1500);
+				map.clearOverlays();					
+				myCity.get(function(result){
+					map.centerAndZoom(result.name,18);
+				});
+			}
+		});		
+	}
+	
+	//根据坐标定位
+	var tmppoint;
+	function setPosMap(){
+		$('.mapdiv,.bg').show();
+		if(!isfirstshow && $('#lngLat').val()!=""){
+			isfirstshow=true;
+			var point=$('#lngLat').val().split(',');
+			tmppoint=new BMap.Point(point[0],point[1]);
+			tmpmarker = new BMap.Marker(tmppoint);//创建标注				
+			map.clearOverlays();
+			map.addOverlay(tmpmarker);
+			tmpmarker.enableDragging();
+			setTimeout(function(){map.centerAndZoom(tmppoint,18)},300);
+		}
+	}	
+
+	//修改地址
+	$('#address').change(function(){
+		$('.mapdiv,.bg').show();
+		setGeocoder($(this).val());
+	});
+	$('.psw').keyup(function(event){
+		  if(event.keyCode ==13){
+				sendPwd();
+		  }
+	});
+	
+	function sendPwd(){
+		 var code = $("#libraryCode").val();
+		  var pwd = $('.psw').val();
+		  pwd =$.base64Encode(pwd);
+		  $.post("${res}/cms/user/validate/"+pwd+".do",{hallCode:code,phone:$('#phone').val()},function(data){
+			  if(data.success){
+				$('#btnSubmit').removeClass('disabled').removeAttr('disabled');
+				 showErrorTipMsg($('.psw'),"");
+				 $('.validate').css("visibility","hidden");
+				 $('.psw').css("visibility","hidden").val("");
+				 $('.sendpwd').val(true);
+				 $('#btnSubmit').removeClass('disabled').removeAttr('disabled').focus();
+				  //$("#btnSubmit").focus();
+				  Countdown();
+			  }else {
+				 showErrorTipMsg($('.psw'),"密码错误!");
+			  }
+		  })
+	}
+	
+	
+	$("#address").keydown(function(event){
+		if(event.keyCode ==13){
+			$("#agreementAccount").focus();
+		}
+	});
+</script>

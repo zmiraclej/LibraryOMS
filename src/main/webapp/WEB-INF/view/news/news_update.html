@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>资讯维护-修改</title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "../head.html">
+		<link href="${res}/ueditor/themes/default/css/ueditor.min.css" rel="stylesheet"/>
+		<script type="text/javascript" src="${res}/ueditor/ueditor.config.js"></script>
+		<script type="text/javascript" src="${res}/ueditor/ueditor.all.min.js"></script>
+		<script type="text/javascript" src="${res}/js/cms/area.js"></script>
+		<script type="text/javascript">
+		$('.select1').attr("disabled","disabled");
+		/* var titleAD =$(".r").text();
+		if(titleAD.indexOf("HI，tzpt1707 | 退出") != -1)
+		{
+			$(".yun").remove();
+			select2.reset();
+		} */
+		$.ajaxSetup({
+			async:true
+		});
+	$.validator.addMethod("applyTypeIsNotExist",function(value, element){
+		if($(element).parent().find("input[type='hidden']").val()==value){
+			return true;
+		}
+		var isSuccess;
+		$.getJSON(config.contextPath+"/cms/customizePage/checkApplyTypeNotExist.do",{"applyType":value},function(data){
+			isSuccess = data;
+		});
+		return isSuccess;
+	},"应用类型已经存在,不能重复添加!");
+	$(function(){
+		$('#form').lineFeedValidate();
+		var ue = UE.getEditor('content');
+		$("#revert").click(function(){
+			window.location.href = "${res}/cms/customizePage/list.do";
+			return false;
+		});
+	});
+	function sub(n){
+		var text1 = $(".select1").children('option:selected').val()=="请选择馆别"?false:true;
+		var text2 = $(".select2").children('option:selected').val()=="请选择馆别"?false:true;
+		var ti = $(".w230").val();
+		var co = $("#content").val();
+		var up = $("#upfile").val();
+		if(ti =="")
+		{$(".w230").attr("value","请您输入标题").css({color:"#c2c2c2"});}
+		if(co.length == 0)
+		{$(".ig1").css("display","");}
+		if(co.length!=0)
+		{$(".ig1").css("display","none");}
+		if(text1&&text2&&ti!=""&&co!=""&&ti !="请您输入标题"&&up!="文件格式不正确!")
+		{
+			$("#status").val(n);
+			$("#form").submit();
+		}
+    	return false;
+    }
+</script>
+<style>
+	.edui-default{float:left;}
+</style>
+	</head>
+	<body>
+		<div class="form">		
+			<form class="form-horizontal" id="form" action="${res}/news/news/updateinfo.do?id=${newsInfo.id}" enctype="multipart/form-data" method="post" autocomplete="off">	
+			<input id="status" name="status" type="hidden"/>
+			<input type='text' style='display:none'/>
+			<div class="l item item2" style="z-index: 12;">
+				<span class="t l">类别 </span>
+				<select class="l select1" width="232"  name="type" onchange = findType()>
+					<#list types as type>
+						<#if type.key=newsInfo.type>
+							 <option value="${type.key}" selected class="yun">${type.val}</option>
+						<#else>
+							<option value="${type.key}" >${type.val}</option>
+						</#if>
+							
+					</#list>
+				</select>
+				<script type="text/javascript">
+				var optext = $('#test0').val();
+				if(optext == $("#test1").val())
+				{$("#test1").remove();}
+				if(optext == $("#test2").val())
+				{$("#test2").remove();}
+				if(optext == $("#test3").val())
+				{$("#test3").remove();}
+				</script>
+				<div class="clear"></div>
+			</div>
+			<div class="l item item2" style="z-index: 13;">
+				<span class="t l" style="width:81px;">来源 </span>
+				<select class="l select2" width="232"  name="source">
+					<option value="${newsInfo.source}" >${newsInfo.source}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+			
+			<div class="l item item2 obj" style="z-index: 11;">
+				<span class="t l">对象</span>
+				<select class="l select3" width="232"  name="objKey" onchange = findSelect()>
+					<option value="0">全部</option>
+					<option value="1" <#if newsInfo.objKey='1'> selected</#if>>地区</option>
+					<option value="2" <#if newsInfo.objKey='2'> selected</#if>>馆别</option>
+					<option value="3" <#if newsInfo.objKey='3'> selected</#if>>馆号</option>
+					<option value="4" <#if newsInfo.objKey='4'> selected</#if>>馆名</option>
+				</select>
+			</div>
+				<!-- 非地区 -->
+				<div class="l item item2 objItem" style="z-index: 11;">
+					<div class="t l" style="width:81px;height:1px;text-align: center;">-</div>
+					<select class="l select4" width="232"  name="objVal" >
+						<option value="0">全部</option>
+						<#if newsInfo.objKey??>
+							<#if newsInfo.objKey=='2'>
+								<#list levels as level>
+									<option value="${level}" <#if level==newsInfo.objVal> selected </#if>>${level}</option>
+								</#list>
+							<#elseif newsInfo.objKey=='3'||newsInfo.objKey=='4'>
+								<#list list as lib>
+									<option value="${lib.code}" <#if lib.code==newsInfo.objVal> selected </#if>>${lib.name}</option>
+								</#list>
+							</#if>
+						</#if>
+					</select>
+					<div class="clear"></div>
+				</div>
+				<!--地区 -->
+				<div class="l itemselect" style="z-index: 11;">
+					<div class="l" style="width:26px;height:33px;text-align: center;line-height: 33px;">-</div>
+						<span class="t l"> </span> 
+						<select class="l select_s0" width="126" name="provinceCode" title="provice"  id="province0" onchange="getCitys(this,this.value)" ><option value="">省</option>	</select>&nbsp; 
+						<select class="l select_c0" width="126" name="cityCode"   id="city0" onchange="getAreas(this,this.value)" style="margin-left: 10px" ><option value="">市</option></select>&nbsp;
+						<select class="l select_q0" width="126" name="areaCode"  id="area0" ><option value="">区</option></select>&nbsp;
+					<div class="clear"></div>
+				</div>
+			<div class="clear"></div>
+			<div class="l item item2">
+				<span class="t l">标题 </span>
+				<input type="text" class="text l w230" value="${newsInfo.title}" style="width:550px"  name="title"/>
+				<div class="clear"></div>
+			</div>	
+			<div class="clear"></div>	
+			<#if newsInfo.type!='4'>
+				<div class="l item item2 img" style="width:800px; height: auto;">
+						<span class="t l">缩略图 </span>
+							<img src="https://img.ytsg.cn/images/newsImages/${newsInfo.image!''}" id="tmpimg" class="l" width="200" height="80" style="margin-right:5px"/>
+							<div id="localImag" class="l" style="margin-right:5px"></div>
+							<div class="l" style="position:relative;top:47px;">
+								<img class="l" src="${res}/images/yun_back_img9.gif" width="85" height="34" id="upimgbtn"/>
+								<input type="file" class="upfile" id="upfile" onchange="setImagePreview(200,80)"  name="images"  />
+							</div>
+							<input type="hidden" class="upfile" id="upfile"  name="image" value="${newsInfo.image!''}"/>
+						
+						<div class="clear"></div>
+				</div>
+			</#if>
+			<div class="l item item2" style="height: auto;">
+				<span class="t l">内容 </span>
+				<textarea  rows="" cols="" id="content" name="content" index="2" style="width:800px;height:376px;">${newsInfo.content}</textarea>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+			<div class="l item">
+				<span class="t l">&nbsp;</span>
+				<input type="button" class="btn" onclick="sub(1)" value="确定更改"/>
+				<input type="button" onclick="sub(5)" class="btn saveOne" value="保存草稿"/>
+				<span class="tswords ig1" style="display:none;">您还没有输入内容！</span>
+				<#if (status!"0") == "1" || (status!"0") == "5" >
+					<#if action == "1" >
+						<span class="r sumbit-msg" style="margin-right:10px;">修改成功!</span>
+					<#elseif action == "5" >
+						<span class="r sumbit-msg" style="margin-right:10px;">保存成功!</span>
+					</#if>
+					<script type="text/javascript">
+						$(".btn").focus();
+					</script>
+				</#if>
+				<#if (status!"0") == "6" || (status!"0") == "10" >
+					<#if action == "6" >
+						<span class="r sumbit-msg" style="margin-right:10px;">修改成功!</span>
+					<#elseif action == "10" >
+						<span class="r sumbit-msg" style="margin-right:10px;">保存成功!</span>
+					</#if>
+					<script type="text/javascript">
+						$(".btn").focus();
+					</script>
+				</#if>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+			</form>
+		</div>		
+	</body>
+</html>
+<script>	
+	//自定义下拉列表
+	setSelect('.select1');
+	var select2 = setSelect('.select2');
+	var select3 = setSelect('.select3');
+	var select4=setSelect('.select4');
+	
+	var c0=setSelect('.select_c0');
+	var q0=setSelect('.select_q0');
+	
+	//编辑地区	
+	var isArea = "${isArea}";
+	if(isArea=='1'){
+		$('.select3').attr("width","126");
+		select3.reset();
+		$('.objItem').hide();
+		$('.itemselect').show();
+		
+		select3.reset();
+		var province = "${province}";
+		var city = "${city!''}";
+		var area = "${area!''}";
+		setTimeout(
+	  	$.getJSON("${res}/news/news/area",{"province":province,"city":city,"area":area},function(data){
+	  		$("#province0").val(province);
+			s0.reset();
+			var tmpstr="<option value=''>市</option>";
+		 	for(i in data.citylist){ 
+	  			if(i)tmpstr+=" <option value='"+i+"'>"+data.citylist[i]+"</option>";
+			}
+			$("#city0").html('').append(tmpstr).val(city);
+			c0.reset();
+		
+			tmpstr="<option value=''>区</option>";
+		 	for(i in data.arealist){ 
+		  		if(i)tmpstr+=" <option value='"+i+"'>"+data.arealist[i]+"</option>";
+	    	}
+			$("#area0").html('').append(tmpstr).val(area);
+			q0.reset();
+	  	})
+		,2000);
+	}else {
+		$('.select3').attr("width","232");
+		select3.reset();
+		$('.itemselect').hide();
+		$('.objItem').show();
+	}
+	
+	function setImagePreview(w,h){     
+		var path=$('#upfile').val();
+		var type=path.substr(path.length-3,path.length);
+		
+		if(type=="jpg" || type=="gif" || type=="png"){
+			$('.ig').html('');
+		}else{
+			$('.ig').html('文件格式不正确!');
+			return false;
+		}
+		
+        var docObj = document.getElementById("upfile");//input
+		var imgObjPreview = document.getElementById("tmpimg");//img
+        var divs = document.getElementById("localImag");//div
+        
+        //document.getElementById('upimgbtn').style.marginTop=47+'px';
+       // document.getElementById('upfile').style.top=47+'px';
+        
+        if (docObj.files && docObj.files[0]){
+            //火狐下，直接设img属性
+            imgObjPreview.style.display = 'block';
+            imgObjPreview.style.width = w+"px";
+            imgObjPreview.style.height = h+"px";
+            imgObjPreview.src = window.URL.createObjectURL(docObj.files[0]);
+        }else{        	
+            //IE下，使用滤镜
+            docObj.select();
+            var imgSrc = '';
+            if (window.getSelection) {//IE11+ 或者标准浏览器
+            	window.parent.document.body.focus();
+            	imgSrc = window.getSelection().toString();
+            }
+            else if (document.selection) {//IE10-
+            	window.parent.document.body.focus();
+            	imgSrc = document.selection.createRange().text;
+            }
+            var localImagId = document.getElementById("localImag");
+            
+            //必须设置初始大小
+            localImagId.style.width = w+"px";
+            localImagId.style.height = h+"px";
+            localImagId.style.display = "block";
+            
+            //图片异常的捕捉，防止用户修改后缀来伪造图片
+            try {
+                localImagId.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale)";
+                localImagId.filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = imgSrc;
+            } catch(e) {
+                alert("您上传的图片格式不正确，请重新选择!");
+                return false;
+            }
+            imgObjPreview.style.display = 'none';
+            document.selection.empty();           
+        }
+        return true;
+    }
+</script>
+<script type="text/javascript">
+function findType(){
+	var selectTxt = $('.select1').val();
+	if(selectTxt=='4'){
+		$(".img").hide();
+		//$(".obj").show();
+	}else{
+		$(".img").show();
+		//$(".obj").hide();
+	}
+	
+	//获取selected的值 
+	var text = $('.select1').children('option:selected').val();
+	//得到对应的    子选项
+	if(text != "请选择馆别")
+	{
+		$.post("${res}/news/news/getMore.do", { content:text },function(data){
+			var arr = data.split(",");
+			var str = "";
+			for(var i=0;i<arr.length;i++){
+				str += "<option value='"+arr[i]+"'>"+arr[i]+"</option>";
+			}
+			jQuery(".select2").find("option").remove();
+			jQuery(".select2").append(str);
+			select2.reset();
+		});
+	}
+}
+
+
+/*对象*/
+function findSelect(){
+//$('.select3').change(function(){
+	//var val = $(this).val();
+	var val = $('.select3').val();
+	if(val=='1'){
+		$.get("${res}/news/news/getAreas.do",function(arr){
+ 			var str = "<option value='0'>全部</option>";
+ 			for(var i=0;i<arr.length;i++){
+ 				str += "<option value='"+arr[i].value+"'>"+arr[i].label+"</option>";
+ 			}
+ 			jQuery(".select4").find("option").remove();
+ 			jQuery(".select4").append(str);
+
+			$('.select3').attr("width","126");
+			select3.reset();
+			$('.objItem').hide();
+			$('.itemselect').show();
+			s0.reset();
+		
+		})
+	}else {
+		$('.select3').attr("width","232");
+		select3.reset();
+		$('.itemselect').hide();
+		$('.objItem').show();
+	}
+	
+	if(val=='2'){
+		$.get("${res}/cms/library/levels.do",function(arr){
+			var str = "<option value='0'>全部</option>";
+			for(var i=0;i<arr.length;i++){
+				str += "<option value='"+arr[i]+"'>"+arr[i]+"</option>";
+			}
+			jQuery(".select4").find("option").remove();
+			jQuery(".select4").append(str);
+			select4.reset();
+		})
+	}
+	
+	if(val=='3'||val=='4'){
+		$.get("${res}/cms/library/codes.do",function(arr){
+			var str = "<option value='0'>全部</option>";
+			for(var i=0;i<arr.length;i++){
+				if(val=='3')
+					str += "<option value='"+arr[i].code+"'>"+arr[i].code+"</option>";
+				else
+					str += "<option value='"+arr[i].code+"'>"+arr[i].name+"</option>";
+			}
+			jQuery(".select4").find("option").remove();
+			jQuery(".select4").append(str);
+			select4.reset();
+		})
+	}
+}
+
+
+var os = $('.select1').children('option:selected').val();
+var tos = $('.select2').children('option:selected').val();
+if(os != "请选择馆别")
+{
+	$.post("${res}/news/news/getMore.do", { content:os },function(data){
+		var arr = data.split(",");
+		var str = "";
+		for(var i=0;i<arr.length;i++){
+			if(tos == arr[i])
+			{continue;}
+			str += "<option value='"+arr[i]+"'>"+arr[i]+"</option>";
+		}
+		//jQuery(".select2").find("option").remove();
+		jQuery(".select2").append(str);
+		select2.reset();
+	});
+}
+
+$("#upfile").on("change",function(){
+	$(".ig").css("display","none");
+});
+$(".w230").on("focus",function(){
+	if($(this).val() == "请您输入标题")
+	{
+		$(this).val("");
+	}
+	$(this).css({color:"#000"});
+});
+
+</script>

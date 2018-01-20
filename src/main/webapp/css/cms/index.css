@@ -1,0 +1,54 @@
+@CHARSET "UTF-8";
+body{background-color: white;}
+.main-content>.main-content-inner>.page-content{/* 右部位置 */
+	position: absolute;
+	bottom: 5px;
+	left: 193px;
+	right: 0px;
+	top: 80px;
+	padding: 0px;
+}
+.tab-content>.tab-pane{
+	height: 100%;
+}
+.tab-content{
+	position: absolute;
+	left:0px;
+	top:40px;
+	bottom: 24px;
+	right: 0px;
+	padding: 0px;
+}
+.click{
+	cursor: pointer;
+}
+ #navbar{
+	height: 80px;/* 改变上部大小 */
+	background-color: white !important;
+}
+#navbar li > a,#navbar li > a:hover{
+	background-color: white !important;/* 用户信息管理 */
+}
+.nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus{
+	border-top:2px solid #535353;
+} 
+#userInfo_toolb{/* 头像位置 */
+	margin-top: 20px;
+}
+#navbar div.bottomBorder{/* 边线 */
+	margin-top:6px;
+	width: 100%;
+	height: 2px;
+	background-color: #ECECEC;
+}
+.ace-nav > li > a{
+	color: black;
+}
+.navbar-fixed-top + .main-container{
+	margin-top: 80px;
+	padding-top:0px;
+}
+.ace-nav > li > a:hover, .ace-nav > li > a:focus, .ace-nav > li.open > a{color: #000;}
+.ace-nav > li > a > .ace-icon{color: #000;}
+.nav-list > li > .submenu li > .submenu > li > a{padding-left: 30px;}
+.footer{text-align: center;padding: 0px;width: 100%;position: absolute;bottom: 0px;height: 25px;font-size: 15px;}

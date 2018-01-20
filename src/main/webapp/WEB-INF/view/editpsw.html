@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"/>
+		<#include "head.html">
+		<script type="text/javascript">
+		$(function(){
+			$('#form2').lineFeedValidate();
+		});
+		$("#np2").keyup(function(){
+			var k = window.event.keyCode;
+			if(37 == k || 39 == k){
+				$("#btn").focus();
+			}
+		});
+		</script>
+	</head>
+	<body>
+		<div class="form form2" style="margin-top: 30px;">
+		<form action="" id="form2">
+			<div class="l item">
+				<span class="t l">旧密码 </span>
+				<input type="password" class="text l w230 op" name='oldpsw' index="1"/>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+			<div class="l item">
+				<span class="t l">新密码 </span>
+				<input type="password" class="text l w230 np1" name='newpsw' index="2"/>
+				<div class="clear"></div>
+			</div>			
+			<div class="clear"></div>
+			<div class="l item">
+				<span class="t l">新密码 </span>
+				<input type="password" class="text l w230 np2" index="3"/>
+				<div class="clear"></div>
+			</div>			
+			<div class="clear"></div>
+			<div class="l item" style="z-index: 10;">
+				<span class="t l">&nbsp;</span>
+				<input type="button" class="btn" value="确定" index="4"/>
+				<span class="tswords warning"></span>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+			</form>
+		</div>
+		<form id="subF">
+		</form>
+	</body>
+</html>
+<script>	
+
+	setSelect('.sex');
+	var rolelist1=setrolelist('#rolelistdiv');
+	$(".btn").on("click",function(){
+		var newpsw = $(".np1").val();
+		var newpsw1 = $(".np2").val();
+		var oldpsw = $(".op").val();
+		if (newpsw.length<6 || newpsw.length > 10) {
+			$(".warning").html('密码必须在6-10位之间！');
+			return;
+		}
+		if(newpsw===newpsw1){
+			$.post("${res}/cms/user/changePsw.do",{oldpsw:oldpsw,newpsw:newpsw},function(data){
+				if(data=='false'){
+					$(".warning").html('您输入的旧密码不正确请重新输入！');
+				}else{
+					$('#subF').attr("action","${res}/common/logout.do");
+					$('#subF').submit();
+				}
+			});
+		}else{
+			$(".warning").html('您输入的两次新密码不匹配，请重新输入！');
+		}
+	});
+</script>

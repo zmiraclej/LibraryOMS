@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title></title>
+<meta name="renderer" content="webkit|ie-comp|ie-stand" />
+<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
+<#include "../head.html">
+</head>
+<body>
+	<div class="form">
+		<form class="form-horizontal" id="uploadForm"
+			action="${res}/cms/ebook/upload.html" method="post"
+			enctype="multipart/form-data" autocomplete="off">
+			<div class="l item" style="z-index: 20;">
+				<span class="t l">选择类别 </span> 
+				<select class="select" width="232" style="visibility: hidden;" name="autoCategoryName">
+					<option value="-1">自动分类</option>
+                    <#list categories as category>
+					<option value="${category.categoryName!''}">${(category.categoryName!'')?html}</option>
+					</#list>
+				</select> <#if list?? && (list?size > 0)> <span
+					style="display: inline-block; width: 260px;"><a
+					style="float: right; text-decoration: underline;"
+					href="${res}/cms/ebook/export.do">导出错误信息</a></span> </#if>
+				<div class="clear"></div>
+			</div>
+			<div class="l item">
+				<span class="t l">选择文件 </span> <input type="text"
+					class="text l w230" value="" id="filename" name="filename" />
+				<div class="l"
+					style="position: relative; width: 100px; margin-left: 5px;">
+					<img src="${res}/images/yun_back_img12.gif" /> <input type="file"
+						value="" id="file" name="upload"
+						style="width: 85px; height: 34px; font-size: 23px; position: absolute; left: 0; top: 0; filter: alpha(opacity = 1); opacity: 0.01;" />
+				</div>
+				<div class="l"
+					style="text-align: left; font-size: 14px; color: #666;">上传文件格式为
+					.zip，文件大小不超过2G</div>
+				<div class="clear"></div>
+			</div>
+
+			<div class="l item">
+				<span class="t l">选择xls文件 </span> <input type="text"
+					class="text l w230" value="" id="excelname" name="excelname" />
+				<div class="l"
+					style="position: relative; width: 100px; margin-left: 5px;">
+					<img src="${res}/images/yun_back_img12.gif" /> <input type="file" value="" id="excelObj" name="excelFile"
+						style="width: 85px; height: 34px; font-size: 23px; position: absolute; left: 0; top: 0; filter: alpha(opacity = 1); opacity: 0.01;" />
+				</div>
+				<div class="l"
+					style="text-align: left; font-size: 14px; color: #666;"></div>
+				<div class="clear"></div>
+			</div>
+
+			<div class="clear"></div>
+			<div class="l item" style="z-index: 0;">
+				<span class="t l">&nbsp;</span>
+				<!-- <input type="button" class="btn" value="开始上传" id="uploadBtn" onclick="UpladFile()"/> -->
+				<input type="button" class="btn" value="开始上传" id="uploadBtn"/> <span
+					class="tswords"></span>
+				<div class="clear"></div>
+			</div>
+		</form>
+	</div>
+	<div class="table-parent">
+		<table cellspacing="0" class="table" ul="ebook"
+			style="min-width: 900px;" >
+			<thead class="thead">
+				<th class="th w60">序号</th>
+				<th class="th w225">文件名</th>
+				<th class="th w88 ">类别</th>
+				<th class="th w70">大小</th>
+				<th class="th tw last" style="text-align:left;text-indent: 4px;">备注</th>
+				<!-- <th class="th tw last operation">操作</th> --> 
+			</thead>
+
+			<#list list as book>
+			<tr tid="${book.id!0}">
+				<td>${book_index+1}</td>
+				<td class="tl">${book.fileName!''}</td>
+				<td>${book.fileType!''}</td>
+				<td class="tr">${book.fileSize!''}</td>
+				<td class="tl last"><#if book.remark=="1">重复上传!<#elseif
+					book.remark=="2">文件格式错误!</#if></td>
+				 <!-- <td class="last operation"><#if book.remark!="0"> <a href="#"
+					onclick="del(this)"><img src="${res}/images/yun_back_img3.gif" /></a>
+					</#if>
+				</td> --> 
+			</tr>
+			</#list>
+		</table>
+	</div>
+</body>
+</html>
+<script type="text/javascript">
+	setSelect('.select');
+	$('#file').change(function() {
+		var path = this.value.split('\\');
+		var filename = path[path.length - 1];
+		var type = filename.substr(filename.length - 3, filename.length);
+		$('#filename').val(filename);
+		if (type == "zip") {
+			//removeDisabledById('uploadBtn');
+			$("#uploadBtn").removeAttr("disabled");
+			$('.tswords').html('');
+		} else {
+			//	setDisabled('uploadBtn');
+			$("#uploadBtn").attr("disabled", "disabled");
+			$('.tswords').html('文件格式不正确!');
+		}
+	})
+
+	$('#excelObj').change(function() {
+		var path = this.value.split('\\');
+		var filename = path[path.length - 1];
+		var type = filename.substr(filename.length - 3, filename.length);
+		var type1 = filename.substr(filename.length - 4, filename.length);
+		$('#excelname').val(filename);
+		if (type == "xls" || type1 == "xlsx") {
+			//removeDisabledById('uploadBtn');
+			$("#uploadBtn").removeAttr("disabled");
+			$('.tswords').html('');
+		} else {
+			$("#uploadBtn").attr("disabled", "disabled");
+			$('.tswords').html('文件格式不正确!');
+		}
+	})
+</script>
